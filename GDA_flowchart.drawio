@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0" version="24.8.3">
   <diagram name="Page-1" id="u74PuvL5i9XdKXtWHOdk">
-    <mxGraphModel dx="559" dy="589" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="697" dy="634" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -143,6 +143,44 @@
         </mxCell>
         <mxCell id="oTseqAAYHnmtsjDJyoBC-48" value="There&#39;s a step along this line I do not fully understand. Would like to discuss." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="170" y="490" width="440" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-55" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="oTseqAAYHnmtsjDJyoBC-50" target="oTseqAAYHnmtsjDJyoBC-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-50" value="Prompt user for experiment details" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="710" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-51" value="Brief overview" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="25" y="670" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-57" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="oTseqAAYHnmtsjDJyoBC-54" target="oTseqAAYHnmtsjDJyoBC-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-54" value="Use CellProfiler to count nuclei in selected image folder" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="710" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-59" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="oTseqAAYHnmtsjDJyoBC-56" target="oTseqAAYHnmtsjDJyoBC-58">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-56" value="Organize and run stats on the data by condition" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="410" y="710" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-61" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="oTseqAAYHnmtsjDJyoBC-58" target="oTseqAAYHnmtsjDJyoBC-60">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="790" />
+              <mxPoint x="670" y="790" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-58" value="Fit logistic curves to the data and find IC50s" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="710" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-60" value="Create x-y plots where x is doses and y is relative cell survival" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="605" y="810" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="oTseqAAYHnmtsjDJyoBC-70" value="&lt;div align=&quot;left&quot;&gt;&lt;b&gt;What I would like to improve:&lt;/b&gt;&lt;/div&gt;&lt;div align=&quot;left&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;&lt;div align=&quot;left&quot;&gt;&lt;ul&gt;&lt;li&gt;Add .csv output with organized data&lt;/li&gt;&lt;li&gt;Clean up code (rename unwieldy categories, loop repetitive tasks)&lt;/li&gt;&lt;li&gt;Better comments and organization&lt;br&gt;&lt;/li&gt;&lt;li&gt;Create intuitive fail messages&lt;/li&gt;&lt;li&gt;(Maybe) use a .csv input file with experiment details instead of GUI&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="25" y="870" width="485" height="150" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
