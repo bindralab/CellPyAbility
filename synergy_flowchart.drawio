@@ -164,8 +164,46 @@
         <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-50" value="export as .csv" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="10" y="650" width="120" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-53" value="create surface map with z of relative cell survival, color scale of Bliss score, x and y of drug concs." style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="575" y="690" width="190" height="60" as="geometry" />
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-53" value="&lt;div&gt;create surface map with:&lt;/div&gt;&lt;div&gt;&amp;nbsp;z of relative cell survival (mean)&amp;nbsp;&lt;/div&gt;&lt;div&gt;color scale of Bliss score (positive = synergy, negative = antagonism)&amp;nbsp;&lt;/div&gt;&lt;div&gt;x of x_doses, y of y_doses&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="571.25" y="670" width="197.5" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-55" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-56" target="ZHJOYRK6RQ8VZVZ_NJx_-59">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-56" value="Prompt user for experiment details" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="770" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-57" value="Brief overview" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="25" y="730" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-58" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-59" target="ZHJOYRK6RQ8VZVZ_NJx_-61">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-59" value="Use CellProfiler to count nuclei in selected image folder" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="770" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-60" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-61" target="ZHJOYRK6RQ8VZVZ_NJx_-63">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-61" value="Organize and run stats on the data by condition" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="410" y="770" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-62" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-63" target="ZHJOYRK6RQ8VZVZ_NJx_-64">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="850" />
+              <mxPoint x="670" y="850" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-63" value="Find Bliss score for each condition" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="770" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-64" value="Create surface map with z of relative cell survival, Bliss score as color scale, x and y of drug concs." style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="572.5" y="870" width="195" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-65" value="&lt;div align=&quot;left&quot;&gt;&lt;b&gt;What I would like to improve:&lt;/b&gt;&lt;/div&gt;&lt;div align=&quot;left&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;&lt;div align=&quot;left&quot;&gt;&lt;ul&gt;&lt;li&gt;Condense .csv outputs to a single, combined .csv (or at most, two)&lt;br&gt;&lt;/li&gt;&lt;li&gt;Better comments and organization&lt;br&gt;&lt;/li&gt;&lt;li&gt;Create intuitive fail messages&lt;/li&gt;&lt;li&gt;(Maybe) use a .csv input file with experiment details instead of GUI&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="25" y="930" width="425" height="140" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
