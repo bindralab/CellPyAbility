@@ -1,0 +1,173 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0" version="24.8.3">
+  <diagram name="Page-1" id="obfhWbmc_de-BVY4OpGq">
+    <mxGraphModel dx="711" dy="749" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-2" value="20241107 GDA_synergy_local_v2.1.py flowchart" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="365" width="305" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-4" target="ZHJOYRK6RQ8VZVZ_NJx_-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-4" value="&lt;div&gt;180 .tif images&lt;/div&gt;(one image/well)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="210" y="42.5" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-7" target="ZHJOYRK6RQ8VZVZ_NJx_-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-7" target="ZHJOYRK6RQ8VZVZ_NJx_-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-7" value="&lt;div&gt;Prompt GUI&lt;/div&gt;&lt;div&gt;(x doses, y doses, title, x drug name, y drug name, image folder)&lt;br&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="30" width="120" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-9" target="ZHJOYRK6RQ8VZVZ_NJx_-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-9" value="Define file paths for CellProfiler, its inputs and output" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="195" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-11" target="ZHJOYRK6RQ8VZVZ_NJx_-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-11" value="subprocess.run CellProfiler" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="195" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-13" target="ZHJOYRK6RQ8VZVZ_NJx_-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-13" value="load output (cp_csv) into DataFrame (df)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="410" y="195" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-15" target="ZHJOYRK6RQ8VZVZ_NJx_-17">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="280" />
+              <mxPoint x="70" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-15" value="&lt;div&gt;create dict for each well in triplicate (B2 plate 1, B2 plate 2, ...)&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="195" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-17" target="ZHJOYRK6RQ8VZVZ_NJx_-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-17" value="calculate means and st. dev. for each well in triplicate" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="310" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-19" target="ZHJOYRK6RQ8VZVZ_NJx_-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-19" value="combine mean and std dicts with well_dict" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="310" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-21" target="ZHJOYRK6RQ8VZVZ_NJx_-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-21" value="assign x_doses and y_doses from GUI to rows (y_doses) and columns (x_doses)" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="410" y="310" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-22" target="ZHJOYRK6RQ8VZVZ_NJx_-24">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="400" />
+              <mxPoint x="70" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-22" value="label rows and columns, then match wells to their rows and columns" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="310" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-23" value="&lt;div&gt;The main difference between GDA and synergy is that synergy is a drug matrix, meaning each well is a unique combo of x drug and y drug with row B receiving only vehicle from the y-drug 200x and column 2 receiving only vehicle from the x-drug 200x (B2 is therefore only vehicle).&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Since each well is a unique combo, we need three plates for technical triplicate.&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="365" y="42.5" width="460" height="127.5" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-29" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-24" target="ZHJOYRK6RQ8VZVZ_NJx_-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-24" value="normalize means by dividing mean by vehicle (B2) mean" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-31" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-24" target="ZHJOYRK6RQ8VZVZ_NJx_-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-28" value="annotate stats and experiment info, put into DataFrame (df2), export as .csv" style="whiteSpace=wrap;html=1;rounded=1;arcSize=0;" vertex="1" parent="1">
+          <mxGeometry x="10" y="520" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-33" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-30" target="ZHJOYRK6RQ8VZVZ_NJx_-32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-30" value="use B row and 2 column to determine x dose and y dose independent effects" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-35" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-32" target="ZHJOYRK6RQ8VZVZ_NJx_-34">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-32" value="multiply independent effects for a given well to calculate expected_combined_effect" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="430" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-37" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-34" target="ZHJOYRK6RQ8VZVZ_NJx_-36">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="790" y="460" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-43" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-34" target="ZHJOYRK6RQ8VZVZ_NJx_-42">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="520" />
+              <mxPoint x="270" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-34" value="subtract expected effect by observed effect (mean) to find Bliss score" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-36" value="Create DataFrame with drug concs. and Bliss scores. Export as .csv" style="whiteSpace=wrap;html=1;rounded=1;arcSize=0;" vertex="1" parent="1">
+          <mxGeometry x="730" y="370" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-45" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-42" target="ZHJOYRK6RQ8VZVZ_NJx_-44">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-51" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-42" target="ZHJOYRK6RQ8VZVZ_NJx_-49">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-42" value="&lt;div&gt;create pivot table with normalized means as entries, drug concs. as rows and columns&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="550" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-47" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-44" target="ZHJOYRK6RQ8VZVZ_NJx_-46">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-44" target="ZHJOYRK6RQ8VZVZ_NJx_-50">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="470" y="630" />
+              <mxPoint x="270" y="630" />
+              <mxPoint x="270" y="665" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-44" value="&lt;div&gt;create pivot table with Bliss score as entries, drug concs. as rows and columns&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="410" y="550" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-54" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZHJOYRK6RQ8VZVZ_NJx_-46" target="ZHJOYRK6RQ8VZVZ_NJx_-53">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-46" value="replace zero values with small positive numbers (for log scale on graph)" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="550" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-49" value="export as .csv" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="600" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-50" value="export as .csv" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="650" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ZHJOYRK6RQ8VZVZ_NJx_-53" value="create surface map with z of relative cell survival, color scale of Bliss score, x and y of drug concs." style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="575" y="690" width="190" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

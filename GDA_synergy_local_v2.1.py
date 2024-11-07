@@ -104,7 +104,7 @@ root.mainloop()
 cp_path = r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe"
 
 # Define the path to the pipeline (.cppipe)
-cppipe_path = r"C:\Users\james\Documents\Yale\Bindra\Protocols\IDPrimaryObjects.cppipe"
+cppipe_path = r"C:\Users\james\Documents\Yale\Bindra\Protocols\Greatest GDA.cppipe"
 
 # Define the path to the .csv output folder
 results_dir = r"C:\Users\james\Documents\Yale\Bindra\Python GDA"
@@ -112,13 +112,11 @@ results_dir = r"C:\Users\james\Documents\Yale\Bindra\Python GDA"
 # # Run CellProfiler from the command line
 subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir])
 
-## Define and organize the .csv file output from CellProfiler
-# Find the most recently created .csv file in the results directory
-list_of_files = glob.glob(results_dir + '/*.csv')  # * means all if need specific format then *.csv
-latest_file = max(list_of_files, key=os.path.getctime)
+# Define the path to the CellProfiler counting output
+cp_csv = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\greatest GDAimage.csv"
 
-# Load the results into a pandas DataFrame
-df = pd.read_csv(latest_file)
+# Load the CellProfiler counts into a DataFrame
+df = pd.read_csv(cp_csv)
 
 # Define wells
 well_dict = {
