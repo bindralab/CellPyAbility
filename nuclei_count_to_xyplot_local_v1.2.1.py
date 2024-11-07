@@ -83,22 +83,14 @@ cp_path = r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe"
 # Define the path to the pipeline (.cppipe)
 cppipe_path = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\GDA_pipeline\greatest GDA.cppipe"
 
-# Define the path to the .csv output folder
-results_dir = r"C:\Users\james\Documents\Yale\Bindra\Python GDA"
+# Define the path to the CellProfiler counting output
+cp_csv = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\greatest GDAimage.csv"
 
-gda_csv = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\greatest GDAimage.csv"
-# # Run CellProfiler from the command line
-# subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir])
+# Run CellProfiler from the command line
+subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir])
 
-# ## Define and organize the .csv file output from CellProfiler
-# # Find the most recently created .csv file in the results directory
-# list_of_files = glob.glob(results_dir + '/*.csv') 
-# latest_file = max(list_of_files, key=os.path.getctime)
-
-# # Load the results into a pandas DataFrame
-# df = pd.read_csv(latest_file)
-
-df = pd.read_csv(gda_csv)
+# Load the CellProfiler counts into a DataFrame
+df = pd.read_csv(cp_csv)
 
 # Calculate the average nuclei per condition for the upper three rows
 upper_vehicle_wells = ['B2_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C2_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D2_-1_1_1_Stitched[DAPI 377,447]_001.tif']
@@ -191,7 +183,7 @@ y2 = np.array(lower_normalized_means)
 
 ## Define non-linear regression for the xy-plot and estimate IC50s
 # Define the 5PL function
-def fivePL(x, A, B, C, D, G): # (doses, min y, Hill slope, inflection, max y, asymetry):
+def fivePL(x, A, B, C, D, G): # (x = doses, A = min y, B = Hill slope, C = inflection, D = max y, G = asymetry):
     return ((A-D) / (1.0 + (x / C)**B)**G) + D
 
 # Initial guesses for parameters
@@ -202,8 +194,8 @@ params_init_5PL_y2 = [y2[np.argmin(y2)], 1, x[np.abs(y2-0.5).argmin()], y2[np.ar
 x_plot = np.linspace(min(x), max(x), 1000)
 
 # Use curve_fit to fit the data for y1 and y2
-popt_5PL_y1, pcov_5PL_y1 = curve_fit(fivePL, x, y1, p0=params_init_5PL_y1, maxfev=100000)
-popt_5PL_y2, pcov_5PL_y2 = curve_fit(fivePL, x, y2, p0=params_init_5PL_y2, maxfev=100000)
+popt_5PL_y1, pcov_5PL_y1 = curve_fit(fivePL, x, y1, p0=params_init_5PL_y1, maxfev=10000)
+popt_5PL_y2, pcov_5PL_y2 = curve_fit(fivePL, x, y2, p0=params_init_5PL_y2, maxfev=10000)
 
 # Calculate y values for the fitted curves for y1 and y2
 y_plot_5PL_y1 = fivePL(x_plot, *popt_5PL_y1)
