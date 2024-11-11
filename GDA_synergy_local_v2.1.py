@@ -104,16 +104,13 @@ root.mainloop()
 cp_path = r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe"
 
 # Define the path to the pipeline (.cppipe)
-cppipe_path = r"C:\Users\james\Documents\Yale\Bindra\Protocols\Greatest GDA.cppipe"
-
-# Define the path to the .csv output folder
-results_dir = r"C:\Users\james\Documents\Yale\Bindra\Python GDA"
+cppipe_path = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\GDA_pipeline\CropSpeckleID.cppipe"
 
 # # Run CellProfiler from the command line
 subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir])
 
 # Define the path to the CellProfiler counting output
-cp_csv = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\greatest GDAimage.csv"
+cp_csv = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\Image.csv"
 
 # Load the CellProfiler counts into a DataFrame
 df = pd.read_csv(cp_csv)
@@ -132,7 +129,7 @@ well_dict = {
 well_means = []
 well_std = []
 for wells in well_dict.values():
-    counts = df[df['ImageNumber'].isin(wells)]['Count_LargeBlockCorrectedNucleiDAPI']
+    counts = df[df['ImageNumber'].isin(wells)]['Count_Nuclei']
     well_means.append(counts.mean())
     well_std.append(counts.std())
 
