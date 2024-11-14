@@ -185,8 +185,11 @@ well_descriptions = {
 }
 df2_results = pd.DataFrame(well_descriptions)
 
+# Define file path for synergy_output subfolder
+synergy_output_dir = base_dir / "synergy_output"
+
 # Export as .csv
-csv_output_path = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\csv output\csv_ouput.csv"
+csv_output_path = synergy_output_dir / "csv_ouput.csv"
 df2_results.to_csv(csv_output_path, index=False)
 
 # Read .csv with pandas
@@ -230,10 +233,6 @@ bliss_df = pd.DataFrame(bliss_results)
 bliss_df['Row Drug Concentration'] = bliss_df['Well'].apply(lambda x: row_concentrations[x[0]])
 bliss_df['Column Drug Concentration'] = bliss_df['Well'].apply(lambda x: column_concentrations[x[1:]])
 
-print(bliss_df)
-bliss_output_path = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\csv output\bliss_df.csv"
-bliss_df.to_csv(bliss_output_path, index=False)
-
 # Create a pivot table for normalized means
 normalized_means_pivot = df2.pivot(index='Column Drug Concentration', columns='Row Drug Concentration', values='Normalized Mean')
 
@@ -244,8 +243,8 @@ bliss_independence_pivot = bliss_df.pivot(index='Column Drug Concentration', col
 cell_survival = normalized_means_pivot.values
 bliss_independence = bliss_independence_pivot.values
 
-normalized_means_pivot.to_csv(r"C:\Users\james\Documents\Yale\Bindra\Python GDA\csv output\normalized_means_pivot.csv")
-bliss_independence_pivot.to_csv(r"C:\Users\james\Documents\Yale\Bindra\Python GDA\csv output\bliss_pivot.csv")
+normalized_means_pivot.to_csv(synergy_output_dir / "normalized_means_pivot.csv")
+bliss_independence_pivot.to_csv(synergy_output_dir / "bliss_independence_pivot.csv")
 
 # Extract x and y values from the pivot tables
 x_values = normalized_means_pivot.columns.values
@@ -301,5 +300,5 @@ fig.update_layout(
 )
 
 # Show the plot
-fig.write_html(r"C:\Users\james\Documents\Yale\Bindra\Python GDA\csv output\Bliss_plot")
+fig.write_html(synergy_output_dir / "Bliss_plot")
 fig.show()

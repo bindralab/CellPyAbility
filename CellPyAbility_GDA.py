@@ -1,4 +1,4 @@
-# nuclei counter: local version
+# Count_nuclei counter: local version
 import numpy as np
 import subprocess
 import statistics as st
@@ -98,67 +98,67 @@ cp_csv = output_dir / "CellPyAbilityImage.csv"
 # Load the CellProfiler counts into a DataFrame
 df = pd.read_csv(cp_csv)
 
-# Calculate the average nuclei per condition for the upper three rows
+# Calculate the average Count_nuclei per condition for the upper three rows
 upper_vehicle_wells = ['B2_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C2_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D2_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-upper_vehicle_mean = df[df['FileName_DAPI'].isin(upper_vehicle_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+upper_vehicle_mean = df[df['FileName_images'].isin(upper_vehicle_wells)]['Count_nuclei'].mean()
 
 upper_dose1_wells = ['B3_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C3_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D3_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-upper_dose1_mean = df[df['FileName_DAPI'].isin(upper_dose1_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+upper_dose1_mean = df[df['FileName_images'].isin(upper_dose1_wells)]['Count_nuclei'].mean()
 
 upper_dose2_wells = ['B4_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C4_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D4_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-upper_dose2_mean = df[df['FileName_DAPI'].isin(upper_dose2_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+upper_dose2_mean = df[df['FileName_images'].isin(upper_dose2_wells)]['Count_nuclei'].mean()
 
 upper_dose3_wells = ['B5_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C5_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D5_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-upper_dose3_mean = df[df['FileName_DAPI'].isin(upper_dose3_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+upper_dose3_mean = df[df['FileName_images'].isin(upper_dose3_wells)]['Count_nuclei'].mean()
 
 upper_dose4_wells = ['B6_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C6_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D6_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-upper_dose4_mean = df[df['FileName_DAPI'].isin(upper_dose4_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+upper_dose4_mean = df[df['FileName_images'].isin(upper_dose4_wells)]['Count_nuclei'].mean()
 
 upper_dose5_wells = ['B7_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C7_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D7_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-upper_dose5_mean = df[df['FileName_DAPI'].isin(upper_dose5_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+upper_dose5_mean = df[df['FileName_images'].isin(upper_dose5_wells)]['Count_nuclei'].mean()
 
 upper_dose6_wells = ['B8_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C8_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D8_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-upper_dose6_mean = df[df['FileName_DAPI'].isin(upper_dose6_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+upper_dose6_mean = df[df['FileName_images'].isin(upper_dose6_wells)]['Count_nuclei'].mean()
 
 upper_dose7_wells = ['B9_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C9_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D9_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-upper_dose7_mean = df[df['FileName_DAPI'].isin(upper_dose7_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+upper_dose7_mean = df[df['FileName_images'].isin(upper_dose7_wells)]['Count_nuclei'].mean()
 
 upper_dose8_wells = ['B10_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C10_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D10_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-upper_dose8_mean = df[df['FileName_DAPI'].isin(upper_dose8_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+upper_dose8_mean = df[df['FileName_images'].isin(upper_dose8_wells)]['Count_nuclei'].mean()
 
 upper_dose9_wells = ['B11_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'C11_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'D11_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-upper_dose9_mean = df[df['FileName_DAPI'].isin(upper_dose9_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+upper_dose9_mean = df[df['FileName_images'].isin(upper_dose9_wells)]['Count_nuclei'].mean()
 
-# Calculate the average nuclei per condition for the lower three rows
+# Calculate the average Count_nuclei per condition for the lower three rows
 lower_vehicle_wells = ['E2_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'F2_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'G2_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-lower_vehicle_mean = df[df['FileName_DAPI'].isin(lower_vehicle_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+lower_vehicle_mean = df[df['FileName_images'].isin(lower_vehicle_wells)]['Count_nuclei'].mean()
 
 lower_dose1_wells = ['E3_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'F3_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'G3_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-lower_dose1_mean = df[df['FileName_DAPI'].isin(lower_dose1_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+lower_dose1_mean = df[df['FileName_images'].isin(lower_dose1_wells)]['Count_nuclei'].mean()
 
 lower_dose2_wells = ['E4_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'F4_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'G4_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-lower_dose2_mean = df[df['FileName_DAPI'].isin(lower_dose2_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+lower_dose2_mean = df[df['FileName_images'].isin(lower_dose2_wells)]['Count_nuclei'].mean()
 
 lower_dose3_wells = ['E5_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'F5_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'G5_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-lower_dose3_mean = df[df['FileName_DAPI'].isin(lower_dose3_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+lower_dose3_mean = df[df['FileName_images'].isin(lower_dose3_wells)]['Count_nuclei'].mean()
 
 lower_dose4_wells = ['E6_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'F6_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'G6_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-lower_dose4_mean = df[df['FileName_DAPI'].isin(lower_dose4_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+lower_dose4_mean = df[df['FileName_images'].isin(lower_dose4_wells)]['Count_nuclei'].mean()
 
 lower_dose5_wells = ['E7_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'F7_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'G7_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-lower_dose5_mean = df[df['FileName_DAPI'].isin(lower_dose5_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+lower_dose5_mean = df[df['FileName_images'].isin(lower_dose5_wells)]['Count_nuclei'].mean()
 
 lower_dose6_wells = ['E8_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'F8_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'G8_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-lower_dose6_mean = df[df['FileName_DAPI'].isin(lower_dose6_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+lower_dose6_mean = df[df['FileName_images'].isin(lower_dose6_wells)]['Count_nuclei'].mean()
 
 lower_dose7_wells = ['E9_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'F9_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'G9_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-lower_dose7_mean = df[df['FileName_DAPI'].isin(lower_dose7_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+lower_dose7_mean = df[df['FileName_images'].isin(lower_dose7_wells)]['Count_nuclei'].mean()
 
 lower_dose8_wells = ['E10_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'F10_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'G10_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-lower_dose8_mean = df[df['FileName_DAPI'].isin(lower_dose8_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+lower_dose8_mean = df[df['FileName_images'].isin(lower_dose8_wells)]['Count_nuclei'].mean()
 
 lower_dose9_wells = ['E11_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'F11_-1_1_1_Stitched[DAPI 377,447]_001.tif', 'G11_-1_1_1_Stitched[DAPI 377,447]_001.tif']
-lower_dose9_mean = df[df['FileName_DAPI'].isin(lower_dose9_wells)]['Count_LargeBlockCorrectedNucleiDAPI'].mean()
+lower_dose9_mean = df[df['FileName_images'].isin(lower_dose9_wells)]['Count_nuclei'].mean()
 
 # Define the conditions for the upper and lower groups
 upper_conditions = [upper_vehicle_wells, upper_dose1_wells, upper_dose2_wells, upper_dose3_wells, upper_dose4_wells, upper_dose5_wells, upper_dose6_wells, upper_dose7_wells, upper_dose8_wells, upper_dose9_wells]
@@ -169,21 +169,21 @@ upper_means = [upper_dose1_mean, upper_dose2_mean, upper_dose3_mean, upper_dose4
 lower_means = [lower_dose1_mean, lower_dose2_mean, lower_dose3_mean, lower_dose4_mean, lower_dose5_mean, lower_dose6_mean, lower_dose7_mean, lower_dose8_mean, lower_dose9_mean]
 
 # Normalize individual wells
-normalized_upper_wells = [[df[df['FileName_DAPI'] == well]['Count_LargeBlockCorrectedNucleiDAPI'].mean() / upper_vehicle_mean for well in condition] for condition in upper_conditions]
-normalized_lower_wells = [[df[df['FileName_DAPI'] == well]['Count_LargeBlockCorrectedNucleiDAPI'].mean() / lower_vehicle_mean for well in condition] for condition in lower_conditions]
+normalized_upper_wells = [[df[df['FileName_images'] == well]['Count_nuclei'].mean() / upper_vehicle_mean for well in condition] for condition in upper_conditions]
+normalized_lower_wells = [[df[df['FileName_images'] == well]['Count_nuclei'].mean() / lower_vehicle_mean for well in condition] for condition in lower_conditions]
 
 # Calculate standard deviation of each condition
 upper_sd = [st.stdev(condition) for condition in normalized_upper_wells[1:]]
 lower_sd = [st.stdev(condition) for condition in normalized_lower_wells[1:]]
 
-# Calculate the mean NucleiCount for each condition and normalize it
+# Calculate the mean Count_nucleiCount for each condition and normalize it
 upper_normalized_means = upper_means / upper_vehicle_mean
 lower_normalized_means = lower_means / lower_vehicle_mean
 
 # Assign doses to the x-axis
 x = np.array(doses)
 
-# Assign average normalized nuclei counts to the y-axis for each condition
+# Assign average normalized Count_nuclei counts to the y-axis for each condition
 y1 = np.array(upper_normalized_means)
 y2 = np.array(lower_normalized_means)
 
