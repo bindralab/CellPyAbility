@@ -1,11 +1,13 @@
 # nuclei counter: local version
-import os
-import glob
 import numpy as np
+import pathlib as path
 import plotly.graph_objects as go
 import subprocess
 import statistics as st
 import pandas as pd
+from pathlib import Path
+
+
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from ttkthemes import ThemedTk
@@ -99,18 +101,24 @@ submit_button.pack()
 # Start main loop
 root.mainloop()
 
-## Define required CellProfiler paths, then run CellProfiler
-# Define the path to the CellProfiler executable (.exe)
-cp_path = r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe"
+# Establish the base directory as the script's location
+base_dir = Path(__file__).resolve().parent
 
-# Define the path to the pipeline (.cppipe)
-cppipe_path = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\GDA_pipeline\CropSpeckleID.cppipe"
+# Define required CellProfiler paths, then run CellProfiler
+## Define the path to the CellProfiler executable (.exe)
+cp_path = Path(r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe")
 
-# # Run CellProfiler from the command line
-subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir])
+## Define the path to the pipeline (.cppipe)
+cppipe_path = base_dir / "CellPyAbility.cppipe"
+
+## Define the folder where CellProfiler will output the .csv results
+output_dir = base_dir / "cp_output"
+
+# Run CellProfiler from the command line
+subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir, "-o", output_dir])
 
 # Define the path to the CellProfiler counting output
-cp_csv = r"C:\Users\james\Documents\Yale\Bindra\Python GDA\Image.csv"
+cp_csv = output_dir / "CellPyAbilityImage.csv"
 
 # Load the CellProfiler counts into a DataFrame
 df = pd.read_csv(cp_csv)
