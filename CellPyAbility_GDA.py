@@ -1,16 +1,18 @@
 # Count_nuclei counter: local version
-import numpy as np
-import subprocess
+import os
 import statistics as st
-import pandas as pd
+import subprocess
+import tkinter as tk
 from pathlib import Path
+from tkinter import filedialog, messagebox, ttk
 
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.optimize import root as scipy_root
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
 from ttkthemes import ThemedTk
+
 
 ## Establish the GUI
 # Define GUI functions and assign variables to inputs
