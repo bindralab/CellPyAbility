@@ -83,7 +83,23 @@ base_dir = Path(__file__).resolve().parent
 
 # Define required CellProfiler paths, then run CellProfiler
 ## Define the path to the CellProfiler executable (.exe)
-cp_path = Path(r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe")
+if os.name == "nt":
+    cp_path = Path(r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe")
+    if not cp_path.exists():
+        cp_path = Path(r"C:\Program Files\CellProfiler\CellProfiler.exe")
+elif os.name == "darwin":
+    cp_path = Path("/Applications/CellProfiler.app/Contents/MacOS/cp")
+elif os.name == "posix":
+    cp_path = Path("cellprofiler")
+else:
+    raise ValueError(f"Unsupported platform: {os.name}")
+
+try:
+    cp_path.resolve(strict=True)
+except FileNotFoundError:
+    raise FileNotFoundError(
+        "CellProfiler not found. Please select the correct path in Pipeline options."
+    )
 
 ## Define the path to the pipeline (.cppipe)
 cppipe_path = base_dir / "CellPyAbility.cppipe"
