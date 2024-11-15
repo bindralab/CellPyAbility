@@ -179,8 +179,6 @@ lower_sd = [st.stdev(condition) for condition in normalized_lower_wells]
 # Calculate the mean Count_nucleiCount for each condition and normalize it
 upper_normalized_means = upper_means / upper_vehicle_mean
 lower_normalized_means = lower_means / lower_vehicle_mean
-upper_normalized_means_vehicle = np.insert(upper_normalized_means, 0, 1)
-lower_normalized_means_vehicle = np.insert(lower_normalized_means, 0, 1)
 
 # Pair column number with drug dose
 column_concentrations = {
