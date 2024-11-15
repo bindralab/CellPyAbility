@@ -1,0 +1,6 @@
+﻿CellProfiler Path,/Applications/CellProfiler.app/Contents/MacOS/cp,,,,,,,,
+Image Directory,/Users/sam/Dropbox/Bindra/GDA_pipeline/test/20240903_DLD1_B2_CB1954,,,,,,,,
+Drug Name,CB1954,,,,,,,,
+Cell Line 1,DLD1,,,,,,,,
+Cell Line 2,DLD1 BRCA2/-,,,,,,,,
+Doses (9 increasing values excluding 0),0.78125,1.5625,3.125,6.25,12.5,25,50,100,200
