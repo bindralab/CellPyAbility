@@ -89,8 +89,8 @@ cppipe_path = base_dir / "CellPyAbility.cppipe"
 ## Define the folder where CellProfiler will output the .csv results
 output_dir = base_dir / "cp_output"
 
-# Run CellProfiler from the command line
-subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir, "-o", output_dir])
+# # Run CellProfiler from the command line
+# subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir, "-o", output_dir])
 
 # Define the path to the CellProfiler counting output
 cp_csv = output_dir / "CellPyAbilityImage.csv"
@@ -165,27 +165,53 @@ upper_conditions = [upper_vehicle_wells, upper_dose1_wells, upper_dose2_wells, u
 lower_conditions = [lower_vehicle_wells, lower_dose1_wells, lower_dose2_wells, lower_dose3_wells, lower_dose4_wells, lower_dose5_wells, lower_dose6_wells, lower_dose7_wells, lower_dose8_wells, lower_dose9_wells]
 
 # Define the upper and lower mean groups
-upper_means = [upper_dose1_mean, upper_dose2_mean, upper_dose3_mean, upper_dose4_mean, upper_dose5_mean, upper_dose6_mean, upper_dose7_mean, upper_dose8_mean, upper_dose9_mean]
-lower_means = [lower_dose1_mean, lower_dose2_mean, lower_dose3_mean, lower_dose4_mean, lower_dose5_mean, lower_dose6_mean, lower_dose7_mean, lower_dose8_mean, lower_dose9_mean]
+upper_means = [upper_vehicle_mean, upper_dose1_mean, upper_dose2_mean, upper_dose3_mean, upper_dose4_mean, upper_dose5_mean, upper_dose6_mean, upper_dose7_mean, upper_dose8_mean, upper_dose9_mean]
+lower_means = [lower_vehicle_mean, lower_dose1_mean, lower_dose2_mean, lower_dose3_mean, lower_dose4_mean, lower_dose5_mean, lower_dose6_mean, lower_dose7_mean, lower_dose8_mean, lower_dose9_mean]
 
 # Normalize individual wells
 normalized_upper_wells = [[df[df['FileName_images'] == well]['Count_nuclei'].mean() / upper_vehicle_mean for well in condition] for condition in upper_conditions]
 normalized_lower_wells = [[df[df['FileName_images'] == well]['Count_nuclei'].mean() / lower_vehicle_mean for well in condition] for condition in lower_conditions]
 
 # Calculate standard deviation of each condition
-upper_sd = [st.stdev(condition) for condition in normalized_upper_wells[1:]]
-lower_sd = [st.stdev(condition) for condition in normalized_lower_wells[1:]]
+upper_sd = [st.stdev(condition) for condition in normalized_upper_wells]
+lower_sd = [st.stdev(condition) for condition in normalized_lower_wells]
 
 # Calculate the mean Count_nucleiCount for each condition and normalize it
 upper_normalized_means = upper_means / upper_vehicle_mean
 lower_normalized_means = lower_means / lower_vehicle_mean
+upper_normalized_means_vehicle = np.insert(upper_normalized_means, 0, 1)
+lower_normalized_means_vehicle = np.insert(lower_normalized_means, 0, 1)
+
+# Pair column number with drug dose
+column_concentrations = {
+    '2': 0,  # Control
+    '3': doses[0],
+    '4': doses[1],
+    '5': doses[2],
+    '6': doses[3],
+    '7': doses[4],
+    '8': doses[5],
+    '9': doses[6],
+    '10': doses[7],
+    '11': doses[8]
+}
+
+# Consolidate analytics into a .csv file
+df2 = pd.DataFrame(columns=column_concentrations)
+df2.index.name = '96-Well Column'
+df2.loc['Drug Concentration'] = list(column_concentrations.values())
+df2.loc[f'Relative Cell Viability {upper_name}'] = upper_normalized_means
+df2.loc[f'Relative Cell Viability {lower_name}'] = lower_normalized_means
+df2.loc[f'Relative Standard Deviation {upper_name}'] = upper_sd
+df2.loc[f'Relative Standard Deviation {lower_name}'] = lower_sd
+df2.to_csv(base_dir / f"GDA_output/{title_name}_GDA.csv")
 
 # Assign doses to the x-axis
 x = np.array(doses)
 
 # Assign average normalized Count_nuclei counts to the y-axis for each condition
-y1 = np.array(upper_normalized_means)
-y2 = np.array(lower_normalized_means)
+y1 = np.array(upper_normalized_means[1:])
+y2 = np.array(lower_normalized_means[1:])
 
 ## Define non-linear regression for the xy-plot and estimate IC50s
 # Define the 5PL function
@@ -238,8 +264,8 @@ plt.style.use('ggplot')
 plt.xscale('log')
 plt.scatter(x, y1, color = 'blue', label = str(upper_name))
 plt.scatter(x, y2, color = 'red', label = str(lower_name))
-plt.errorbar(x, y1, yerr = upper_sd, fmt='o', color='blue', capsize= 3)
-plt.errorbar(x, y2, yerr = lower_sd, fmt='o', color='red', capsize=3)
+plt.errorbar(x, y1, yerr = upper_sd[1:], fmt='o', color='blue', capsize= 3)
+plt.errorbar(x, y2, yerr = lower_sd[1:], fmt='o', color='red', capsize=3)
 
 # Annotate the plot
 plt.xlabel('Concentration (M)')
