@@ -99,10 +99,10 @@ IdentifyPrimaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_num
     Automatically calculate minimum allowed distance between local maxima?:Yes
     Handling of objects if excessive number of objects identified:Continue
     Maximum number of objects:500
-    Use advanced settings?:No
+    Use advanced settings?:Yes
     Threshold setting version:12
     Threshold strategy:Global
-    Thresholding method:Minimum Cross-Entropy
+    Thresholding method:Otsu
     Threshold smoothing scale:1.3488
     Threshold correction factor:1.0
     Lower and upper bounds on threshold:0.0,1.0
