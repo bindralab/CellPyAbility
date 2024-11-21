@@ -7,8 +7,6 @@ import subprocess
 import statistics as st
 import pandas as pd
 from pathlib import Path
-
-
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from ttkthemes import ThemedTk
@@ -130,7 +128,7 @@ cppipe_path = base_dir / "CellPyAbility.cppipe"
 output_dir = base_dir / "cp_output"
 
 # Run CellProfiler from the command line
-subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir, "-o", output_dir])
+# subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir, "-o", output_dir])
 
 # Define the path to the CellProfiler counting output
 cp_csv = output_dir / "CellPyAbilityImage.csv"
@@ -139,22 +137,33 @@ cp_csv = output_dir / "CellPyAbilityImage.csv"
 df = pd.read_csv(cp_csv)
 
 # Define wells
-well_dict = {
-    'B2': [3, 63, 123], 'B3': [4, 64, 124], 'B4': [5, 65, 125], 'B5': [6, 66, 126], 'B6': [7, 67, 127], 'B7': [8, 68, 128], 'B8': [9, 69, 129], 'B9': [10, 70, 130], 'B10': [1, 61, 121], 'B11': [2, 62, 122],
-    'C2': [13, 73, 133], 'C3': [14, 74, 134], 'C4': [15, 75, 135], 'C5': [16, 76, 136], 'C6': [17, 77, 137], 'C7': [18, 78, 138], 'C8': [19, 79, 139], 'C9': [20, 80, 140], 'C10': [11, 71, 131], 'C11': [12, 72, 132],
-    'D2': [23, 83, 143], 'D3': [24, 84, 144], 'D4': [25, 85, 145], 'D5': [26, 86, 146], 'D6': [27, 87, 147], 'D7': [28, 88, 148], 'D8': [29, 89, 149], 'D9': [30, 90, 150], 'D10': [21, 81, 141], 'D11': [22, 82, 142],
-    'E2': [33, 93, 153], 'E3': [34, 94, 154], 'E4': [35, 95, 155], 'E5': [36, 96, 156], 'E6': [37, 97, 157], 'E7': [38, 98, 158], 'E8': [39, 99, 159], 'E9': [40, 100, 160], 'E10': [31, 91, 151], 'E11': [32, 92, 152],
-    'F2': [43, 103, 163], 'F3': [44, 104, 164], 'F4': [45, 105, 165], 'F5': [46, 106, 166], 'F6': [47, 107, 167], 'F7': [48, 108, 168], 'F8': [49, 109, 169], 'F9': [50, 110, 170], 'F10': [41, 101, 161], 'F11': [42, 102, 162],
-    'G2': [53, 113, 173], 'G3': [54, 114, 174], 'G4': [55, 115, 175], 'G5': [56, 116, 176], 'G6': [57, 117, 177], 'G7': [58, 118, 178], 'G8': [59, 119, 179], 'G9': [60, 120, 180], 'G10': [51, 111, 171], 'G11': [52, 112, 172]
-}
+wells = [
+    'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11',
+    'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11',
+    'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11',
+    'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'E10', 'E11',
+    'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11',
+    'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11',
+]
 
-# Calculate mean and standard deviation for each well triplicate
+# Initialize lists for results
 well_means = []
 well_std = []
-for wells in well_dict.values():
-    counts = df[df['ImageNumber'].isin(wells)]['Count_nuclei']
+
+# Group rows and calculate statistics
+for well in wells:
+    # Find rows where 'File Name' contains the well name
+    condition_rows = df[df['FileName_images'].str.contains(well, na=False)]
+    
+    # Extract Count_nuclei for these rows
+    counts = condition_rows['Count_nuclei']
+    
+    # Calculate statistics
     well_means.append(counts.mean())
     well_std.append(counts.std())
+
+    # Debugging: Print condition_rows to verify the grouping
+    print(f"\nRows for well {well}:\n{condition_rows}")
 
 row_concentrations = {
     'B': 0,  # Control
@@ -179,8 +188,8 @@ column_concentrations = {
 }
 
 # Extract row and column labels from well names
-rows = [name[0] for name in well_dict.keys()]
-columns = [name[1:] for name in well_dict.keys()]
+rows = [well[0] for well in wells]
+columns = [well[1:] for well in wells]
 
 # Map concentrations to rows and columns
 row_conc = [row_concentrations[row] for row in rows]
@@ -191,7 +200,7 @@ normalized_means = [mean / well_means[0] for mean in well_means]
 
 # Frame that data
 well_descriptions = {
-    'Well': list(well_dict.keys()),
+    'Well': wells,
     'Mean': well_means,
     'Standard Deviation': well_std,
     'Normalized Mean': normalized_means,
