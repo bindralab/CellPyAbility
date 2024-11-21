@@ -111,7 +111,7 @@ cppipe_path = base_dir / "CellPyAbility.cppipe"
 ## Define the folder where CellProfiler will output the .csv results
 output_dir = base_dir / "cp_output"
 
-# # Run CellProfiler from the command line
+# Run CellProfiler from the command line
 subprocess.run(
     [cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir, "-o", output_dir]
 )
@@ -402,24 +402,22 @@ df2.loc[f"Relative Cell Viability {upper_name}"] = upper_normalized_means
 df2.loc[f"Relative Cell Viability {lower_name}"] = lower_normalized_means
 df2.loc[f"Relative Standard Deviation {upper_name}"] = upper_sd
 df2.loc[f"Relative Standard Deviation {lower_name}"] = lower_sd
-if not os.path.exists(base_dir / f"GDA_output"):
-    os.makedirs(base_dir / f"GDA_output")
 df2.to_csv(base_dir / f"GDA_output/{title_name}_GDA.csv")
 
-# Label rows
-row_labels = {
-    'B', 
-    'C',
-    'D',
-    'E',
-    'F',
-    'G'
-}
+# # Label rows
+# row_labels = {
+#     'B', 
+#     'C',
+#     'D',
+#     'E',
+#     'F',
+#     'G'
+# }
 
-# Create cell viability matrix
-df3 = pd.DataFrame(columns=column_concentrations)
-df3.index.name = '96-Well Column'
-df3.loc['96-Well Row'] = row_labels
+# # Create cell viability matrix
+# df3 = pd.DataFrame(columns=column_concentrations)
+# df3.index.name = '96-Well Column'
+# df3.loc['96-Well Row'] = row_labels
 
 # Assign doses to the x-axis
 x = np.array(doses)
