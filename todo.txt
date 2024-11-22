@@ -2,3 +2,4 @@
 * Hijack CP code for pipelines
 * Use .csv inputs
 * Loop the scripts so they could read several .csv files in a directory
+* Standardize the naming format for wells
