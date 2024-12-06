@@ -80,7 +80,7 @@ EnhanceOrSuppressFeatures:[module_num:6|svn_version:'Unknown'|variable_revision_
     Shear angle:0.0
     Decay:0.95
     Enhancement method:Tubeness
-    Speed and accuracy:Fast
+    Speed and accuracy:Slow
     Rescale result image:No
 
 IdentifyPrimaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
@@ -98,7 +98,7 @@ IdentifyPrimaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_num
     Automatically calculate size of smoothing filter for declumping?:Yes
     Automatically calculate minimum allowed distance between local maxima?:Yes
     Handling of objects if excessive number of objects identified:Continue
-    Maximum number of objects:500
+    Maximum number of objects:17000
     Use advanced settings?:Yes
     Threshold setting version:12
     Threshold strategy:Global
@@ -110,7 +110,7 @@ IdentifyPrimaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_num
     Select the measurement to threshold with:None
     Two-class or three-class thresholding?:Two classes
     Log transform before thresholding?:No
-    Assign pixels in the middle intensity class to the foreground or the background?:Foreground
+    Assign pixels in the middle intensity class to the foreground or the background?:Background
     Size of adaptive window:50
     Lower outlier fraction:0.05
     Upper outlier fraction:0.05
@@ -133,7 +133,7 @@ ExportToSpreadsheet:[module_num:8|svn_version:'Unknown'|variable_revision_number
     Select the image to use as the identifier:None
     Select the metadata to use as the identifier:None
     Export all measurement types?:No
-    Press button to select measurements:Image|Count_nuclei,Image|FileName_images
+    Press button to select measurements:Image|Count_nuclei,Image|Threshold_FinalThreshold_nuclei,Image|Threshold_WeightedVariance_nuclei,Image|Threshold_SumOfEntropies_nuclei,Image|Threshold_OrigThreshold_nuclei,Image|FileName_images
     Representation of Nan/Inf:NaN
     Add a prefix to file names?:Yes
     Filename prefix:CellPyAbility

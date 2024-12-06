@@ -128,7 +128,7 @@ cppipe_path = base_dir / "CellPyAbility.cppipe"
 output_dir = base_dir / "cp_output"
 
 # Run CellProfiler from the command line
-# subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir, "-o", output_dir])
+subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir, "-o", output_dir])
 
 # Define the path to the CellProfiler counting output
 cp_csv = output_dir / "CellPyAbilityImage.csv"

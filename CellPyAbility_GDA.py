@@ -60,7 +60,7 @@ label3 = ttk.Label(root, text='Enter the name of the cell condition in rows E-G:
 label3.pack()
 entry3 = ttk.Entry(root)
 entry3.pack()
-label = ttk.Label(root, text='Enter nine doses (M), separated by tab:')
+label = ttk.Label(root, text='Enter nine doses in molar (exclude zero), separated by tab:')
 label.pack()
 entry = ttk.Entry(root)
 entry.pack()
@@ -80,14 +80,14 @@ root.mainloop()
 base_dir = Path(__file__).resolve().parent
 
 # Define required CellProfiler paths, then run CellProfiler
-## Define the path to the CellProfiler executable (.exe)
-if os.name == 'nt':
-    cp_path = Path(r'C:\Program Files (x86)\CellProfiler\CellProfiler.exe')
+## Check for CellProfiler in common save locations across OS
+if os.name == 'nt': # Windows
+    cp_path = Path(r'C:\Program Files (x86)\CellProfiler\CellProfiler.exe') # 32-bit
     if not cp_path.exists():
-        cp_path = Path(r'C:\Program Files\CellProfiler\CellProfiler.exe')
-elif os.name == 'darwin':
+        cp_path = Path(r'C:\Program Files\CellProfiler\CellProfiler.exe') # 64-bit
+elif os.name == 'darwin': # macOS
     cp_path = Path('/Applications/CellProfiler.app/Contents/MacOS/cp')
-elif os.name == 'posix':
+elif os.name == 'posix': # Linux (touch grass lol)
     cp_path = Path('cellprofiler')
 else:
     raise ValueError(f'Unsupported platform: {os.name}')
@@ -104,7 +104,7 @@ cppipe_path = base_dir / 'CellPyAbility.cppipe'
 output_dir = base_dir / 'cp_output'
 
 # Run CellProfiler from the command line
-# subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', output_dir])
+subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', output_dir])
 
 # Define the path to the CellProfiler counting output
 cp_csv = output_dir / 'CellPyAbilityImage.csv'
@@ -195,7 +195,7 @@ lower_dose8_mean = df[df['well'].isin(lower_dose8_wells)]['nuclei'].mean()
 lower_dose9_wells = ['E11','F11','G11']
 lower_dose9_mean = df[df['well'].isin(lower_dose9_wells)]['nuclei'].mean()
 
-# Define the conditions for the upper and lower groups
+# Define the conditions for the upper and lower groups so we can normalize within groups
 upper_conditions = [
     upper_vehicle_wells,
     upper_dose1_wells,
@@ -247,19 +247,19 @@ lower_means = [
     lower_dose9_mean,
 ]
 
-# Normalize individual wells
+# Normalize individual wells to their group vehicle control
 normalized_upper_wells = [[df[df['well'] == well]['nuclei'].mean() / upper_vehicle_mean for well in condition] 
                           for condition in upper_conditions]
 normalized_lower_wells = [[df[df['well'] == well]['nuclei'].mean() / lower_vehicle_mean for well in condition]
                           for condition in lower_conditions]
 
-# Calculate standard deviation of each condition
+# Calculate standard deviation of each condition's normalized
 upper_sd = [st.stdev(condition) for condition in normalized_upper_wells]
 lower_sd = [st.stdev(condition) for condition in normalized_lower_wells]
 
 # Calculate the mean nucleiCount for each condition and normalize it
-upper_normalized_means = upper_means / upper_vehicle_mean
-lower_normalized_means = lower_means / lower_vehicle_mean
+upper_normalized_means = [sum(condition) / len(condition) for condition in normalized_upper_wells]
+lower_normalized_means = [sum(condition) / len(condition) for condition in normalized_lower_wells]
 
 # Pair column number with drug dose
 column_concentrations = {
@@ -283,22 +283,44 @@ df2.loc[f'Relative Cell Viability {upper_name}'] = upper_normalized_means
 df2.loc[f'Relative Cell Viability {lower_name}'] = lower_normalized_means
 df2.loc[f'Relative Standard Deviation {upper_name}'] = upper_sd
 df2.loc[f'Relative Standard Deviation {lower_name}'] = lower_sd
-df2.to_csv(base_dir / f'GDA_output/{title_name}_GDA.csv')
+df2.to_csv(base_dir / f'GDA_output/{title_name}_GDA_Stats.csv')
 
-# # Label rows
-# row_labels = {
-#     'B', 
-#     'C',
-#     'D',
-#     'E',
-#     'F',
-#     'G'
-# }
+# Normalize nuclei counts for each well individually
+df['normalized_nuclei'] = df.apply(
+    lambda row: row['nuclei'] / upper_vehicle_mean 
+    if row['well'][0] in ['B', 'C', 'D'] else row['nuclei'] / lower_vehicle_mean,
+    axis=1
+)
 
-# # Create cell viability matrix
-# df3 = pd.DataFrame(columns=column_concentrations)
-# df3.index.name = '96-Well Column'
-# df3.loc['96-Well Row'] = row_labels
+# Extract rows and columns for the matrix
+row_letters = ['B', 'C', 'D', 'E', 'F', 'G']
+column_labels = list(column_concentrations.values())
+
+# Create an empty matrix
+viability_matrix = pd.DataFrame(
+    index=row_letters,
+    columns=column_labels,
+    dtype=float
+)
+
+# Fill the matrix with normalized data
+for letter in row_letters:
+    for column_label, dose in column_concentrations.items():
+        # Find the well(s) matching the current row and column
+        well_pattern = letter + column_label  # e.g., "B2"
+        matching_wells = df[df['well'] == well_pattern]
+
+        # Compute mean normalized viability for this well (in case there are duplicates)
+        viability_matrix.at[letter, dose] = matching_wells['normalized_nuclei'].mean()
+
+# Rename the rows based on the cell line names given by the user
+row_labels = [f'{upper_name} rep 1', f'{upper_name} rep 2', f'{upper_name} rep 3', 
+              f'{lower_name} rep 1', f'{lower_name} rep 2', f'{lower_name} rep 3']
+
+viability_matrix.index = row_labels
+
+# Save the matrix to a file or continue analysis
+viability_matrix.to_csv(base_dir / f'GDA_output/{title_name}_GDA_ViabilityMatrix.csv')
 
 # Assign doses to the x-axis
 x = np.array(doses)
@@ -368,7 +390,7 @@ IC50_y2 = scipy_root(root_func_y2, initial_guess_y2)
 # Calculate the ratio of IC50 estimates
 IC50_value_y1 = IC50_y1.x[0]
 IC50_value_y2 = IC50_y2.x[0]
-IC50_ratio = IC50_value_y1 / IC50_value_y2
+IC50_ratio = IC50_value_y2 / IC50_value_y1
 
 ## Create scatter plot
 # Create basic structure
