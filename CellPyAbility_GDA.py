@@ -390,11 +390,11 @@ IC50_y2 = scipy_root(root_func_y2, initial_guess_y2)
 # Calculate the ratio of IC50 estimates
 IC50_value_y1 = IC50_y1.x[0]
 IC50_value_y2 = IC50_y2.x[0]
-IC50_ratio = IC50_value_y2 / IC50_value_y1
+IC50_ratio = IC50_value_y1 / IC50_value_y2
 
 ## Create scatter plot
 # Create basic structure
-plt.style.use('ggplot')
+plt.style.use('default')
 plt.xscale('log')
 plt.scatter(x, y1, color='blue', label=str(upper_name))
 plt.scatter(x, y2, color='red', label=str(lower_name))
