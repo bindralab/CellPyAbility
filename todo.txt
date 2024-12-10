@@ -1,1 +1,5 @@
 * create a README file with information on the program
+* have program rename CellProfiler output with experimental details name
+* have synergy program include experimental details names in output names
+* have GDA plot autosave to output with experimental details name
+* have the interactive synergy plot save as an .html
