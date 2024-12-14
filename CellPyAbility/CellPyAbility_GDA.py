@@ -1,7 +1,6 @@
 import os
 import statistics as st
 import subprocess
-import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
@@ -101,13 +100,16 @@ except FileNotFoundError:
 cppipe_path = base_dir / 'CellPyAbility.cppipe'
 
 ## Define the folder where CellProfiler will output the .csv results
-output_dir = base_dir / 'cp_output'
+cp_output_dir = base_dir / 'cp_output'
 
 # Run CellProfiler from the command line
-subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', output_dir])
+subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', cp_output_dir])
 
 # Define the path to the CellProfiler counting output
-cp_csv = output_dir / 'CellPyAbilityImage.csv'
+cp_csv = cp_output_dir / 'CellPyAbilityImage.csv'
+
+# Define file path for GDA_output subfolder
+gda_output_dir = base_dir / 'GDA_output'
 
 # Define function to search for and replace well names
 def rename_to_any_target(entry, targets):
@@ -283,7 +285,7 @@ df2.loc[f'Relative Cell Viability {upper_name}'] = upper_normalized_means
 df2.loc[f'Relative Cell Viability {lower_name}'] = lower_normalized_means
 df2.loc[f'Relative Standard Deviation {upper_name}'] = upper_sd
 df2.loc[f'Relative Standard Deviation {lower_name}'] = lower_sd
-df2.to_csv(base_dir / f'GDA_output/{title_name}_GDA_Stats.csv')
+df2.to_csv(gda_output_dir / f'{title_name}_GDA_Stats.csv')
 
 # Normalize nuclei counts for each well individually
 df['normalized_nuclei'] = df.apply(
@@ -307,7 +309,7 @@ viability_matrix = pd.DataFrame(
 for letter in row_letters:
     for column_label, dose in column_concentrations.items():
         # Find the well(s) matching the current row and column
-        well_pattern = letter + column_label  # e.g., "B2"
+        well_pattern = letter + column_label  # e.g., 'B2'
         matching_wells = df[df['well'] == well_pattern]
 
         # Compute mean normalized viability for this well (in case there are duplicates)
@@ -320,7 +322,7 @@ row_labels = [f'{upper_name} rep 1', f'{upper_name} rep 2', f'{upper_name} rep 3
 viability_matrix.index = row_labels
 
 # Save the matrix to a file or continue analysis
-viability_matrix.to_csv(base_dir / f'GDA_output/{title_name}_GDA_ViabilityMatrix.csv')
+viability_matrix.to_csv(gda_output_dir / f'{title_name}_GDA_ViabilityMatrix.csv')
 
 # Assign doses to the x-axis
 x = np.array(doses)
@@ -350,17 +352,25 @@ try:
     # First attempt with initial maxfev
     popt_5PL_y1, pcov_5PL_y1 = curve_fit(fivePL, x, y1, p0=params_init_5PL_y1, maxfev=maxfev_initial)
 except RuntimeError:
-    print(f"RuntimeError encountered with maxfev={maxfev_initial}. Retrying with maxfev={maxfev_retry}...")
-    # Retry with increased maxfev
-    popt_5PL_y1, pcov_5PL_y1 = curve_fit(fivePL, x, y1, p0=params_init_5PL_y1, maxfev=maxfev_retry)
+    print(f'RuntimeError encountered with maxfev={maxfev_initial} for {upper_name}. Retrying with maxfev={maxfev_retry}...')
+    try:
+        # Second attempt with higher maxfev
+        popt_5PL_y1, pcov_5PL_y1 = curve_fit(fivePL, x, y1, p0=params_init_5PL_y1, maxfev=maxfev_retry)
+    except RuntimeError:
+        # These are some ugly data ... let them know
+        print(f'RuntimeError encountered with maxfev={maxfev_retry} for {upper_name}. A logistic model does not appear to fit these data.')
         
 try:
     # First attempt with initial maxfev
     popt_5PL_y2, pcov_5PL_y2 = curve_fit(fivePL, x, y2, p0=params_init_5PL_y2, maxfev=maxfev_initial)
 except RuntimeError:
-    print(f"RuntimeError encountered with maxfev={maxfev_initial}. Retrying with maxfev={maxfev_retry}...")
-    # Retry with increased maxfev
-    popt_5PL_y2, pcov_5PL_y2 = curve_fit(fivePL, x, y2, p0=params_init_5PL_y2, maxfev=maxfev_retry)
+    print(f'RuntimeError encountered with maxfev={maxfev_initial} for {lower_name}. Retrying with maxfev={maxfev_retry}...')
+    try:
+        # Second attempt with higher maxfev
+        popt_5PL_y2, pcov_5PL_y2 = curve_fit(fivePL, x, y2, p0=params_init_5PL_y2, maxfev=maxfev_retry)
+    except:
+        # These are some ugly data ... let them know
+        print(f'RunTimeError encountered with maxfev={maxfev_retry} for {lower_name}. A logistic model does not apeear to fit these data.')
 
 # Calculate y values for the fitted curves for y1 and y2
 y_plot_5PL_y1 = fivePL(x_plot, *popt_5PL_y1)
@@ -423,4 +433,18 @@ plt.text(
     transform=plt.gca().transAxes
 )
 plt.legend()
+plt.savefig(gda_output_dir / f'{title_name}_GDA_plot.png', dpi=200, bbox_inches='tight')
 plt.show()
+
+# Rename the CellProfiler output using the provided title name
+counts_csv = gda_output_dir / f'{title_name}_GDA_counts.csv'
+
+try:
+    os.rename(cp_csv, counts_csv)
+    print(f'{cp_csv} succesfully renamed to {counts_csv}')
+except FileNotFoundError:
+    print(f'{cp_csv} not found')
+except PermissionError:
+    print(f'Permission denied. {cp_csv} may be open or in use.')
+except Exception as e:
+    print(f'While renaming {cp_csv}, an error occurred: {e}')

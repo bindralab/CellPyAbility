@@ -1,20 +1,22 @@
-# nuclei counter: local version
-import numpy as np
 import os
-import pathlib as path
-import plotly.graph_objects as go
 import subprocess
-import statistics as st
-import pandas as pd
 from pathlib import Path
-import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from ttkthemes import ThemedTk
 
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+
 ## Establish the GUI
 # Define GUI functions and assign variables to inputs
+def select_image_dir():
+    global temp_image_dir
+    temp_image_dir = filedialog.askdirectory()
+    print(f"Directory selected: {temp_image_dir}")
+
 def submit():
-    global x_doses, y_doses, x_title, y_title, plot_title
+    global x_doses, y_doses, x_title, y_title, plot_title, image_dir
 
     # Get input from entry field
     input_x_doses = entry_x_doses.get()
@@ -28,73 +30,68 @@ def submit():
 
     # Check if there are 9 values
     if len(x_doses_str) != 9:
-        messagebox.showerror("Error", "Please enter 9 values (exclude zero).")
+        messagebox.showerror('Error', 'Please enter 9 values (exclude zero).')
         return
 
     # Convert list of strings to list of floats
     try:
         x_doses = [float(dose) for dose in x_doses_str]
     except ValueError:
-        messagebox.showerror("Error", "Please enter valid numbers.")
-        return x_doses
+        messagebox.showerror('Error', 'Please enter valid numbers.')
 
  # Split input into list of strings
     y_doses_str = input_y_doses.split('\t')
 
     # Check if there are 5 values
     if len(y_doses_str) != 5:
-        messagebox.showerror("Error", "Please enter 5 values (exclude zero).")
+        messagebox.showerror('Error', 'Please enter 5 values (exclude zero).')
         return
 
     # Convert list of strings to list of floats
     try:
         y_doses = [float(dose) for dose in y_doses_str]
     except ValueError:
-        messagebox.showerror("Error", "Please enter valid numbers.")
-        return y_doses
-    root.after(100, root.destroy)
-
-# Allows selection of folder with images for analysis
-def select_image_dir():
-    global image_dir
-    image_dir = filedialog.askdirectory()
-    print(image_dir)
+        messagebox.showerror('Error', 'Please enter valid numbers.')
+    
+    # Assign the temporary image directory selected to the image_dir variable for further analysis
+    image_dir = temp_image_dir
+    root.destroy()
 
 # Create main window
-root = ThemedTk(theme="black", themebg=True)
+root = ThemedTk(theme='black', themebg=True)
 
 # Create GUI labels and entry fields
-label_plot_title = ttk.Label(root, text = "Enter the title of the plot:")
+label_plot_title = ttk.Label(root, text = 'Enter the title of the plot:')
 label_plot_title.pack()
 entry_plot_title = ttk.Entry(root)
 entry_plot_title.pack()
 
-label_x_title = ttk.Label(root, text = "Enter the name of the vertical drug used:")
+label_x_title = ttk.Label(root, text = 'Enter the name of the vertical drug used:')
 label_x_title.pack()
 entry_x_title = ttk.Entry(root)
 entry_x_title.pack()
 
-label_y_doses = ttk.Label(root, text="Enter the vertical five doses (exclude zero), separated by tab:")
+label_y_doses = ttk.Label(root, text='Enter the vertical five doses (exclude zero), separated by tab:')
 label_y_doses.pack()
 entry_y_doses = ttk.Entry(root)
 entry_y_doses.pack()
 
-label_y_title = ttk.Label(root, text = "Enter the name of the horizontal drug used:")
+label_y_title = ttk.Label(root, text = 'Enter the name of the horizontal drug used:')
 label_y_title.pack()
 entry_y_title = ttk.Entry(root)
 entry_y_title.pack()
 
-label_x_doses = ttk.Label(root, text="Enter the horizontal nine doses (exclude zero), separated by tab:")
+label_x_doses = ttk.Label(root, text='Enter the horizontal nine doses (exclude zero), separated by tab:')
 label_x_doses.pack()
 entry_x_doses = ttk.Entry(root)
 entry_x_doses.pack()
 
 # Create buttons for selecting directories and files
-image_dir_button = ttk.Button(root, text="Select Image Directory", command=select_image_dir)
+image_dir_button = ttk.Button(root, text='Select Image Directory', command=select_image_dir)
 image_dir_button.pack()
 
 # Create submit button
-submit_button = ttk.Button(root, text="Submit", command=submit)
+submit_button = ttk.Button(root, text='Submit', command=submit)
 submit_button.pack()
 
 # Start main loop
@@ -122,16 +119,16 @@ except FileNotFoundError:
     raise FileNotFoundError('CellProfiler not found. Please select the correct path in Pipeline options.')
 
 ## Define the path to the pipeline (.cppipe)
-cppipe_path = base_dir / "CellPyAbility.cppipe"
+cppipe_path = base_dir / 'CellPyAbility.cppipe'
 
 ## Define the folder where CellProfiler will output the .csv results
-output_dir = base_dir / "cp_output"
+output_dir = base_dir / 'cp_output'
 
 # Run CellProfiler from the command line
-subprocess.run([cp_path, "-c", "-r", "-p", cppipe_path, "-i", image_dir, "-o", output_dir])
+subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', output_dir])
 
 # Define the path to the CellProfiler counting output
-cp_csv = output_dir / "CellPyAbilityImage.csv"
+cp_csv = output_dir / 'CellPyAbilityImage.csv'
 
 # Load the CellProfiler counts into a DataFrame
 df = pd.read_csv(cp_csv)
@@ -163,7 +160,7 @@ for well in wells:
     well_std.append(counts.std())
 
     # Debugging: Print condition_rows to verify the grouping
-    print(f"\nRows for well {well}:\n{condition_rows}")
+    print(f'\nRows for well {well}:\n{condition_rows}')
 
 row_concentrations = {
     'B': 0,  # Control
@@ -210,14 +207,14 @@ well_descriptions = {
 df2_results = pd.DataFrame(well_descriptions)
 
 # Define file path for synergy_output subfolder
-synergy_output_dir = base_dir / "synergy_output"
+synergy_output_dir = base_dir / 'synergy_output'
 
 # Export as .csv
-csv_output_path = synergy_output_dir / "csv_ouput.csv"
-df2_results.to_csv(csv_output_path, index=False)
+metrics_output_path = synergy_output_dir / f'{plot_title}_synergy_metrics.csv'
+df2_results.to_csv(metrics_output_path, index=False)
 
 # Read .csv with pandas
-df2 = pd.read_csv(csv_output_path)
+df2 = pd.read_csv(metrics_output_path)
 
 # Create arrays for x drug effects alone and y drug effects alone
 x_effect_alone = df2[df2['Well'].str.startswith('B')]['Normalized Mean'].values
@@ -267,8 +264,8 @@ bliss_independence_pivot = bliss_df.pivot(index='Column Drug Concentration', col
 cell_survival = normalized_means_pivot.values
 bliss_independence = bliss_independence_pivot.values
 
-normalized_means_pivot.to_csv(synergy_output_dir / "normalized_means_pivot.csv")
-bliss_independence_pivot.to_csv(synergy_output_dir / "bliss_independence_pivot.csv")
+normalized_means_pivot.to_csv(synergy_output_dir / f'{plot_title}_synergy_ViabilityMatrix.csv')
+bliss_independence_pivot.to_csv(synergy_output_dir / f'{plot_title}_synergy_BlissMatrix.csv')
 
 # Extract x and y values from the pivot tables
 x_values = normalized_means_pivot.columns.values
@@ -323,6 +320,19 @@ fig.update_layout(
     )
 )
 
+# Rename CellProfiler output with experiment title and save in synergy_output
+counts_csv = synergy_output_dir / f'{plot_title}_synergy_counts.csv'
+
+try:
+    os.rename(cp_csv, counts_csv)
+    print(f'{cp_csv} succesfully renamed to {counts_csv}')
+except FileNotFoundError:
+    print(f'{cp_csv} not found')
+except PermissionError:
+    print(f'Permission denied. {cp_csv} may be open or in use.')
+except Exception as e:
+    print(f'While renaming {cp_csv}, an error occurred: {e}')
+
 # Show the plot
-fig.write_html(synergy_output_dir / "Bliss_plot")
+fig.write_html(synergy_output_dir / f'{plot_title}_synergy_plot.html')
 fig.show()
