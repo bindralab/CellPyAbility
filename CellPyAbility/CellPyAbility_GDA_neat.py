@@ -54,7 +54,7 @@ def get_cellprofiler_path():
 # Get the CellProfiler path
 cp_path = get_cellprofiler_path()
 
-# Establish the GUI
+## Establish the GUI
 # Define GUI functions and assign variables to inputs
 def submit():
     global doses, title_name, upper_name, lower_name
@@ -118,10 +118,10 @@ submit_button.pack()
 # Start main loop
 root.mainloop()
 
-# Define the path to the pipeline (.cppipe)
+## Define the path to the pipeline (.cppipe)
 cppipe_path = base_dir / 'CellPyAbility.cppipe'
 
-# Define the folder where CellProfiler will output the .csv results
+## Define the folder where CellProfiler will output the .csv results
 cp_output_dir = base_dir / 'cp_output'
 
 # Run CellProfiler from the command line
@@ -132,6 +132,8 @@ cp_csv = cp_output_dir / 'CellPyAbilityImage.csv'
 
 # Define file path for GDA_output subfolder
 gda_output_dir = base_dir / 'GDA_output'
+
+print('Finished CellProfiler')
 
 # Define function to search for and replace well names
 def rename_to_any_target(entry, targets):
@@ -149,6 +151,8 @@ targets = [
     'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11',
     'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11',
     ]
+
+print('Finished renaming wells')
 
 # Load the CellProfiler counts into a DataFrame
 df = pd.read_csv(cp_csv)
@@ -346,6 +350,8 @@ viability_matrix.index = row_labels
 # Save the matrix to a file or continue analysis
 viability_matrix.to_csv(gda_output_dir / f'{title_name}_GDA_ViabilityMatrix.csv')
 
+print('Finished analyzing data')
+
 # Assign doses to the x-axis
 x = np.array(doses)
 
@@ -353,7 +359,7 @@ x = np.array(doses)
 y1 = np.array(upper_normalized_means[1:])
 y2 = np.array(lower_normalized_means[1:])
 
-# Define non-linear regression for the xy-plot and estimate IC50s
+## Define non-linear regression for the xy-plot and estimate IC50s
 # Define the 5PL function
 def fivePL(x, A, B, C, D, G):  # (x = doses, A = min y, B = Hill slope, C = inflection, D = max y, G = asymetry):
     return ((A - D) / (1.0 + (x / C) ** B) ** G) + D
@@ -366,7 +372,7 @@ params_init_5PL_y2 = [y2[np.argmin(y2)], 1, x[np.abs(y2 - 0.5).argmin()], y2[np.
 x_plot = np.linspace(min(x), max(x), 1000)
 
 # Use curve_fit to fit the data for y1 and y2
-# Identify initial maxfev along with higher maxfev in case optimal parameters not found
+## Identify initial maxfev along with higher maxfev in case optimal parameters not found
 maxfev_initial = int(1e4)
 maxfev_retry = int(1e6)
 
@@ -424,7 +430,7 @@ IC50_value_y1 = IC50_y1.x[0]
 IC50_value_y2 = IC50_y2.x[0]
 IC50_ratio = IC50_value_y1 / IC50_value_y2
 
-# Create scatter plot
+## Create scatter plot
 # Create basic structure
 plt.style.use('default')
 plt.xscale('log')
@@ -456,6 +462,7 @@ plt.text(
 )
 plt.legend()
 plt.savefig(gda_output_dir / f'{title_name}_GDA_plot.png', dpi=200, bbox_inches='tight')
+print('Finished graphing data. Please close plot when ready to continue.')
 plt.show()
 
 # Rename the CellProfiler output using the provided title name
@@ -470,3 +477,5 @@ except PermissionError:
     print(f'Permission denied. {cp_csv} may be open or in use.')
 except Exception as e:
     print(f'While renaming {cp_csv}, an error occurred: {e}')
+
+print('Analysis complete. Please find the results in the GDA_output folder.')
