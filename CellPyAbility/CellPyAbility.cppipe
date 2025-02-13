@@ -137,7 +137,7 @@ ExportToSpreadsheet:[module_num:8|svn_version:'Unknown'|variable_revision_number
     Representation of Nan/Inf:NaN
     Add a prefix to file names?:Yes
     Filename prefix:CellPyAbility
-    Overwrite existing files without warning?:No
+    Overwrite existing files without warning?:Yes
     Data to export:Image
     Combine these object measurements with those of the previous object?:No
     File name:DATA.csv
