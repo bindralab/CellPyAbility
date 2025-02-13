@@ -1,4 +1,6 @@
-From the [CellProfiler GitHub repository](https://github.com/CellProfiler/CellProfiler/blob/main/LICENSE):
+Although we do not use any code from CellProfiler, we do use it as an external application. 
+
+Accordingly, we have attached the license from the [CellProfiler GitHub repository](https://github.com/CellProfiler/CellProfiler/blob/main/LICENSE):
 
 The BSD 3-Clause License
 
