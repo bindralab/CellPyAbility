@@ -16,7 +16,7 @@ While we try to make CellPyAbility widely applicable, there are several technica
 - Image file names must contain their corresponding well.
   - e.g. B2, ImageB2, DAPI-B2-(362), etc. for the image file of the B2 well in the 96-well plate.
 
-## Quick Start
+## Getting Started
 Download the [CellPyAbility directory](CellPyAbility). This is the working directory for our program and contains three Python scripts with unique functions:
 - [CellPyAbility_GDA](CellPyAbility/CellPyAbility_GDA.py): dose-response analysis of two cell lines/cell conditions with a drug gradient.
 - [CellPyAbility_synergy](CellPyAbility/CellPyAbility_synergy.py): dose-response and synergy (Bliss) analysis of one cell line/cell condition with simultaneous horizontal and vertical drug gradients.
@@ -26,7 +26,7 @@ Note that the scripts reference items in the directory, so the [CellPyAbility di
 
 The first time the user runs any of the scripts, a console input will be required for the path to the CellProfiler file:
 - For Windows, this is the CellProfiler.exe file. 
-- For MacOS, this is the path/to/CellProfiler.app/Contents/MacOS/CellProfiler file 
+- For MacOS, this is the path/to/CellProfiler.app/Contents/MacOS/cp' file 
   - CellProfiler.app is a directory and will cause 'PermissionError: [Errno 13]' if used as the file path. 
 - The inputted path will then be saved as CellPyAbility/cellprofiler_path.txt, which is automatically retrieved for all future runs.
 
