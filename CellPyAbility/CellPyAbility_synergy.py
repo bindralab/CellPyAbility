@@ -181,9 +181,6 @@ for well in wells:
     well_means.append(counts.mean())
     well_std.append(counts.std())
 
-    # Debugging: Print condition_rows to verify the grouping
-    print(f'\nRows for well {well}:\n{condition_rows}')
-
 row_concentrations = {
     'B': 0,  # Control
     'C': y_doses[0],
