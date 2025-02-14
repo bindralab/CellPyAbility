@@ -90,9 +90,9 @@ Please note that we have not tested the analysis scripts on other protocols. For
 
 ## Contributions
 Summary information regarding the authors as of 2025:
-- My name is James Elia, and I am a PhD candidate in Yale's Pathology and Molecular Medicine program. I am the primary author of the repository.
-- Sam Friedman, MS is a Computational Research Support Analyst at Yale Center for Research Computing. He provided programming and development support for the repository.
-- Ranjit Bindra, MD, PhD is the Harvey and Kate Cushing Professor of Therapeutic Radiology and Professor of Pathology at Yale School of Medicine. He offered scientific and publishing support for the repository.
+- My name is James Elia, and I am a PhD candidate in Yale's Pathology and Molecular Medicine program. I am the author of the repository and the code herein.
+- Sam Friedman, MS is a Computational Research Support Analyst at Yale Center for Research Computing. He provided programming mentorship and development support for the repository.
+- Ranjit Bindra, MD, PhD is the Harvey and Kate Cushing Professor of Therapeutic Radiology and Professor of Pathology at Yale School of Medicine. He provided scientific mentorship and publishing support for the repository.
 
 ## Comments or Questions?
 Please contact me at james.elia@yale.edu
