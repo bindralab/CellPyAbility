@@ -1,6 +1,19 @@
 # CellPyAbility
 
-The objective of CellPyAbility is to offer an open-access cell viability analysis tool that seamlessly integrates with our provided [protocols](path/to/protocol).
+The objective of CellPyAbility is to offer an open-access cell viability analysis tool that seamlessly integrates with our provided [protocols](path/to/protocol). Please review our [license](LICENSE.txt) prior to use.
+
+## Purpose
+
+The purpose of this repository is to offer open-access software for the automated quantitiation of nuclei in cell viability experiments, referred to herein as growth delay assays (GDAs).
+
+Nuclei counting provides several advantages over other common methods of measuring cell viability. Compared to the commonly used methylthiazol tetrazolium (MTT; reduction-based) or CellTiter-Glo (ATP-based) assays, GDAs: 
+- provide single-cell resolution of survival 
+- are insensitive to metabolic variability within a cell or between cell lines 
+- are compatible with redox-altering chemicals 
+- require simpler methodology 
+- can be used on live cells using non-toxic nuclear dyes like Hoechst. 
+
+A disadvantage of the GDA is the computational and temporal cost of the required image analysis. We present CellPyAbility, which rapidly generates dose-response metrics and publication-ready graphics from a folder of unedited, whole-well GDA images in approximately one minute on commodity hardware.
 
 ## Prerequisites
 
@@ -37,9 +50,32 @@ Next, a GUI will prompt the user for experimental details. I will use [CellPyAbi
 - concentration gradient in molar units, excluding 0 and tab-separated
 - a file browser to select the directory containing the 60 images
 
-We provide example image sets in the [test directory](test) with the expected outputs, along with a [drug concentration gradient template](test/drug_concentrations.csv). We recommend running these test sets to ensure the scripts are working properly prior to running one's own data. 
+We provide example image sets in the [test directory](test) with the expected outputs, along with a [drug concentration gradient template](drug_concentrations.csv). We recommend running these test sets to ensure the scripts are working properly prior to running one's own data. 
 
-Please note that the test directory includes 240 images of 2.8 MB each; therefore, downloading it will decrease your available storage for cat videos and increase your carbon footprint.
+Due to the size of the files in the test directory, it is saved to [Git LFS](https://git-lfs.com/). If the user has Git LFS installed, the test directory can be downloaded by entering 'git lfs pull' in the directory's terminal.
+
+## Example Outputs
+The [GDA script](CellPyAbility/CellPyAbility_GDA.py) outputs three tabular files with increasing degrees of analysis:
+- [raw nuclei counts](test/test_expected_outputs/Drug%20A_counts.csv)
+- [normalized cell viability matrix](test/test_expected_outputs/Drug%20A_GDA_ViabilityMatrix.csv)
+- [cell viability statistics](test/test_expected_outputs/Drug%20A_GDA_Stats.csv)
+
+Additionally, the script generates a plot with 5-parameter logistic curves:
+
+![GDA plot](test/test_expected_outputs/Drug%20A_GDA_plot.png)
+
+The [synergy script](CellPyAbility/CellPyAbility_synergy.py) outputs four tabular files:
+- [raw nuclei counts](test/test_expected_outputs/test_synergy_counts.csv)
+- [normalized cell viability matrix](test/test_expected_outputs/test_synergy_normalized_means_pivot.csv)
+- [cell viability statistics](test/test_expected_outputs/test_synergy_csv_ouput.csv)
+- [Bliss synergy matrix](test/test_expected_outputs/test_synergy_bliss_independence_pivot.csv)
+
+Additionally, the script generates a 3D surface map in HTML with a synergy heatmap:
+
+![synergy plot](test/test_expected_outputs/test_synergy_Bliss_plot.png)
+
+Finally, the [simple script](CellPyAbility/CellPyAbility_simple.py) outputs nuclei counts in a 96-well matrix format. This allows for the greatest deviation from our [protocol](path/to/protocol) but does not provide any analysis.
+
 
 ## Modifying the CellProfiler Pipeline
 
@@ -52,5 +88,11 @@ Across multiple cell lines and densities, our provided [CellProfiler Pipeline](C
 
 Please note that we have not tested the analysis scripts on other protocols. For best results, please follow the provided [protocol](path/to/protocol).
 
-## Comments or Concerns?
+## Contributions
+Summary information regarding the authors as of 2025:
+- My name is James Elia, and I am a PhD candidate in Yale's Pathology and Molecular Medicine program. I am the primary author of the repository.
+- Sam Friedman, MS is a Computational Research Support Analyst at Yale Center for Research Computing. He provided programming and development support for the repository.
+- Ranjit Bindra, MD, PhD is the Harvey and Kate Cushing Professor of Therapeutic Radiology and Professor of Pathology at Yale School of Medicine. He offered scientific and publishing support for the repository.
+
+## Comments or Questions?
 Please contact me at james.elia@yale.edu
