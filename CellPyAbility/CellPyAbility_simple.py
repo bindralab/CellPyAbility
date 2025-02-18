@@ -1,11 +1,8 @@
 import os
-import statistics as st
 import subprocess
-import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, ttk
 
-import numpy as np
 import pandas as pd
 from ttkthemes import ThemedTk
 # Establish the base directory as the script's location
@@ -89,13 +86,18 @@ root.mainloop()
 cppipe_path = base_dir / 'CellPyAbility.cppipe'
 
 ## Define the folder where CellProfiler will output the .csv results
-output_dir = base_dir / 'cp_output'
+cp_output_dir = base_dir / 'cp_output'
+cp_output_dir.mkdir(exist_ok=True)
+
+## Define the folder where simple will output
+simple_output_dir = base_dir / 'simple_output'
+simple_output_dir.mkdir(exist_ok=True)
 
 # Run CellProfiler from the command line
-subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', output_dir])
+subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', cp_output_dir])
 
 # Define the path to the CellProfiler counting output
-cp_csv = output_dir / 'CellPyAbilityImage.csv'
+cp_csv = cp_output_dir / 'CellPyAbilityImage.csv'
 
 # Define function to search for and replace well names
 def rename_to_any_target(entry, targets):
@@ -142,4 +144,4 @@ for row_label in row_labels:
         count_matrix.at[row_label, column_label] = matching_wells['nuclei']
 
 # Save the matrix to a file
-count_matrix.to_csv(base_dir / f'GDA_output/{title_name}_simple_CountMatrix.csv')
+count_matrix.to_csv(simple_output_dir / f'{title_name}_simple_CountMatrix.csv')
