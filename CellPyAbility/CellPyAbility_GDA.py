@@ -123,6 +123,7 @@ cppipe_path = base_dir / 'CellPyAbility.cppipe'
 
 # Define the folder where CellProfiler will output the .csv results
 cp_output_dir = base_dir / 'cp_output'
+cp_output_dir.mkdir(exist_ok=True)
 
 # Run CellProfiler from the command line
 subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', cp_output_dir])
@@ -132,6 +133,7 @@ cp_csv = cp_output_dir / 'CellPyAbilityImage.csv'
 
 # Define file path for GDA_output subfolder
 gda_output_dir = base_dir / 'GDA_output'
+gda_output_dir.mkdir(exist_ok=True)
 
 # Define function to search for and replace well names
 def rename_to_any_target(entry, targets):
