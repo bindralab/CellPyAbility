@@ -11,38 +11,43 @@ base_dir = Path(__file__).resolve().parent
 # File where the CellProfiler path will be saved
 config_file = base_dir / "cellprofiler_path.txt"
 
-if not base_dir.exists():
-    print(f"Base directory {base_dir} does not exist.")
-    exit(1)
-elif not os.access(base_dir, os.W_OK):
-    print(f"Base directory {base_dir} is not writable.")
-    exit(1)
-
 def get_cellprofiler_path():
-    # Check if the path has already been saved
-    if os.path.exists(config_file):
-        with open(config_file, "r") as file:
-            saved_path = file.read().strip()
-            if os.path.exists(saved_path):
-                print(f"Using saved CellProfiler path: {saved_path}")
-                return saved_path
-            else:
-                print("Saved path is invalid. Re-entering path ...")
+    default_64bit_path = Path(r"C:\Program Files\CellProfiler\CellProfiler.exe")
+    default_32bit_path = Path(r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe")
+    default_mac_path = Path("/Applications/CellProfiler.app/Contents/MacOS/cp")
+
+    # Check if CellProfiler is saved in the default locations
+    if default_64bit_path.exists():
+        new_path = default_64bit_path
+    elif default_32bit_path.exists():
+        new_path = default_32bit_path
+    elif default_mac_path.exists():
+        new_path = default_mac_path
+    else:
+        # Check if the alternate path is already saved
+        if os.path.exists(config_file):
+            with open(config_file, "r") as file:
+                saved_path = file.read().strip()
+                if os.path.exists(saved_path):
+                    print(f"Using saved CellProfiler path: {saved_path}")
+                    return saved_path
+                else:
+                    print("Saved path is invalid. Re-entering path ...")
+
+        # Prompt the user for the path if not saved or invalid
+        new_path = input("Enter the path to the CellProfiler program: ").strip()
+        new_path = new_path.strip('"').strip("'")
+        print(new_path)
     
-    # Prompt the user for the path if not saved or invalid
-    new_path = input("Enter the path to the CellProfiler program: ").strip()
-    new_path = new_path.strip('"').strip("'")
-    print(new_path)
-    
-    # Verify the path exists
-    if not os.path.exists(new_path):
-        print("Error: Path does not exist. Please try again.")
-        return get_cellprofiler_path()  # Recursive call for valid input
-    
-    # Save the path to the file for future use
-    with open(config_file, "w") as file:
-        file.write(new_path)
-    print(f"Path saved successfully: {new_path}")
+        # Verify the path exists
+        if not os.path.exists(new_path):
+            print("Error: Path does not exist. Please try again.")
+            return get_cellprofiler_path()  # Recursive call for valid input
+
+        # Save the path to the file for future use
+        with open(config_file, "w") as file:
+            file.write(new_path)
+        print(f"Path saved successfully: {new_path}")
     return new_path
 
 # Get the CellProfiler path
