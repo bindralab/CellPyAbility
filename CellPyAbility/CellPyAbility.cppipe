@@ -73,20 +73,20 @@ EnhanceOrSuppressFeatures:[module_num:6|svn_version:'Unknown'|variable_revision_
     Select the input image:crop
     Name the output image:enhance
     Select the operation:Enhance
-    Feature size:10
+    Feature size:8
     Feature type:Speckles
     Range of hole sizes:1,10
     Smoothing scale:2.0
     Shear angle:0.0
     Decay:0.95
     Enhancement method:Tubeness
-    Speed and accuracy:Fast
+    Speed and accuracy:Slow
     Rescale result image:No
 
 IdentifyPrimaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:enhance
     Name the primary objects to be identified:nuclei
-    Typical diameter of objects, in pixel units (Min,Max):3,12
+    Typical diameter of objects, in pixel units (Min,Max):3,10
     Discard objects outside the diameter range?:Yes
     Discard objects touching the border of the image?:Yes
     Method to distinguish clumped objects:Intensity
