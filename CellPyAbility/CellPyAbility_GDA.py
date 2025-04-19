@@ -1,237 +1,168 @@
+import logging
 import os
 import statistics as st
 import subprocess
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
+import CellPyAbility_toolbox as tb
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.optimize import root as scipy_root
+from scipy.interpolate import interp1d
 from ttkthemes import ThemedTk
 
-# Establish the base directory as the script's location
-base_dir = Path(__file__).resolve().parent
+# Initialize toolbox
+logger, base_dir, cp_path = tb.logger, tb.base_dir, tb.cp_path
 
-# File where the CellProfiler path will be saved
-config_file = base_dir / "cellprofiler_path.txt"
+# Establish the GUI for experiment info
+def gda_gui():
+    image_dir = ''
+    def select_image_dir():
+        nonlocal image_dir
+        image_dir = filedialog.askdirectory()
 
-if not base_dir.exists():
-    print(f"Base directory {base_dir} does not exist.")
-    exit(1)
-elif not os.access(base_dir, os.W_OK):
-    print(f"Base directory {base_dir} is not writable.")
-    exit(1)
+    # Create main window
+    root = ThemedTk(theme='black', themebg=True)
 
-def get_cellprofiler_path():
-    default_64bit_path = Path(r"C:\Program Files\CellProfiler\CellProfiler.exe")
-    default_32bit_path = Path(r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe")
-    default_mac_path = Path("/Applications/CellProfiler.app/Contents/MacOS/cp")
+    # Create entry fields for inputs
+    label1 = ttk.Label(root, text='Enter the title of the experiment:')
+    label1.pack()
+    entry1 = ttk.Entry(root)
+    entry1.pack()
+    label2 = ttk.Label(root, text='Enter the name of the cell condition in rows B-D:')
+    label2.pack()
+    entry2 = ttk.Entry(root)
+    entry2.pack()
+    label3 = ttk.Label(root, text='Enter the name of the cell condition in rows E-G:')
+    label3.pack()
+    entry3 = ttk.Entry(root)
+    entry3.pack()
+    label4 = ttk.Label(root, text='Enter the top concentration (M):')
+    label4.pack()
+    entry4 = ttk.Entry(root)
+    entry4.pack()
+    label5 = ttk.Label(root, text='Enter the dilution factor (x-fold):')
+    label5.pack()
+    entry5 = ttk.Entry(root)
+    entry5.pack()
 
-    # Check if CellProfiler is saved in the default locations
-    if default_64bit_path.exists():
-        new_path = default_64bit_path
-    elif default_32bit_path.exists():
-        new_path = default_32bit_path
-    elif default_mac_path.exists():
-        new_path = default_mac_path
-    else:
-        # Check if the alternate path is already saved
-        if os.path.exists(config_file):
-            with open(config_file, "r") as file:
-                saved_path = file.read().strip()
-                if os.path.exists(saved_path):
-                    print(f"Using saved CellProfiler path: {saved_path}")
-                    return saved_path
-                else:
-                    print("Saved path is invalid. Re-entering path ...")
+    # Adds button for image directory file select
+    image_dir_button = ttk.Button(root, text='Select Image Directory', command=select_image_dir)
+    image_dir_button.pack()
+    
+    # This dictionary will hold the result
+    gui_inputs = {}
+    
+    # Callback function to use when the form is submitted
+    def submit():
+        gui_inputs['title_name'] = entry1.get()
+        gui_inputs['upper_name'] = entry2.get()
+        gui_inputs['lower_name'] = entry3.get()
+        gui_inputs['top_conc'] = entry4.get()
+        gui_inputs['dilution'] = entry5.get()
+        gui_inputs['image_dir'] = image_dir
+        root.destroy()
+    
+    # Create button to submit form
+    submit_button = ttk.Button(root, text='Submit', command=submit)
+    submit_button.pack()
+    
+    root.mainloop()
+    logger.debug('GUI submitted.')
+    return gui_inputs 
 
-        # Prompt the user for the path if not saved or invalid
-        new_path = input("Enter the path to the CellProfiler program: ").strip()
-        new_path = new_path.strip('"').strip("'")
-        print(new_path)
-        
-        # Verify the path exists
-        if not os.path.exists(new_path):
-            print("Error: Path does not exist. Please try again.")
-            return get_cellprofiler_path()  # Recursive call for valid input
-        
-        # Save the path to the file for future use
-        with open(config_file, "w") as file:
-            file.write(new_path)
-        print(f"Path saved successfully: {new_path}")
-    return new_path
+# Assign the gda_gui output to script variable
+gui_inputs = gda_gui()
 
-# Get the CellProfiler path
-cp_path = get_cellprofiler_path()
+# Assign GUI inputs to script variables
+title_name = gui_inputs['title_name']
+upper_name = gui_inputs['upper_name']
+lower_name = gui_inputs['lower_name']
+top_conc = float(gui_inputs['top_conc'])
+dilution = float(gui_inputs['dilution'])
+image_dir = gui_inputs.get('image_dir')
+logger.debug('GUI inputs assigned to variables.')
 
-# Establish the GUI
-# Define GUI functions and assign variables to inputs
-def submit():
-    global doses, title_name, upper_name, lower_name
-    # Get input from entry field
-    input_doses = entry.get()
-    title_name = entry1.get()
-    upper_name = entry2.get()
-    lower_name = entry3.get()
+# Create a concentration range array
+doses = tb.dose_range_x(top_conc, dilution)
 
-    # Split input into list of strings
-    doses_str = input_doses.split('\t')
-
-    # Check if there are 9 values
-    if len(doses_str) != 9:
-        messagebox.showerror('Error', 'Please enter 9 values.')
-        return
-
-    # Convert list of strings to list of floats
-    try:
-        doses = [float(dose) for dose in doses_str]
-    except ValueError:
-        messagebox.showerror('Error', 'Please enter valid numbers.')
-        return doses
-    root.after(100, root.destroy)
-
-# Allows selection of folder with images for analysis
-def select_image_dir():
-    global image_dir
-    image_dir = filedialog.askdirectory()
-    print(image_dir)
-
-# Create main window
-root = ThemedTk(theme='black', themebg=True)
-
-# Create entry fields for inputs
-label1 = ttk.Label(root, text='Enter the title of the graph (include drug used):')
-label1.pack()
-entry1 = ttk.Entry(root)
-entry1.pack()
-label2 = ttk.Label(root, text='Enter the name of the cell condition in rows B-D:')
-label2.pack()
-entry2 = ttk.Entry(root)
-entry2.pack()
-label3 = ttk.Label(root, text='Enter the name of the cell condition in rows E-G:')
-label3.pack()
-entry3 = ttk.Entry(root)
-entry3.pack()
-label = ttk.Label(root, text='Enter nine doses in molar (exclude zero), separated by tab:')
-label.pack()
-entry = ttk.Entry(root)
-entry.pack()
-
-# Create buttons for selecting directories and files
-image_dir_button = ttk.Button(root, text='Select Image Directory', command=select_image_dir)
-image_dir_button.pack()
-
-# Create submit button
-submit_button = ttk.Button(root, text='Submit', command=submit)
-submit_button.pack()
-
-# Start main loop
-root.mainloop()
-
-# Define the path to the pipeline (.cppipe)
-cppipe_path = base_dir / 'CellPyAbility.cppipe'
-
-# Define the folder where CellProfiler will output the .csv results
-cp_output_dir = base_dir / 'cp_output'
-cp_output_dir.mkdir(exist_ok=True)
-
-# Run CellProfiler from the command line
-subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', cp_output_dir])
-
-# Define the path to the CellProfiler counting output
-cp_csv = cp_output_dir / 'CellPyAbilityImage.csv'
-
-# Define file path for GDA_output subfolder
-gda_output_dir = base_dir / 'GDA_output'
-gda_output_dir.mkdir(exist_ok=True)
-
-# Define function to search for and replace well names
-def rename_to_any_target(entry, targets):
-    for target in targets:
-        if target in entry:
-            return target
-    return entry  # Keep original if no target matches
-
-# List of targets to check
-targets = [
-    'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11',
-    'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11',
-    'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11',
-    'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'E10', 'E11',
-    'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11',
-    'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11',
-    ]
+# Run CellProfiler headless and return a DataFrame with the raw nuclei counts and the .csv path
+df_cp, cp_csv = tb.run_cellprofiler(image_dir)
 
 # Load the CellProfiler counts into a DataFrame
-df = pd.read_csv(cp_csv)
-df.drop('ImageNumber', axis=1, inplace=True)
-df.columns = ['nuclei', 'well']
-df['well'] = df['well'].apply(lambda x: rename_to_any_target(x, targets))
-df = df[['well', 'nuclei']]
+df_cp.drop('ImageNumber', axis=1, inplace=True)
+df_cp.columns = ['nuclei', 'well']
+
+# Rename rows from the TIFF file names to the corresponding well names
+df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x, tb.wells))
+logger.debug('CellProfiler output rows renamed to well names.')
 
 # Calculate the average nuclei per condition for the upper three rows
 upper_vehicle_wells = ['B2','C2','D2']
-upper_vehicle_mean = df[df['well'].isin(upper_vehicle_wells)]['nuclei'].mean()
+upper_vehicle_mean = df_cp[df_cp['well'].isin(upper_vehicle_wells)]['nuclei'].mean()
 
 upper_dose1_wells = ['B3','C3','D3']
-upper_dose1_mean = df[df['well'].isin(upper_dose1_wells)]['nuclei'].mean()
+upper_dose1_mean = df_cp[df_cp['well'].isin(upper_dose1_wells)]['nuclei'].mean()
 
 upper_dose2_wells = ['B4','C4','D4']
-upper_dose2_mean = df[df['well'].isin(upper_dose2_wells)]['nuclei'].mean()
+upper_dose2_mean = df_cp[df_cp['well'].isin(upper_dose2_wells)]['nuclei'].mean()
 
 upper_dose3_wells = ['B5','C5','D5']
-upper_dose3_mean = df[df['well'].isin(upper_dose3_wells)]['nuclei'].mean()
+upper_dose3_mean = df_cp[df_cp['well'].isin(upper_dose3_wells)]['nuclei'].mean()
 
 upper_dose4_wells = ['B6', 'C6', 'D6']
-upper_dose4_mean = df[df['well'].isin(upper_dose4_wells)]['nuclei'].mean()
+upper_dose4_mean = df_cp[df_cp['well'].isin(upper_dose4_wells)]['nuclei'].mean()
 
 upper_dose5_wells = ['B7', 'C7', 'D7']
-upper_dose5_mean = df[df['well'].isin(upper_dose5_wells)]['nuclei'].mean()
+upper_dose5_mean = df_cp[df_cp['well'].isin(upper_dose5_wells)]['nuclei'].mean()
 
 upper_dose6_wells = ['B8', 'C8', 'D8']
-upper_dose6_mean = df[df['well'].isin(upper_dose6_wells)]['nuclei'].mean()
+upper_dose6_mean = df_cp[df_cp['well'].isin(upper_dose6_wells)]['nuclei'].mean()
 
 upper_dose7_wells = ['B9', 'C9', 'D9']
-upper_dose7_mean = df[df['well'].isin(upper_dose7_wells)]['nuclei'].mean()
+upper_dose7_mean = df_cp[df_cp['well'].isin(upper_dose7_wells)]['nuclei'].mean()
 
 upper_dose8_wells = ['B10','C10','D10']
-upper_dose8_mean = df[df['well'].isin(upper_dose8_wells)]['nuclei'].mean()
+upper_dose8_mean = df_cp[df_cp['well'].isin(upper_dose8_wells)]['nuclei'].mean()
 
 upper_dose9_wells = ['B11', 'C11', 'D11']
-upper_dose9_mean = df[df['well'].isin(upper_dose9_wells)]['nuclei'].mean()
+upper_dose9_mean = df_cp[df_cp['well'].isin(upper_dose9_wells)]['nuclei'].mean()
+logger.debug('Upper well nuclei count means calculated.')
 
 # Calculate the average nuclei per condition for the lower three rows
 lower_vehicle_wells = ['E2', 'F2', 'G2']
-lower_vehicle_mean = df[df['well'].isin(lower_vehicle_wells)]['nuclei'].mean()
+lower_vehicle_mean = df_cp[df_cp['well'].isin(lower_vehicle_wells)]['nuclei'].mean()
 
 lower_dose1_wells = ['E3', 'F3', 'G3']
-lower_dose1_mean = df[df['well'].isin(lower_dose1_wells)]['nuclei'].mean()
+lower_dose1_mean = df_cp[df_cp['well'].isin(lower_dose1_wells)]['nuclei'].mean()
 
 lower_dose2_wells = ['E4', 'F4', 'G4']
-lower_dose2_mean = df[df['well'].isin(lower_dose2_wells)]['nuclei'].mean()
+lower_dose2_mean = df_cp[df_cp['well'].isin(lower_dose2_wells)]['nuclei'].mean()
 
 lower_dose3_wells = ['E5','F5','G5']
-lower_dose3_mean = df[df['well'].isin(lower_dose3_wells)]['nuclei'].mean()
+lower_dose3_mean = df_cp[df_cp['well'].isin(lower_dose3_wells)]['nuclei'].mean()
 
 lower_dose4_wells = ['E6','F6','G6']
-lower_dose4_mean = df[df['well'].isin(lower_dose4_wells)]['nuclei'].mean()
+lower_dose4_mean = df_cp[df_cp['well'].isin(lower_dose4_wells)]['nuclei'].mean()
 
 lower_dose5_wells = ['E7','F7','G7']
-lower_dose5_mean = df[df['well'].isin(lower_dose5_wells)]['nuclei'].mean()
+lower_dose5_mean = df_cp[df_cp['well'].isin(lower_dose5_wells)]['nuclei'].mean()
 
 lower_dose6_wells = ['E8','F8','G8']
-lower_dose6_mean = df[df['well'].isin(lower_dose6_wells)]['nuclei'].mean()
+lower_dose6_mean = df_cp[df_cp['well'].isin(lower_dose6_wells)]['nuclei'].mean()
 
 lower_dose7_wells = ['E9','F9','G9']
-lower_dose7_mean = df[df['well'].isin(lower_dose7_wells)]['nuclei'].mean()
+lower_dose7_mean = df_cp[df_cp['well'].isin(lower_dose7_wells)]['nuclei'].mean()
 
 lower_dose8_wells = ['E10','F10','G10']
-lower_dose8_mean = df[df['well'].isin(lower_dose8_wells)]['nuclei'].mean()
+lower_dose8_mean = df_cp[df_cp['well'].isin(lower_dose8_wells)]['nuclei'].mean()
 
 lower_dose9_wells = ['E11','F11','G11']
-lower_dose9_mean = df[df['well'].isin(lower_dose9_wells)]['nuclei'].mean()
+lower_dose9_mean = df_cp[df_cp['well'].isin(lower_dose9_wells)]['nuclei'].mean()
+logger.debug('Lower well nuclei count means calculated.')
 
 # Define the conditions for the upper and lower groups so we can normalize within groups
 upper_conditions = [
@@ -286,18 +217,21 @@ lower_means = [
 ]
 
 # Normalize individual wells to their group vehicle control
-normalized_upper_wells = [[df[df['well'] == well]['nuclei'].mean() / upper_vehicle_mean for well in condition] 
+normalized_upper_wells = [[df_cp[df_cp['well'] == well]['nuclei'].mean() / upper_vehicle_mean for well in condition] 
                           for condition in upper_conditions]
-normalized_lower_wells = [[df[df['well'] == well]['nuclei'].mean() / lower_vehicle_mean for well in condition]
+normalized_lower_wells = [[df_cp[df_cp['well'] == well]['nuclei'].mean() / lower_vehicle_mean for well in condition]
                           for condition in lower_conditions]
+logger.debug('Individual well nuclei counts normalized to condition vehicle.')
 
 # Calculate standard deviation of each condition's normalized
 upper_sd = [st.stdev(condition) for condition in normalized_upper_wells]
 lower_sd = [st.stdev(condition) for condition in normalized_lower_wells]
+logger.debug('Vehicle-normalized standard deviation calculated.')
 
 # Calculate the mean nucleiCount for each condition and normalize it
 upper_normalized_means = [sum(condition) / len(condition) for condition in normalized_upper_wells]
 lower_normalized_means = [sum(condition) / len(condition) for condition in normalized_lower_wells]
+logger.debug('Vehicle-normalized means calculated.')
 
 # Pair column number with drug dose
 column_concentrations = {
@@ -313,22 +247,29 @@ column_concentrations = {
     '11': doses[8],
 }
 
-# Consolidate analytics into a .csv file
-df2 = pd.DataFrame(columns=column_concentrations)
-df2.index.name = '96-Well Column'
-df2.loc['Drug Concentration'] = list(column_concentrations.values())
-df2.loc[f'Relative Cell Viability {upper_name}'] = upper_normalized_means
-df2.loc[f'Relative Cell Viability {lower_name}'] = lower_normalized_means
-df2.loc[f'Relative Standard Deviation {upper_name}'] = upper_sd
-df2.loc[f'Relative Standard Deviation {lower_name}'] = lower_sd
-df2.to_csv(gda_output_dir / f'{title_name}_GDA_Stats.csv')
+# Define file path to or create CellPyAbility/GDA_output/ subfolder
+gda_output_dir = base_dir / 'GDA_output'
+gda_output_dir.mkdir(exist_ok=True)
+logger.debug('CellPyAbility/GDA_output/ identified or created and identified.')
+
+# Consolidate analytics into a new .csv file
+df_stats = pd.DataFrame(columns=column_concentrations)
+df_stats.index.name = '96-Well Column'
+df_stats.loc['Drug Concentration'] = list(column_concentrations.values())
+df_stats.loc[f'Relative Cell Viability {upper_name}'] = upper_normalized_means
+df_stats.loc[f'Relative Cell Viability {lower_name}'] = lower_normalized_means
+df_stats.loc[f'Relative Standard Deviation {upper_name}'] = upper_sd
+df_stats.loc[f'Relative Standard Deviation {lower_name}'] = lower_sd
+df_stats.to_csv(gda_output_dir / f'{title_name}_GDA_Stats.csv')
+logger.info(f'{title_name}_GDA_Stats saved to GDA_output.')
 
 # Normalize nuclei counts for each well individually
-df['normalized_nuclei'] = df.apply(
+df_cp['normalized_nuclei'] = df_cp.apply(
     lambda row: row['nuclei'] / upper_vehicle_mean 
     if row['well'][0] in ['B', 'C', 'D'] else row['nuclei'] / lower_vehicle_mean,
     axis=1
 )
+logger.debug('Each well normalized to its condition vehicle.')
 
 # Extract rows and columns for the matrix
 row_letters = ['B', 'C', 'D', 'E', 'F', 'G']
@@ -346,10 +287,11 @@ for letter in row_letters:
     for column_label, dose in column_concentrations.items():
         # Find the well(s) matching the current row and column
         well_pattern = letter + column_label  # e.g., 'B2'
-        matching_wells = df[df['well'] == well_pattern]
+        matching_wells = df_cp[df_cp['well'] == well_pattern]
 
         # Compute mean normalized viability for this well (in case there are duplicates)
         viability_matrix.at[letter, dose] = matching_wells['normalized_nuclei'].mean()
+logger.debug('Created a matrix with relative cell viability for each well.')
 
 # Rename the rows based on the cell line names given by the user
 row_labels = [f'{upper_name} rep 1', f'{upper_name} rep 2', f'{upper_name} rep 3', 
@@ -357,8 +299,9 @@ row_labels = [f'{upper_name} rep 1', f'{upper_name} rep 2', f'{upper_name} rep 3
 
 viability_matrix.index = row_labels
 
-# Save the matrix to a file or continue analysis
+# Save the viability matrix as a .csv
 viability_matrix.to_csv(gda_output_dir / f'{title_name}_GDA_ViabilityMatrix.csv')
+logger.info(f'{title_name}_GDA_ViabilityMatrix saved to GDA_output.')
 
 # Assign doses to the x-axis
 x = np.array(doses)
@@ -366,11 +309,16 @@ x = np.array(doses)
 # Assign average normalized nuclei counts to the y-axis for each condition
 y1 = np.array(upper_normalized_means[1:])
 y2 = np.array(lower_normalized_means[1:])
+logger.debug('Assigned doses and normalized means to x and y values via NumPy, respectively.')
 
 # Define non-linear regression for the xy-plot and estimate IC50s
 # Define the 5PL function
 def fivePL(x, A, B, C, D, G):  # (x = doses, A = min y, B = Hill slope, C = inflection, D = max y, G = asymetry):
     return ((A - D) / (1.0 + (x / C) ** B) ** G) + D
+
+# Define the Hill function as a fallback (if 5PL doesn't fit)
+def hill(x, Emax, EC50, HillSlope):
+    return Emax * (x**HillSlope) / (EC50**HillSlope + x**HillSlope)
 
 # Initial guesses for parameters
 params_init_5PL_y1 = [y1[np.argmin(y1)], 1, x[np.abs(y1 - 0.5).argmin()], y1[np.argmax(y1)], 1]  # [A, B, C, D, G]
@@ -378,65 +326,142 @@ params_init_5PL_y2 = [y2[np.argmin(y2)], 1, x[np.abs(y2 - 0.5).argmin()], y2[np.
 
 # Generate x values for the fitted curves
 x_plot = np.linspace(min(x), max(x), 1000)
+logger.debug('Generating a linear space containing highest and lowest doses via NumPy.')
 
 # Use curve_fit to fit the data for y1 and y2
 # Identify initial maxfev along with higher maxfev in case optimal parameters not found
-maxfev_initial = int(1e4)
-maxfev_retry = int(1e6)
+maxfev_initial = int(500)
+maxfev_retry = int(5000)
 
+# Fit the upper data with a 5PL of increasing maxfev, else return that 5PL does not fit
 try:
-    # First attempt with initial maxfev
-    popt_5PL_y1, pcov_5PL_y1 = curve_fit(fivePL, x, y1, p0=params_init_5PL_y1, maxfev=maxfev_initial)
+    popt_5PL_y1, pcov_5PL_y1 = curve_fit(
+        fivePL, x, y1,
+        p0=params_init_5PL_y1,
+        maxfev=maxfev_initial
+    )
+    logger.debug(f'Fitting a 5-parameter logistic to {upper_name} with maxfev={maxfev_initial}.')
+
+    x_plot_5PL_y1 = x_plot
+    y_plot_5PL_y1 = fivePL(x_plot, *popt_5PL_y1)
+    logger.debug(f'Made 5PL curve for {upper_name}.')
+
+    def root_func_y1(xx): return fivePL(xx, *popt_5PL_y1) - 0.5
+    initial_guess_y1 = x[np.abs(y1 - 0.5).argmin()]
+    IC50_y1 = scipy_root(root_func_y1, initial_guess_y1)
+    IC50_value_y1 = IC50_y1.x[0]
+    logger.info(f'5PL IC50 for {upper_name}: {IC50_value_y1}.')
 except RuntimeError:
-    print(f'RuntimeError encountered with maxfev={maxfev_initial} for {upper_name}. Retrying with maxfev={maxfev_retry}...')
     try:
-        # Second attempt with higher maxfev
-        popt_5PL_y1, pcov_5PL_y1 = curve_fit(fivePL, x, y1, p0=params_init_5PL_y1, maxfev=maxfev_retry)
+        logger.debug(f'RuntimeError with maxfev={maxfev_initial} for {upper_name}. Retrying with maxfev={maxfev_retry}…')
+        popt_5PL_y1, pcov_5PL_y1 = curve_fit(
+            fivePL, x, y1,
+            p0=params_init_5PL_y1,
+            maxfev=maxfev_retry
+        )
+
+        x_plot_5PL_y1 = x_plot
+        y_plot_5PL_y1 = fivePL(x_plot, *popt_5PL_y1)
+        logger.debug(f'Made 5PL curve for {upper_name}.')
+
+        def root_func_y1(xx): return fivePL(xx, *popt_5PL_y1) - 0.5
+        initial_guess_y1 = x[np.abs(y1 - 0.5).argmin()]
+        IC50_y1 = scipy_root(root_func_y1, initial_guess_y1)
+        IC50_value_y1 = IC50_y1.x[0]
+        logger.info(f'5PL IC50 for {upper_name}: {IC50_value_y1}.')
     except RuntimeError:
-        # These are some ugly data ... let them know
-        print(f'RuntimeError encountered with maxfev={maxfev_retry} for {upper_name}. A logistic model does not appear to fit these data.')
-        
+        logger.warning(f'RuntimeError with maxfev={maxfev_retry} for {upper_name}. 5PL does not fit these data. Falling back to Hill.')
+        # Initialize Hill function
+        Emax_init       = y1.max()
+        EC50_init       = x[np.abs(y1 - 0.5).argmin()]
+        HillSlope_init  = 1
+        popt_hill_y1, pcov_hill_y1 = curve_fit(
+            hill, x, y1,
+            p0=[Emax_init, EC50_init, HillSlope_init],
+            maxfev=10000
+        )
+        # Set up the Hill curve
+        y_plot_5PL_y1 = hill(x_plot, *popt_hill_y1)
+        x_plot_5PL_y1 = x_plot
+        logger.debug(f'Made Hill curve for {upper_name}.')
+
+        # IC50 via root‐finding on the Hill model
+        def root_hill_y1(xx): return hill(xx, *popt_hill_y1) - 0.5
+        IC50_hill_y1 = scipy_root(root_hill_y1, EC50_init)
+        IC50_value_y1 = IC50_hill_y1.x[0]
+        logger.info(f'Hill IC50 for {upper_name}: {IC50_value_y1}.')
+
+# Repeat for lower data
 try:
-    # First attempt with initial maxfev
-    popt_5PL_y2, pcov_5PL_y2 = curve_fit(fivePL, x, y2, p0=params_init_5PL_y2, maxfev=maxfev_initial)
+    popt_5PL_y2, pcov_5PL_y2 = curve_fit(
+        fivePL, x, y2,
+        p0=params_init_5PL_y2,
+        maxfev=maxfev_initial
+    )
+    logger.debug(f'Fitting a 5-parameter logistic to {lower_name} with maxfev={maxfev_initial}.')
+
+    popt_5PL_y2, pcov_5PL_y2 = curve_fit(
+        fivePL, x, y2,
+        p0=params_init_5PL_y2,
+        maxfev=maxfev_retry
+    )
+    x_plot_5PL_y2 = x_plot
+    y_plot_5PL_y2 = fivePL(x_plot, *popt_5PL_y2)
+    logger.debug(f'Made 5PL curve for {lower_name}.')
+    def root_func_y2(xx): return fivePL(xx, *popt_5PL_y2) - 0.5
+    initial_guess_y2 = x[np.abs(y2 - 0.5).argmin()]
+    IC50_y2 = scipy_root(root_func_y2, initial_guess_y2)
+    IC50_value_y2 = IC50_y2.x[0]
+    logger.info(f'5PL IC50 for {lower_name}: {IC50_value_y2}.')
 except RuntimeError:
-    print(f'RuntimeError encountered with maxfev={maxfev_initial} for {lower_name}. Retrying with maxfev={maxfev_retry}...')
     try:
-        # Second attempt with higher maxfev
-        popt_5PL_y2, pcov_5PL_y2 = curve_fit(fivePL, x, y2, p0=params_init_5PL_y2, maxfev=maxfev_retry)
-    except:
-        # These are some ugly data ... let them know
-        print(f'RunTimeError encountered with maxfev={maxfev_retry} for {lower_name}. A logistic model does not apeear to fit these data.')
+        logger.debug(f'RuntimeError with maxfev={maxfev_initial} for {lower_name}. Retrying with maxfev={maxfev_retry}…')
+        popt_5PL_y2, pcov_5PL_y2 = curve_fit(
+            fivePL, x, y2,
+            p0=params_init_5PL_y2,
+            maxfev=maxfev_retry
+        )
 
-# Calculate y values for the fitted curves for y1 and y2
-y_plot_5PL_y1 = fivePL(x_plot, *popt_5PL_y1)
-y_plot_5PL_y2 = fivePL(x_plot, *popt_5PL_y2)
+        x_plot_5PL_y2 = x_plot
+        y_plot_5PL_y2 = fivePL(x_plot, *popt_5PL_y2)
+        logger.debug(f'Made 5PL curve for {lower_name}.')
 
-# Plot the fitted curves for y1 and y2
-plt.plot(x_plot, y_plot_5PL_y1, 'b-')
-plt.plot(x_plot, y_plot_5PL_y2, 'r-')
+        def root_func_y2(xx): return fivePL(xx, *popt_5PL_y2) - 0.5
+        initial_guess_y2 = x[np.abs(y2 - 0.5).argmin()]
+        IC50_y2 = scipy_root(root_func_y2, initial_guess_y2)
+        IC50_value_y2 = IC50_y2.x[0]
+        logger.info(f'5PL IC50 for {lower_name}: {IC50_value_y2}.')
 
-# Define the function to estimate IC50 for y1 and y2
-def root_func_y1(x):
-    return fivePL(x, *popt_5PL_y1) - 0.5
+    except RuntimeError:
+        logger.warning(f'RuntimeError with maxfev={maxfev_retry} for {lower_name}. 5PL does not fit these data. Falling back to Hill.')
+        # Initialize Hill function
+        Emax_init       = y2.max()
+        EC50_init       = x[np.abs(y2 - 0.5).argmin()]
+        HillSlope_init  = 1
+        popt_hill_y2, pcov_hill_y2 = curve_fit(
+            hill, x, y2,
+            p0=[Emax_init, EC50_init, HillSlope_init],
+            maxfev=10000
+        )
+        # Set up the Hill curve
+        y_plot_5PL_y2 = hill(x_plot, *popt_hill_y2)
+        x_plot_5PL_y2 = x_plot
+        logger.debug(f'Made Hill curve for {lower_name}.')
 
-def root_func_y2(x):
-    return fivePL(x, *popt_5PL_y2) - 0.5
+        # IC50 via root‐finding on the Hill model
+        def root_hill_y2(xx): return hill(xx, *popt_hill_y2) - 0.5
+        IC50_hill_y2 = scipy_root(root_hill_y2, EC50_init)
+        IC50_value_y2 = IC50_hill_y2.x[0]
+        logger.info(f'Hill IC50 for {lower_name}: {IC50_value_y2}.')
 
-# Use the dose (x) closest to y=0.5 as initials for IC50 estimates
-initial_guess_y1 = x[np.abs(y1 - 0.5).argmin()]
-initial_guess_y2 = x[np.abs(y2 - 0.5).argmin()]
-print(initial_guess_y1)
-print(initial_guess_y2)
-
-# Estimate the IC50 for y1 and y2
-IC50_y1 = scipy_root(root_func_y1, initial_guess_y1)
-IC50_y2 = scipy_root(root_func_y2, initial_guess_y2)
-
-# Calculate the ratio of IC50 estimates
-IC50_value_y1 = IC50_y1.x[0]
-IC50_value_y2 = IC50_y2.x[0]
+# Find the IC50 ratio of the upper condition / lower condition (may be irrelevant depending on purpose of experiment)
 IC50_ratio = IC50_value_y1 / IC50_value_y2
+logger.info(f'{upper_name} IC50 / {lower_name} IC50 = {IC50_ratio}')
+
+# Plot the curves if 5PL fit, otherwise connecting points by line
+plt.plot(x_plot_5PL_y1, y_plot_5PL_y1, 'b-')
+plt.plot(x_plot_5PL_y2, y_plot_5PL_y2, 'r-')
+logger.debug('Plotted data.')
 
 # Create scatter plot
 # Create basic structure
@@ -451,13 +476,13 @@ plt.errorbar(x, y2, yerr=lower_sd[1:], fmt='o', color='red', capsize=3)
 plt.xlabel('Concentration (M)')
 plt.ylabel('Relative Cell Survival')
 plt.title(str(title_name))
-plt.text(0.05, 0.09, f'IC50 = {IC50_y1.x[0]:.2e}',
+plt.text(0.05, 0.09, f'IC50 = {IC50_value_y1:.2e}',
     color='blue',
     fontsize=10,
     transform=plt.gca().transAxes
 )
 plt.text(
-    0.05, 0.05, f'IC50 = {IC50_y2.x[0]:.2e}',
+    0.05, 0.05, f'IC50 = {IC50_value_y2:.2e}',
     color='red',
     fontsize=10,
     transform=plt.gca().transAxes
@@ -470,17 +495,11 @@ plt.text(
 )
 plt.legend()
 plt.savefig(gda_output_dir / f'{title_name}_GDA_plot.png', dpi=200, bbox_inches='tight')
+logger.info(f'{title_name} GDA plot saved to CellPyAbility/GDA_output/.')
 plt.show()
 
 # Rename the CellProfiler output using the provided title name
 counts_csv = gda_output_dir / f'{title_name}_GDA_counts.csv'
 
-try:
-    os.rename(cp_csv, counts_csv)
-    print(f'{cp_csv} succesfully renamed to {counts_csv}')
-except FileNotFoundError:
-    print(f'{cp_csv} not found')
-except PermissionError:
-    print(f'Permission denied. {cp_csv} may be open or in use.')
-except Exception as e:
-    print(f'While renaming {cp_csv}, an error occurred: {e}')
+tb.rename_counts(cp_csv, counts_csv)
+logger.info(f'{title_name} raw counts saved to CellPyAbility/GDA_output/.')
