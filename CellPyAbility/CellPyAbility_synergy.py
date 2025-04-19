@@ -1,210 +1,131 @@
+import logging
 import os
 import subprocess
 from pathlib import Path
 from tkinter import ttk, messagebox, filedialog
 from ttkthemes import ThemedTk
 
+import CellPyAbility_toolbox as tb
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
-# Establish the base directory as the script's location
-base_dir = Path(__file__).resolve().parent
+# Initialize toolbox
+logger, base_dir, cp_path = tb.logger, tb.base_dir, tb.cp_path
 
-# File where the CellProfiler path will be saved
-config_file = base_dir / "cellprofiler_path.txt"
+# Establish the GUI for experiment info
+def synergy_gui():
+    image_dir = ''
+    def select_image_dir():
+        nonlocal image_dir
+        image_dir = filedialog.askdirectory()
 
-if not base_dir.exists():
-    print(f"Base directory {base_dir} does not exist.")
-    exit(1)
-elif not os.access(base_dir, os.W_OK):
-    print(f"Base directory {base_dir} is not writable.")
-    exit(1)
+    # Create main window
+    root = ThemedTk(theme='black', themebg=True)
 
-def get_cellprofiler_path():
-    default_64bit_path = Path(r"C:\Program Files\CellProfiler\CellProfiler.exe")
-    default_32bit_path = Path(r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe")
-    default_mac_path = Path("/Applications/CellProfiler.app/Contents/MacOS/cp")
+    # Create entry fields for inputs
+    label1 = ttk.Label(root, text='Enter the title of the experiment:')
+    label1.pack()
+    entry1 = ttk.Entry(root)
+    entry1.pack()
+    label2 = ttk.Label(root, text='Enter the drug name for the horizontal gradient:')
+    label2.pack()
+    entry2 = ttk.Entry(root)
+    entry2.pack()
+    label3 = ttk.Label(root, text='Enter the horizontal top concentration (M):')
+    label3.pack()
+    entry3 = ttk.Entry(root)
+    entry3.pack()
+    label4 = ttk.Label(root, text='Enter the horizontal dilution factor (x-fold):')
+    label4.pack()
+    entry4 = ttk.Entry(root)
+    entry4.pack()
+    label5 = ttk.Label(root, text='Enter the drug name for the vertical gradient:')
+    label5.pack()
+    entry5 = ttk.Entry(root)
+    entry5.pack()
+    label6 = ttk.Label(root, text='Enter the vertical top concentration (M):')
+    label6.pack()
+    entry6 = ttk.Entry(root)
+    entry6.pack()
+    label7 = ttk.Label(root, text='Enter the vertical dilution factor (x-fold):')
+    label7.pack()
+    entry7 = ttk.Entry(root)
+    entry7.pack()
 
-    # Check if CellProfiler is saved in the default locations
-    if default_64bit_path.exists():
-        new_path = default_64bit_path
-    elif default_32bit_path.exists():
-        new_path = default_32bit_path
-    elif default_mac_path.exists():
-        new_path = default_mac_path
-    else:
-        # Check if the alternate path is already saved
-        if os.path.exists(config_file):
-            with open(config_file, "r") as file:
-                saved_path = file.read().strip()
-                if os.path.exists(saved_path):
-                    print(f"Using saved CellProfiler path: {saved_path}")
-                    return saved_path
-                else:
-                    print("Saved path is invalid. Re-entering path ...")
-
-        # Prompt the user for the path if not saved or invalid
-        new_path = input("Enter the path to the CellProfiler program: ").strip()
-        new_path = new_path.strip('"').strip("'")
-        print(new_path)
+    # Adds button for image directory file select
+    image_dir_button = ttk.Button(root, text='Select Image Directory', command=select_image_dir)
+    image_dir_button.pack()
     
-        # Verify the path exists
-        if not os.path.exists(new_path):
-            print("Error: Path does not exist. Please try again.")
-            return get_cellprofiler_path()  # Recursive call for valid input
-
-        # Save the path to the file for future use
-        with open(config_file, "w") as file:
-            file.write(new_path)
-        print(f"Path saved successfully: {new_path}")
-    return new_path
-
-# Get the CellProfiler path
-cp_path = get_cellprofiler_path()
-
-## Establish the GUI
-# Define GUI functions and assign variables to inputs
-def select_image_dir():
-    global temp_image_dir
-    temp_image_dir = filedialog.askdirectory()
-    print(f"Directory selected: {temp_image_dir}")
-
-def submit():
-    global x_doses, y_doses, x_title, y_title, plot_title, image_dir
-
-    # Get input from entry field
-    input_x_doses = entry_x_doses.get()
-    input_y_doses = entry_y_doses.get()
-    plot_title = entry_plot_title.get()
-    x_title = entry_x_title.get()
-    y_title = entry_y_title.get()
-
-    # Split input into list of strings
-    x_doses_str = input_x_doses.split('\t')
-
-    # Check if there are 9 values
-    if len(x_doses_str) != 9:
-        messagebox.showerror('Error', 'Please enter 9 values (exclude zero).')
-        return
-
-    # Convert list of strings to list of floats
-    try:
-        x_doses = [float(dose) for dose in x_doses_str]
-    except ValueError:
-        messagebox.showerror('Error', 'Please enter valid numbers.')
-
- # Split input into list of strings
-    y_doses_str = input_y_doses.split('\t')
-
-    # Check if there are 5 values
-    if len(y_doses_str) != 5:
-        messagebox.showerror('Error', 'Please enter 5 values (exclude zero).')
-        return
-
-    # Convert list of strings to list of floats
-    try:
-        y_doses = [float(dose) for dose in y_doses_str]
-    except ValueError:
-        messagebox.showerror('Error', 'Please enter valid numbers.')
+    # This dictionary will hold the result
+    gui_inputs = {}
     
-    # Assign the temporary image directory selected to the image_dir variable for further analysis
-    image_dir = temp_image_dir
-    root.destroy()
+    # Callback function to use when the form is submitted
+    def submit():
+        gui_inputs['title_name'] = entry1.get()
+        gui_inputs['x_drug'] = entry2.get()
+        gui_inputs['x_top_conc'] = entry3.get()
+        gui_inputs['x_dilution'] = entry4.get()
+        gui_inputs['y_drug'] = entry5.get()
+        gui_inputs['y_top_conc'] = entry6.get()
+        gui_inputs['y_dilution'] = entry7.get()
+        gui_inputs['image_dir'] = image_dir
+        root.destroy()
+    
+    # Create button to submit form
+    submit_button = ttk.Button(root, text='Submit', command=submit)
+    submit_button.pack()
+    
+    root.mainloop()
+    logger.debug('GUI submitted.')
+    return gui_inputs 
 
-# Create main window
-root = ThemedTk(theme='black', themebg=True)
+# Assign the synergy_gui output to script variable
+gui_inputs = synergy_gui()
 
-# Create GUI labels and entry fields
-label_plot_title = ttk.Label(root, text = 'Enter the title of the plot:')
-label_plot_title.pack()
-entry_plot_title = ttk.Entry(root)
-entry_plot_title.pack()
+# Assign GUI inputs to script variables
+title_name = gui_inputs['title_name']
+x_drug = gui_inputs['x_drug']
+x_top_conc = float(gui_inputs['x_top_conc'])
+x_dilution = float(gui_inputs['x_dilution'])
+y_drug = gui_inputs['y_drug']
+y_top_conc = float(gui_inputs['y_top_conc'])
+y_dilution = float(gui_inputs['y_dilution'])
+image_dir = gui_inputs.get('image_dir')
+logger.debug('GUI inputs assigned to variables.')
 
-label_x_title = ttk.Label(root, text = 'Enter the name of the vertical drug used:')
-label_x_title.pack()
-entry_x_title = ttk.Entry(root)
-entry_x_title.pack()
+# Calculate x and y concentration gradients
+x_doses = tb.dose_range_x(x_top_conc, x_dilution)
+logger.debug('x_doses gradient calculated.')
+y_doses = tb.dose_range_y(y_top_conc, y_dilution)
+logger.debug('y_doses gradient calculated.')
 
-label_y_doses = ttk.Label(root, text='Enter the vertical five doses (exclude zero), separated by tab:')
-label_y_doses.pack()
-entry_y_doses = ttk.Entry(root)
-entry_y_doses.pack()
-
-label_y_title = ttk.Label(root, text = 'Enter the name of the horizontal drug used:')
-label_y_title.pack()
-entry_y_title = ttk.Entry(root)
-entry_y_title.pack()
-
-label_x_doses = ttk.Label(root, text='Enter the horizontal nine doses (exclude zero), separated by tab:')
-label_x_doses.pack()
-entry_x_doses = ttk.Entry(root)
-entry_x_doses.pack()
-
-# Create buttons for selecting directories and files
-image_dir_button = ttk.Button(root, text='Select Image Directory', command=select_image_dir)
-image_dir_button.pack()
-
-# Create submit button
-submit_button = ttk.Button(root, text='Submit', command=submit)
-submit_button.pack()
-
-# Start main loop
-root.mainloop()
-
-## Define the path to the pipeline (.cppipe)
-cppipe_path = base_dir / 'CellPyAbility.cppipe'
-
-## Define the folder where CellProfiler will output the .csv results
-cp_output_dir = base_dir / 'cp_output'
-cp_output_dir.mkdir(exist_ok=True)
-
-# Run CellProfiler from the command line
-subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', cp_output_dir])
-
-# Define the path to the CellProfiler counting output
-cp_csv = cp_output_dir / 'CellPyAbilityImage.csv'
+# Run CellProfiler headless and return a DataFrame with the raw nuclei counts and the .csv path
+df_cp, cp_csv = tb.run_cellprofiler(image_dir)
 
 # Load the CellProfiler counts into a DataFrame
-df = pd.read_csv(cp_csv)
-
-# Define wells
-wells = [
-    'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11',
-    'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11',
-    'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11',
-    'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'E10', 'E11',
-    'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11',
-    'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11',
-]
+df_cp.drop('ImageNumber', axis=1, inplace=True)
+df_cp.columns = ['nuclei', 'well']
 
 # Initialize lists for results
 well_means = []
 well_std = []
 
-# Group rows and calculate statistics
-for well in wells:
+# Group triplicates and calculate statistics
+for well in tb.wells:
     # Find rows where 'File Name' contains the well name
-    condition_rows = df[df['FileName_images'].str.contains(well, na=False)]
+    condition_rows = df_cp[df_cp['well'].str.contains(well, na=False)]
     
     # Extract Count_nuclei for these rows
-    counts = condition_rows['Count_nuclei']
+    counts = condition_rows['nuclei']
     
     # Calculate statistics
     well_means.append(counts.mean())
     well_std.append(counts.std())
-
-row_concentrations = {
-    'B': 0,  # Control
-    'C': y_doses[0],
-    'D': y_doses[1],
-    'E': y_doses[2],
-    'F': y_doses[3],
-    'G': y_doses[4]
-}
+    logger.debug('Nuclei mean and standard deviation calculated.')
 
 column_concentrations = {
-    '2': 0,  # Control
+    '2': 0, # vehicle
     '3': x_doses[0],
     '4': x_doses[1],
     '5': x_doses[2],
@@ -216,62 +137,72 @@ column_concentrations = {
     '11': x_doses[8]
 }
 
+row_concentrations = {
+    'B': 0, # vehicle
+    'C': y_doses[0],
+    'D': y_doses[1],
+    'E': y_doses[2],
+    'F': y_doses[3],
+    'G': y_doses[4]
+}
+
 # Extract row and column labels from well names
-rows = [well[0] for well in wells]
-columns = [well[1:] for well in wells]
+rows = [well[0] for well in tb.wells]
+columns = [well[1:] for well in tb.wells]
+logger.debug('Row and column labels extracted from well names.')
 
 # Map concentrations to rows and columns
 row_conc = [row_concentrations[row] for row in rows]
 col_conc = [column_concentrations[col] for col in columns]
+logger.debug('Row and column concentrations mapped.')
 
 # Normalize well means to vehicle (B2) mean
 normalized_means = [mean / well_means[0] for mean in well_means]
+logger.debug('Mean nuclei count normalized to vehicle control.')
 
 # Frame that data
 well_descriptions = {
-    'Well': wells,
+    'Well': tb.wells,
     'Mean': well_means,
     'Standard Deviation': well_std,
     'Normalized Mean': normalized_means,
     'Row Drug Concentration': row_conc,
     'Column Drug Concentration': col_conc
 }
-df2_results = pd.DataFrame(well_descriptions)
+df_stats = pd.DataFrame(well_descriptions)
 
 # Define file path for synergy_output subfolder
 synergy_output_dir = base_dir / 'synergy_output'
 synergy_output_dir.mkdir(exist_ok=True)
+logger.debug('CellPyAbility/synergy_output/ identified or created and identified.')
 
-# Export as .csv
-metrics_output_path = synergy_output_dir / f'{plot_title}_synergy_metrics.csv'
-df2_results.to_csv(metrics_output_path, index=False)
-
-# Read .csv with pandas
-df2 = pd.read_csv(metrics_output_path)
-
-# Create arrays for x drug effects alone and y drug effects alone
-x_effect_alone = df2[df2['Well'].str.startswith('B')]['Normalized Mean'].values
-y_effect_alone = df2[df2['Well'].str.endswith('2')]['Normalized Mean'].values
+# Save the experiment viability statistics as a .csv
+df_stats.to_csv(synergy_output_dir / f'{title_name}_synergy_stats.csv', index=False)
+logger.info(f'{title_name} synergy stats saved to synergy_output')
 
 # Initialize a list to store Bliss independence results
 bliss_results = []
 
-# Iterate over each well in the DataFrame
-for index, row in df2.iterrows():
+# Pull viability values from df_stats to calculate Bliss Independence
+for index, row in df_stats.iterrows():
     well_name = row['Well']
     observed_combined_effect = row['Normalized Mean']
+    logger.debug('Normalized means pulled from df_stats.')
     
-    # Determine the x and y effects based on the well name
+    # Determine the x-alone and y-alone effects based on the well name
     if well_name[0] in 'BCDEFG' and well_name[1:] in '234567891011':
-        x_effect = df2[df2['Well'] == 'B' + well_name[1:]]['Normalized Mean'].values[0]
-        y_effect = df2[df2['Well'] == well_name[0] + '2']['Normalized Mean'].values[0]
-        
+        x_effect = df_stats[df_stats['Well'] == 'B' + well_name[1:]]['Normalized Mean'].values[0]
+        y_effect = df_stats[df_stats['Well'] == well_name[0] + '2']['Normalized Mean'].values[0]
+        logger.debug('x_effect (row B normalized means) and y_effect (column 2 normalized means) identified.')
+
         # Calculate the expected combined effect
         expected_combined_effect = x_effect * y_effect
-        
+        logger.debug('Expected combined effects (x_effect * y_effect) calculated.')
+
         # Calculate the Bliss independence
         bliss_independence = expected_combined_effect - observed_combined_effect
-        
+        logger.debug('Bliss independence scores calculated.')
+
         # Store the result
         bliss_results.append({
             'Well': well_name,
@@ -279,32 +210,37 @@ for index, row in df2.iterrows():
             'Observed Combined Effect': observed_combined_effect,
             'Bliss Independence': bliss_independence
         })
+        logger.info(f'Highest Bliss score in these data: {max(bliss_independence)}.')
 
 # Convert the results to a DataFrame
-bliss_df = pd.DataFrame(bliss_results)
+df_bliss = pd.DataFrame(bliss_results)
 
-# Add 'Row Drug Concentration' and 'Column Drug Concentration' to bliss_df
-bliss_df['Row Drug Concentration'] = bliss_df['Well'].apply(lambda x: row_concentrations[x[0]])
-bliss_df['Column Drug Concentration'] = bliss_df['Well'].apply(lambda x: column_concentrations[x[1:]])
+# Add 'Row Drug Concentration' and 'Column Drug Concentration' to df_bliss
+df_bliss['Row Drug Concentration'] = df_bliss['Well'].apply(lambda x: row_concentrations[x[0]])
+df_bliss['Column Drug Concentration'] = df_bliss['Well'].apply(lambda x: column_concentrations[x[1:]])
 
 # Create a pivot table for normalized means
-normalized_means_pivot = df2.pivot(index='Column Drug Concentration', columns='Row Drug Concentration', values='Normalized Mean')
+normalized_means_pivot = df_stats.pivot(index='Column Drug Concentration', columns='Row Drug Concentration', values='Normalized Mean')
 
 # Create a pivot table for Bliss independence
-bliss_independence_pivot = bliss_df.pivot(index='Column Drug Concentration', columns='Row Drug Concentration', values='Bliss Independence')
+bliss_independence_pivot = df_bliss.pivot(index='Column Drug Concentration', columns='Row Drug Concentration', values='Bliss Independence')
 
 # Convert pivot tables to numpy arrays
 cell_survival = normalized_means_pivot.values
 bliss_independence = bliss_independence_pivot.values
 
-normalized_means_pivot.to_csv(synergy_output_dir / f'{plot_title}_synergy_ViabilityMatrix.csv')
-bliss_independence_pivot.to_csv(synergy_output_dir / f'{plot_title}_synergy_BlissMatrix.csv')
+# Save viability and Bliss matrices as .csv files
+normalized_means_pivot.to_csv(synergy_output_dir / f'{title_name}_synergy_ViabilityMatrix.csv')
+logger.info(f'{title_name} viability matrix saved to synergy_output.')
+
+bliss_independence_pivot.to_csv(synergy_output_dir / f'{title_name}_synergy_BlissMatrix.csv')
+logger.info(f'{title_name} Bliss score matrix saved to synergy_output.')
 
 # Extract x and y values from the pivot tables
 x_values = normalized_means_pivot.columns.values
 y_values = normalized_means_pivot.index.values
 
-# Replace zero values in x_values and y_values with a small positive number
+# Replace zero values in x_values and y_values with a small positive number of fixed logarithmic distance
 min_x_value = min(x_values[x_values > 0])
 min_y_value = min(y_values[y_values > 0])
 
@@ -332,16 +268,16 @@ max_z_value = np.max(cell_survival)
 
 # Update layout to set x and y axes to logarithmic scale
 fig.update_layout(
-    title=str(plot_title),
+    title=str(title_name),
     scene=dict(
         xaxis=dict(
-            title=x_title,
+            title=x_drug,
             type='log',
             ticktext=x_ticktext,
             tickvals=x_tickvals
         ),
         yaxis=dict(
-            title=y_title,
+            title=y_drug,
             type='log',
             ticktext=y_ticktext,
             tickvals=y_tickvals
@@ -354,7 +290,7 @@ fig.update_layout(
 )
 
 # Rename CellProfiler output with experiment title and save in synergy_output
-counts_csv = synergy_output_dir / f'{plot_title}_synergy_counts.csv'
+counts_csv = synergy_output_dir / f'{title_name}_synergy_counts.csv'
 
 try:
     os.rename(cp_csv, counts_csv)
@@ -367,5 +303,5 @@ except Exception as e:
     print(f'While renaming {cp_csv}, an error occurred: {e}')
 
 # Show the plot
-fig.write_html(synergy_output_dir / f'{plot_title}_synergy_plot.html')
+fig.write_html(synergy_output_dir / f'{title_name}_synergy_plot.html')
 fig.show()
