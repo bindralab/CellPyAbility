@@ -33,26 +33,19 @@ def gda_gui():
     root = ThemedTk(theme='black', themebg=True)
 
     # Create entry fields for inputs
-    label1 = ttk.Label(root, text='Enter the title of the experiment:')
-    label1.pack()
-    entry1 = ttk.Entry(root)
-    entry1.pack()
-    label2 = ttk.Label(root, text='Enter the name of the cell condition in rows B-D:')
-    label2.pack()
-    entry2 = ttk.Entry(root)
-    entry2.pack()
-    label3 = ttk.Label(root, text='Enter the name of the cell condition in rows E-G:')
-    label3.pack()
-    entry3 = ttk.Entry(root)
-    entry3.pack()
-    label4 = ttk.Label(root, text='Enter the top concentration (M):')
-    label4.pack()
-    entry4 = ttk.Entry(root)
-    entry4.pack()
-    label5 = ttk.Label(root, text='Enter the dilution factor (x-fold):')
-    label5.pack()
-    entry5 = ttk.Entry(root)
-    entry5.pack()
+    entries = {}
+    fields = [
+        ('title_name', 'Enter the title of the experiment:'),
+        ('upper_name', 'Enter the name for the upper cell condition (rows B-D):'),
+        ('lower_name', 'Enter the name for the lower cell condition (rows E-G):'),
+        ('top_conc', 'Enter the top concentration of drug used (column 11):'),
+        ('dilution', 'Enter the drug dilution factor (x-fold):'),
+    ]
+    for key, text in fields:
+        ttk.Label(root, text=text).pack()
+        entry = ttk.Entry(root)
+        entry.pack()
+        entries[key] = entry
 
     # Adds button for image directory file select
     image_dir_button = ttk.Button(root, text='Select Image Directory', command=select_image_dir)
@@ -63,11 +56,8 @@ def gda_gui():
     
     # Callback function to use when the form is submitted
     def submit():
-        gui_inputs['title_name'] = entry1.get()
-        gui_inputs['upper_name'] = entry2.get()
-        gui_inputs['lower_name'] = entry3.get()
-        gui_inputs['top_conc'] = entry4.get()
-        gui_inputs['dilution'] = entry5.get()
+        for key, entry in entries.items():
+            gui_inputs[key] = entry.get()
         gui_inputs['image_dir'] = image_dir
         root.destroy()
     
