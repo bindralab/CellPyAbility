@@ -1,3 +1,9 @@
+"""
+CellPyAbility_synergy.py is intended for dose combination analysis of 59 combinations and one vehicle.
+This script should remain in the same directory as the other CellPyAbility scripts.
+For more information, please see the README at https://github.com/bindralab/CellPyAbility.
+"""
+
 import logging
 import os
 import subprocess
