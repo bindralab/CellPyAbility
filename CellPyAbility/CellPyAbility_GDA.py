@@ -1,6 +1,5 @@
 import logging
 import os
-import statistics as st
 import subprocess
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
@@ -15,7 +14,7 @@ from scipy.interpolate import interp1d
 from ttkthemes import ThemedTk
 
 # Initialize toolbox
-logger, base_dir, cp_path = tb.logger, tb.base_dir, tb.cp_path
+logger, base_dir = tb.logger, tb.base_dir
 
 # Establish the GUI for experiment info
 def gda_gui():
@@ -72,7 +71,7 @@ def gda_gui():
     
     root.mainloop()
     logger.debug('GUI submitted.')
-    return gui_inputs 
+    return gui_inputs
 
 # Assign the gda_gui output to script variable
 gui_inputs = gda_gui()
@@ -84,7 +83,6 @@ lower_name = gui_inputs['lower_name']
 top_conc = float(gui_inputs['top_conc'])
 dilution = float(gui_inputs['dilution'])
 image_dir = gui_inputs.get('image_dir')
-logger.debug('GUI inputs assigned to variables.')
 
 # Create a concentration range array
 doses = tb.dose_range_x(top_conc, dilution)
@@ -100,152 +98,40 @@ df_cp.columns = ['nuclei', 'well']
 df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x, tb.wells))
 logger.debug('CellProfiler output rows renamed to well names.')
 
-# Calculate the average nuclei per condition for the upper three rows
-upper_vehicle_wells = ['B2','C2','D2']
-upper_vehicle_mean = df_cp[df_cp['well'].isin(upper_vehicle_wells)]['nuclei'].mean()
+# Extract row/column designators for pivoting
+df_cp[['Row','Column']] = df_cp['well'].str.extract(r'^([B-G])(\d+)$')
+logger.debug('Extracted Row and Column from well names.')
 
-upper_dose1_wells = ['B3','C3','D3']
-upper_dose1_mean = df_cp[df_cp['well'].isin(upper_dose1_wells)]['nuclei'].mean()
+# Pivot nuclei counts into a matrix for fast group stats
+count_matrix = df_cp.pivot(index='Row', columns='Column', values='nuclei')
+logger.debug('Pivoted df_cp into count_matrix.')
 
-upper_dose2_wells = ['B4','C4','D4']
-upper_dose2_mean = df_cp[df_cp['well'].isin(upper_dose2_wells)]['nuclei'].mean()
+# Define upper and lower rows
+upper_rows = ['B', 'C', 'D']
+lower_rows = ['E', 'F', 'G']
 
-upper_dose3_wells = ['B5','C5','D5']
-upper_dose3_mean = df_cp[df_cp['well'].isin(upper_dose3_wells)]['nuclei'].mean()
+# Compute mean nuclei per column for upper and lower groups
+upper_counts = count_matrix.loc[upper_rows]
+lower_counts = count_matrix.loc[lower_rows]
 
-upper_dose4_wells = ['B6', 'C6', 'D6']
-upper_dose4_mean = df_cp[df_cp['well'].isin(upper_dose4_wells)]['nuclei'].mean()
+upper_means = upper_counts.mean(axis=0)
+lower_means = lower_counts.mean(axis=0)
 
-upper_dose5_wells = ['B7', 'C7', 'D7']
-upper_dose5_mean = df_cp[df_cp['well'].isin(upper_dose5_wells)]['nuclei'].mean()
+# Normalize means to vehicle control (column '2')
+upper_vehicle = upper_means['2']
+lower_vehicle = lower_means['2']
+upper_normalized_means = (upper_means / upper_vehicle).loc[[str(i) for i in range(2,12)]].tolist()
+lower_normalized_means = (lower_means / lower_vehicle).loc[[str(i) for i in range(2,12)]].tolist()
+logger.debug('Upper and lower mean nuclei counts normalized to vehicle.')
 
-upper_dose6_wells = ['B8', 'C8', 'D8']
-upper_dose6_mean = df_cp[df_cp['well'].isin(upper_dose6_wells)]['nuclei'].mean()
-
-upper_dose7_wells = ['B9', 'C9', 'D9']
-upper_dose7_mean = df_cp[df_cp['well'].isin(upper_dose7_wells)]['nuclei'].mean()
-
-upper_dose8_wells = ['B10','C10','D10']
-upper_dose8_mean = df_cp[df_cp['well'].isin(upper_dose8_wells)]['nuclei'].mean()
-
-upper_dose9_wells = ['B11', 'C11', 'D11']
-upper_dose9_mean = df_cp[df_cp['well'].isin(upper_dose9_wells)]['nuclei'].mean()
-logger.debug('Upper well nuclei count means calculated.')
-
-# Calculate the average nuclei per condition for the lower three rows
-lower_vehicle_wells = ['E2', 'F2', 'G2']
-lower_vehicle_mean = df_cp[df_cp['well'].isin(lower_vehicle_wells)]['nuclei'].mean()
-
-lower_dose1_wells = ['E3', 'F3', 'G3']
-lower_dose1_mean = df_cp[df_cp['well'].isin(lower_dose1_wells)]['nuclei'].mean()
-
-lower_dose2_wells = ['E4', 'F4', 'G4']
-lower_dose2_mean = df_cp[df_cp['well'].isin(lower_dose2_wells)]['nuclei'].mean()
-
-lower_dose3_wells = ['E5','F5','G5']
-lower_dose3_mean = df_cp[df_cp['well'].isin(lower_dose3_wells)]['nuclei'].mean()
-
-lower_dose4_wells = ['E6','F6','G6']
-lower_dose4_mean = df_cp[df_cp['well'].isin(lower_dose4_wells)]['nuclei'].mean()
-
-lower_dose5_wells = ['E7','F7','G7']
-lower_dose5_mean = df_cp[df_cp['well'].isin(lower_dose5_wells)]['nuclei'].mean()
-
-lower_dose6_wells = ['E8','F8','G8']
-lower_dose6_mean = df_cp[df_cp['well'].isin(lower_dose6_wells)]['nuclei'].mean()
-
-lower_dose7_wells = ['E9','F9','G9']
-lower_dose7_mean = df_cp[df_cp['well'].isin(lower_dose7_wells)]['nuclei'].mean()
-
-lower_dose8_wells = ['E10','F10','G10']
-lower_dose8_mean = df_cp[df_cp['well'].isin(lower_dose8_wells)]['nuclei'].mean()
-
-lower_dose9_wells = ['E11','F11','G11']
-lower_dose9_mean = df_cp[df_cp['well'].isin(lower_dose9_wells)]['nuclei'].mean()
-logger.debug('Lower well nuclei count means calculated.')
-
-# Define the conditions for the upper and lower groups so we can normalize within groups
-upper_conditions = [
-    upper_vehicle_wells,
-    upper_dose1_wells,
-    upper_dose2_wells,
-    upper_dose3_wells,
-    upper_dose4_wells,
-    upper_dose5_wells,
-    upper_dose6_wells,
-    upper_dose7_wells,
-    upper_dose8_wells,
-    upper_dose9_wells,
-]
-lower_conditions = [
-    lower_vehicle_wells,
-    lower_dose1_wells,
-    lower_dose2_wells,
-    lower_dose3_wells,
-    lower_dose4_wells,
-    lower_dose5_wells,
-    lower_dose6_wells,
-    lower_dose7_wells,
-    lower_dose8_wells,
-    lower_dose9_wells,
-]
-
-# Define the upper and lower mean groups
-upper_means = [
-    upper_vehicle_mean,
-    upper_dose1_mean,
-    upper_dose2_mean,
-    upper_dose3_mean,
-    upper_dose4_mean,
-    upper_dose5_mean,
-    upper_dose6_mean,
-    upper_dose7_mean,
-    upper_dose8_mean,
-    upper_dose9_mean,
-]
-lower_means = [
-    lower_vehicle_mean,
-    lower_dose1_mean,
-    lower_dose2_mean,
-    lower_dose3_mean,
-    lower_dose4_mean,
-    lower_dose5_mean,
-    lower_dose6_mean,
-    lower_dose7_mean,
-    lower_dose8_mean,
-    lower_dose9_mean,
-]
-
-# Normalize individual wells to their group vehicle control
-normalized_upper_wells = [[df_cp[df_cp['well'] == well]['nuclei'].mean() / upper_vehicle_mean for well in condition] 
-                          for condition in upper_conditions]
-normalized_lower_wells = [[df_cp[df_cp['well'] == well]['nuclei'].mean() / lower_vehicle_mean for well in condition]
-                          for condition in lower_conditions]
-logger.debug('Individual well nuclei counts normalized to condition vehicle.')
-
-# Calculate standard deviation of each condition's normalized
-upper_sd = [st.stdev(condition) for condition in normalized_upper_wells]
-lower_sd = [st.stdev(condition) for condition in normalized_lower_wells]
-logger.debug('Vehicle-normalized standard deviation calculated.')
-
-# Calculate the mean nucleiCount for each condition and normalize it
-upper_normalized_means = [sum(condition) / len(condition) for condition in normalized_upper_wells]
-lower_normalized_means = [sum(condition) / len(condition) for condition in normalized_lower_wells]
-logger.debug('Vehicle-normalized means calculated.')
+# Compute standard deviations of normalized counts per condition
+upper_sd = (upper_counts.div(upper_vehicle)).std(axis=0).loc[[str(i) for i in range(2,12)]].tolist()
+lower_sd = (lower_counts.div(lower_vehicle)).std(axis=0).loc[[str(i) for i in range(2,12)]].tolist()
+logger.debug('Computed standard deviations for normalized counts.')
 
 # Pair column number with drug dose
-column_concentrations = {
-    '2': 0,  # Control
-    '3': doses[0],
-    '4': doses[1],
-    '5': doses[2],
-    '6': doses[3],
-    '7': doses[4],
-    '8': doses[5],
-    '9': doses[6],
-    '10': doses[7],
-    '11': doses[8],
-}
+column_labels = [str(i) for i in range(2,12)]
+column_concentrations = dict(zip(column_labels, [0] + doses))
 
 # Define file path to or create CellPyAbility/GDA_output/ subfolder
 gda_output_dir = base_dir / 'GDA_output'
@@ -253,7 +139,7 @@ gda_output_dir.mkdir(exist_ok=True)
 logger.debug('CellPyAbility/GDA_output/ identified or created and identified.')
 
 # Consolidate analytics into a new .csv file
-df_stats = pd.DataFrame(columns=column_concentrations)
+df_stats = pd.DataFrame(columns=column_labels)
 df_stats.index.name = '96-Well Column'
 df_stats.loc['Drug Concentration'] = list(column_concentrations.values())
 df_stats.loc[f'Relative Cell Viability {upper_name}'] = upper_normalized_means
@@ -264,49 +150,32 @@ df_stats.to_csv(gda_output_dir / f'{title_name}_GDA_Stats.csv')
 logger.info(f'{title_name}_GDA_Stats saved to GDA_output.')
 
 # Normalize nuclei counts for each well individually
-df_cp['normalized_nuclei'] = df_cp.apply(
-    lambda row: row['nuclei'] / upper_vehicle_mean 
-    if row['well'][0] in ['B', 'C', 'D'] else row['nuclei'] / lower_vehicle_mean,
-    axis=1
-)
+def normalize_row(row):
+    return (row['nuclei'] / upper_vehicle) if row['Row'] in upper_rows else (row['nuclei'] / lower_vehicle)
+
+df_cp['normalized_nuclei'] = df_cp.apply(normalize_row, axis=1)
 logger.debug('Each well normalized to its condition vehicle.')
 
-# Extract rows and columns for the matrix
-row_letters = ['B', 'C', 'D', 'E', 'F', 'G']
-column_labels = list(column_concentrations.values())
+# Create viability matrix via pivot on normalized values
+viability_matrix = df_cp.pivot(index='Row', columns='Column', values='normalized_nuclei')
 
-# Create an empty matrix
-viability_matrix = pd.DataFrame(
-    index=row_letters,
-    columns=column_labels,
-    dtype=float
-)
+# Reindex to maintain plate order and replace column labels with doses
+viability_matrix = viability_matrix.reindex(index=upper_rows+lower_rows, columns=column_labels)
+viability_matrix.columns = [column_concentrations[col] for col in viability_matrix.columns]
 
-# Fill the matrix with normalized data
-for letter in row_letters:
-    for column_label, dose in column_concentrations.items():
-        # Find the well(s) matching the current row and column
-        well_pattern = letter + column_label  # e.g., 'B2'
-        matching_wells = df_cp[df_cp['well'] == well_pattern]
-
-        # Compute mean normalized viability for this well (in case there are duplicates)
-        viability_matrix.at[letter, dose] = matching_wells['normalized_nuclei'].mean()
-logger.debug('Created a matrix with relative cell viability for each well.')
-
-# Rename the rows based on the cell line names given by the user
-row_labels = [f'{upper_name} rep 1', f'{upper_name} rep 2', f'{upper_name} rep 3', 
-              f'{lower_name} rep 1', f'{lower_name} rep 2', f'{lower_name} rep 3']
-
-viability_matrix.index = row_labels
+# Rename rows to replicates
+viability_matrix.index = [f'{upper_name} rep {i}' for i in [1,2,3]] + [f'{lower_name} rep {i}' for i in [1,2,3]]
+logger.debug('Created viability matrix via vectorized pivot.')
 
 # Save the viability matrix as a .csv
 viability_matrix.to_csv(gda_output_dir / f'{title_name}_GDA_ViabilityMatrix.csv')
-logger.info(f'{title_name}_GDA_ViabilityMatrix saved to GDA_output.')
+logger.info(f'{title_name} viability matrix saved to GDA_output.')
 
 # Assign doses to the x-axis
 x = np.array(doses)
 
 # Assign average normalized nuclei counts to the y-axis for each condition
+# skip the vehicle at index 0
 y1 = np.array(upper_normalized_means[1:])
 y2 = np.array(lower_normalized_means[1:])
 logger.debug('Assigned doses and normalized means to x and y values via NumPy, respectively.')
@@ -502,4 +371,4 @@ plt.show()
 counts_csv = gda_output_dir / f'{title_name}_GDA_counts.csv'
 
 tb.rename_counts(cp_csv, counts_csv)
-logger.info(f'{title_name} raw counts saved to CellPyAbility/GDA_output/.')
+logger.info(f'{title_name} raw counts saved to GDA_output.')
