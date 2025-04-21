@@ -194,10 +194,10 @@ def rename_wells(tiff_name, wells):
 def rename_counts(cp_csv, counts_csv):
     try:
         os.rename(cp_csv, counts_csv)
-        print(f'{cp_csv} succesfully renamed to {counts_csv}')
+        logger.debug(f'{cp_csv} succesfully renamed to {counts_csv}')
     except FileNotFoundError:
-        print(f'{cp_csv} not found')
+        logger.debug(f'{cp_csv} not found')
     except PermissionError:
-        print(f'Permission denied. {cp_csv} may be open or in use.')
+        logger.debug(f'Permission denied. {cp_csv} may be open or in use.')
     except Exception as e:
-        print(f'While renaming {cp_csv}, an error occurred: {e}')
+        logger.debug(f'While renaming {cp_csv}, an error occurred: {e}')
