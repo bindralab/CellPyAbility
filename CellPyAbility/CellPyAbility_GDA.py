@@ -178,7 +178,7 @@ logger.debug('Assigned doses and normalized means to x and y values via NumPy, r
 
 # Define non-linear regression for the xy-plot and estimate IC50s
 # Define the 5PL function
-def fivePL(x, A, B, C, D, G):  # (x = doses, A = min y, B = Hill slope, C = inflection, D = max y, G = asymetry):
+def fivePL(x, A, B, C, D, G):  # (x = doses, A = max y, B = Hill slope, C = inflection, D = min y, G = asymetry):
     return ((A - D) / (1.0 + (x / C) ** B) ** G) + D
 
 # Define the Hill function as a fallback (if 5PL doesn't fit)
@@ -186,8 +186,8 @@ def hill(x, Emax, EC50, HillSlope):
     return Emax * (x**HillSlope) / (EC50**HillSlope + x**HillSlope)
 
 # Initial guesses for parameters
-params_init_5PL_y1 = [y1[np.argmin(y1)], 1, x[np.abs(y1 - 0.5).argmin()], y1[np.argmax(y1)], 1]  # [A, B, C, D, G]
-params_init_5PL_y2 = [y2[np.argmin(y2)], 1, x[np.abs(y2 - 0.5).argmin()], y2[np.argmax(y2)], 1]  # [A, B, C, D, G]
+params_init_5PL_y1 = [y1[np.argmax(y1)], 1, x[np.abs(y1 - 0.5).argmin()], y1[np.argmin(y1)], 1]  # [A, B, C, D, G]
+params_init_5PL_y2 = [y2[np.argmax(y2)], 1, x[np.abs(y2 - 0.5).argmin()], y2[np.argmin(y2)], 1]  # [A, B, C, D, G]
 
 # Generate x values for the fitted curves
 x_plot = np.linspace(min(x), max(x), 1000)
