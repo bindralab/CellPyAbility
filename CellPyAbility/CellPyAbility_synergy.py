@@ -4,11 +4,7 @@ This script should remain in the same directory as the other CellPyAbility scrip
 For more information, please see the README at https://github.com/bindralab/CellPyAbility.
 """
 
-import logging
-import os
-import subprocess
-from pathlib import Path
-from tkinter import ttk, messagebox, filedialog
+from tkinter import ttk, filedialog
 from ttkthemes import ThemedTk
 
 import CellPyAbility_toolbox as tb

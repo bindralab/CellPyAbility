@@ -6,14 +6,10 @@ For more information, please see the README at https://github.com/bindralab/Cell
 
 import logging
 import os
-import statistics as st
 import subprocess
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
 
-import numpy as np
 import pandas as pd
-from ttkthemes import ThemedTk
 
 # Creates logging protocol for CellPyAbility
 # Include 'logger = cellpyability_logger()' at start of script

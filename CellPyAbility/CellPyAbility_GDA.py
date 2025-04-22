@@ -4,11 +4,7 @@ This script should remain in the same directory as the other CellPyAbility scrip
 For more information, please see the README at https://github.com/bindralab/CellPyAbility.
 """
 
-import logging
-import os
-import subprocess
-from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, ttk
 
 import CellPyAbility_toolbox as tb
 import matplotlib.pyplot as plt
@@ -16,7 +12,6 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.optimize import root as scipy_root
-from scipy.interpolate import interp1d
 from ttkthemes import ThemedTk
 
 # Initialize toolbox

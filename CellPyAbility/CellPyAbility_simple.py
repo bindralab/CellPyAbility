@@ -1,5 +1,9 @@
-import pandas as pd
-from pathlib import Path
+"""
+CellPyAbility_simple.py is intended for nuclei counting the inner 60 wells of a 96-well plate.
+This script should remain in the same directory as the other CellPyAbility scripts.
+For more information, please see the README at https://github.com/bindralab/CellPyAbility.
+"""
+
 from tkinter import filedialog, ttk
 from ttkthemes import ThemedTk
 
