@@ -4,8 +4,8 @@ This script should remain in the same directory as the other CellPyAbility scrip
 For more information, please see the README at https://github.com/bindralab/CellPyAbility.
 """
 
+import tkinter as tk
 from tkinter import filedialog, ttk
-from ttkthemes import ThemedTk
 
 import CellPyAbility_toolbox as tb
 
@@ -14,19 +14,29 @@ logger, base_dir = tb.logger, tb.base_dir
 
 # Establish the GUI for experiment info
 def simple_gui():
-    root = ThemedTk(theme='black', themebg=True)
-    ttk.Label(root, text='Experiment title:').pack()
-    title_entry = ttk.Entry(root); title_entry.pack()
+    # Create a main window
+    root = tk.Tk()
+    root.title('simple input')
+
+    # Create a label and entry box for experiment title
+    ttk.Label(root, text='Enter the title of the experiment:').pack()
+    title_entry = ttk.Entry(root)
+    title_entry.pack()
+
+    # Create a button for the image directory browser
     image_dir = ''
     def select_dir(): 
         nonlocal image_dir
         image_dir = filedialog.askdirectory()
-    ttk.Button(root, text='Select images…', command=select_dir).pack()
+    ttk.Button(root, text='Select Image Directory', command=select_dir).pack()
+
+    # Assign entries to dictionary upon submit
     inputs = {}
     def on_submit():
         inputs['title'] = title_entry.get()
         inputs['image_dir'] = image_dir
         root.destroy()
+
     ttk.Button(root, text='Submit', command=on_submit).pack()
     root.mainloop()
     return inputs

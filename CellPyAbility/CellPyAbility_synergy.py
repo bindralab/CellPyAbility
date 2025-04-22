@@ -4,8 +4,8 @@ This script should remain in the same directory as the other CellPyAbility scrip
 For more information, please see the README at https://github.com/bindralab/CellPyAbility.
 """
 
+import tkinter as tk
 from tkinter import ttk, filedialog
-from ttkthemes import ThemedTk
 
 import CellPyAbility_toolbox as tb
 import numpy as np
@@ -23,7 +23,8 @@ def synergy_gui():
         image_dir = filedialog.askdirectory()
 
     # Create main window
-    root = ThemedTk(theme='black', themebg=True)
+    root = tk.Tk()
+    root.title('synergy')
 
     # Create entry fields for inputs
     entries = {}

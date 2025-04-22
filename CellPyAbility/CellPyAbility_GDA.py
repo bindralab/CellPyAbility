@@ -3,7 +3,7 @@ CellPyAbility_GDA.py is intended for dose-response experiments of two conditions
 This script should remain in the same directory as the other CellPyAbility scripts.
 For more information, please see the README at https://github.com/bindralab/CellPyAbility.
 """
-
+import tkinter as tk
 from tkinter import filedialog, ttk
 
 import CellPyAbility_toolbox as tb
@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.optimize import root as scipy_root
-from ttkthemes import ThemedTk
 
 # Initialize toolbox
 logger, base_dir = tb.logger, tb.base_dir
@@ -25,7 +24,8 @@ def gda_gui():
         image_dir = filedialog.askdirectory()
 
     # Create main window
-    root = ThemedTk(theme='black', themebg=True)
+    root = tk.Tk()
+    root.title('GDA input')
 
     # Create entry fields for inputs
     entries = {}
