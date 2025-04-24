@@ -1,8 +1,19 @@
 # CellPyAbility
 
-The objective of CellPyAbility is to offer an open-access cell viability analysis tool that seamlessly integrates with our provided [protocols](path/to/protocol). Please review our [license](LICENSE.txt) prior to use.
+CellPyAbility is an open-source cell viability and dose-response analysis tool that seamlessly integrates with our provided [protocols](path/to/protocol). Please review our [license](LICENSE.txt) prior to use. The software can be run as a [Windows application](#windows-application) or in [Python](#running-in-python). 
 
-## Purpose
+CellPyAbility is still in development; if you encounter any bugs, please contact me at james.elia@yale.edu. Thank you for your patience :)
+
+## Table of Contents
+
+- [Abstract](#abstract): overview of the method and software
+- [Requirements](#prerequisites): necessary steps before running the software
+- [Windows Application](#windows-application): code-free executable for Windows OS
+- [Running in Python](#running-in-python): stand-alone Python scripts for each module
+- [Example Outputs](#example-outputs): testing and test data results
+- [Contributions](#contributions): who did what
+
+## Abstract
 
 The purpose of this repository is to offer open-access software for the automated quantitiation of nuclei in cell viability experiments, referred to herein as growth delay assays (GDAs).
 
@@ -10,10 +21,16 @@ Nuclei counting provides several advantages over other common methods of measuri
 - provide single-cell resolution of survival 
 - are insensitive to metabolic variability within a cell or between cell lines 
 - are compatible with redox-altering chemicals 
-- require simpler methodology 
+- require simpler methodology and cheaper reagents
 - can be used on live cells using non-toxic nuclear dyes like Hoechst. 
 
-A disadvantage of the GDA is the computational and temporal cost of the required image analysis. We present CellPyAbility, which rapidly generates dose-response metrics and publication-ready graphics from a folder of unedited, whole-well GDA images in approximately one minute on commodity hardware.
+A disadvantage of the GDA is the computational and temporal cost of the required image analysis. CellPyAbility rapidly calculates dose-response metrics and publication-ready graphics from a folder of unedited, whole-well GDA images in approximately one minute on commodity hardware.
+
+CellPyAbility includes the synergy module which analyzes 59 unique drug concentration combinations, returning dose-response metrics and Bliss independence scores, a measure of synergy in cellular systems.
+
+Finally, the simple module returns a matrix of nuclei counts in a 96-well format without further analysis, allowing maximum flexibility.
+
+CellPyAbility uses [CellProfiler](https://cellprofiler.org/) to quantify nuclei, which maximizes modularity for the user. Please see the [CellProfiler license](CellProfilerLicense.txt).
 
 ## Prerequisites
 
