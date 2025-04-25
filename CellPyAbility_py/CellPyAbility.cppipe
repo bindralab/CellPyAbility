@@ -80,7 +80,7 @@ EnhanceOrSuppressFeatures:[module_num:6|svn_version:'Unknown'|variable_revision_
     Shear angle:0.0
     Decay:0.95
     Enhancement method:Tubeness
-    Speed and accuracy:Slow
+    Speed and accuracy:Fast
     Rescale result image:No
 
 IdentifyPrimaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
