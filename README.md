@@ -1,6 +1,6 @@
 # CellPyAbility
 
-CellPyAbility is an open-source cell viability and dose-response analysis tool that seamlessly integrates with our provided [protocols](protocol). Please review our [license](LICENSE.txt) prior to use. The software can be run as a [Windows application](#windows-application) or in [Python](#running-in-python). 
+CellPyAbility is an open-source cell viability and dose-response analysis tool that seamlessly integrates with our provided [protocols](protocol.pdf). Please review our [license](LICENSE.txt) prior to use. The software can be run as a [Windows application](#windows-application) or in [Python](#running-in-python). 
 
 CellPyAbility is still in development; if you encounter any bugs, please contact me at james.elia@yale.edu. Thank you for your patience :)
 
@@ -19,13 +19,16 @@ CellPyAbility is still in development; if you encounter any bugs, please contact
 - [Python Scripts](#python-scripts): stand-alone Python scripts for each module
 
 - [Example Outputs](#example-outputs): examples of figures and tables for each module
-  - [Testing](#testing): image sets and their outputs to validate the software setup
+  - [GDA Module](#gda-module): two cell lines, one drug gradient
+  - [Synergy Module](#synergy-module): one cell line, two drug gradients
+  - [Simple Module](#simple-module): nuclei count matrix
+  - [Testing](#testing): test data for validating software setup
 
 - [Contributions](#contributions): who did what
 
 ## Abstract
 
-The purpose of this repository is to offer open-access software for the automated quantitiation of nuclei in cell viability experiments, referred to herein as growth delay assays (GDAs).
+The purpose of this repository is to offer open-access software for the automated analysis of dose-response experiments (growth delay assays, or GDAs) via nuclei counting.
 
 Nuclei counting provides several advantages over other common methods of measuring cell viability. Compared to the commonly used methylthiazol tetrazolium (MTT; reduction-based) or CellTiter-Glo (ATP-based) assays, GDAs: 
 - provide single-cell resolution of survival 
@@ -50,7 +53,7 @@ CellPyAbility uses [CellProfiler](https://cellprofiler.org/) to quantify nuclei,
 
 ### Data Requirements
 
-Reading the [protocols](protocol) first may aid in understanding the data requirements.
+Reading the [protocols](protocol.pdf) first may aid in understanding the data requirements.
 
 - Only the inner 60 wells of a 96-well plate (B-G, 2-11) should be used
 
@@ -77,14 +80,14 @@ Reading the [protocols](protocol) first may aid in understanding the data requir
 
 - The user must have a functional Python 3 environment to run the scripts.
 
-- The user must use the [Python dependencies](requirements.txt). Other versions have not yet been tested.
+- The user should use the [Python dependencies](CellPyAbility_py/requirements.txt). Other package versions have not yet been tested but may work.
 
 ## Windows Application
 Running the Windows application requires no programming experience, Python environment, or dependencies. It is a single file containing all three modules with graphical user interfaces (GUIs) for user inputs.
 
 Download the [CellPyAbility application](CellPyAbility_exe/CellPyAbility.exe). I recommend saving it to an empty directory dedicated to CellPyAbility because running the application will generate several files in its directory.
 
-Upon the first run, may take some time (<1 min) to load. Once running, a GUI prompts the user to choose from three modules. Hovering over each module will give a description of its uses:
+Upon the first run, CellPyAbility may take some time (<1 min) to load. Once running, a GUI prompts the user to choose from three modules. Hovering over each module will give a description of its uses:
 
 - **GDA**: dose-response analysis of two cell lines in response to one treatment
 
@@ -114,6 +117,10 @@ A GUI specific to each module will prompt the user for experimental details. Usi
 
 After submitting the GUI, a terminal window will open to track CellProfiler's image analysis progress. Once all images are counted, subsequent analysis is almost instant. All figures and tabular results will be in a subdirectory named after the module (e.g. GDA_output). See [Example Outputs](#example-outputs).
 
+A small GUI window will then prompt the user if they would like to run another experiment. If "yes", the initial module selection GUI will prompt the user again. If "no", the application will close.
+
+A log file with detailed logging is written to the directory. If the application fails at any point, it may be useful to consult the log for critical messages or to identify the last step to succeed.
+
 ## Python Scripts
 For those who resist the corporate yoke of Microsoft, or for users looking for more control over the software, CellPyAbility can be run directly in Python with out-of-the-box scripts.
 
@@ -128,15 +135,22 @@ Download the [CellPyAbility_py directory](CellPyAbility_py). This is the working
 
 Note that the scripts reference items in the directory, so the [CellPyAbility_py directory](CellPyAbility_py) must be downloaded and **should not be altered** without foresight.
 
-The first time the user runs any of the scripts, a console input will be required for the path to the CellProfiler file:
-- For Windows, this is the CellProfiler.exe file
+Upon running a module, the script will look for the CellProfiler application in the default save locations:
+- **Windows 64-bit**: "C:\Program Files\CellProfiler\CellProfiler.exe"
 
-- For MacOS, this is the path/to/CellProfiler.app/Contents/MacOS/cp' file 
+- **Windows 32-bit**: "C:\Program Files (x86)\CellProfiler\CellProfiler.exe"
+
+- **Mac OS**: "/Applications/CellProfiler.app/Contents/MacOS/cp"
+
+If CellProfiler cannot be found, the user will be prompted to input the path to the CellProfiler file:
+- For Windows, this is the 'CellProfiler\CellProfiler.exe' file
+
+- For MacOS, this is the 'CellProfiler.app/Contents/MacOS/cp' file 
   - CellProfiler.app is a directory and will cause 'PermissionError: [Errno 13]' if used as the file path
 
-- The inputted path will then be saved as CellPyAbility/cellprofiler_path.txt, which is automatically retrieved for all future runs
+The path is saved to a .txt file within the directory for future reference, so subsequent runs will proceed directly to the next step.
 
-Next, a GUI will prompt the user for experimental details. I will use [CellPyAbility_GDA](CellPyAbility_py/CellPyAbility_GDA.py) as an example, but [CellPyAbility_synergy](CellPyAbility_py/CellPyAbility_synergy.py) and [CellPyAbility_simple](CellPyAbility_py/CellPyAbility_simple.py) follow the same workflow. The GDA GUI asks for the following: 
+A GUI will prompt the user for experimental details. I will use [CellPyAbility_GDA](CellPyAbility_py/CellPyAbility_GDA.py) as an example, but [CellPyAbility_synergy](CellPyAbility_py/CellPyAbility_synergy.py) and [CellPyAbility_simple](CellPyAbility_py/CellPyAbility_simple.py) follow the same workflow. The GDA GUI asks for the following: 
 - title of the experiment (e.g. 20250101_CellLine_Drug)
 
 - name of the cell condition in rows B-D (e.g. Cell Line Wildtype)
@@ -149,18 +163,23 @@ Next, a GUI will prompt the user for experimental details. I will use [CellPyAbi
 
 After submitting the GUI, a terminal window will open to track CellProfiler's image analysis progress. Once all images are counted, subsequent analysis is almost instant. All figures and tabular results will be in a subdirectory named after the module (e.g. GDA_output). See [Example Outputs](#example-outputs).
 
+A log file with detailed logging is written to the directory. Additionally messages with results and output file locations (INFO), warnings (WARNING), errors (ERROR), or critical failure (CRITICAL) messages will be written directly to the terminal.
+
 ### Modifying the CellProfiler Pipeline
 
 Across multiple cell lines and densities, our provided [CellProfiler Pipeline](CellPyAbility_py/CellPyAbility.cppipe) appears robust. However, if the user wishes to make any changes, a few guidelines must be followed to maintain compatibility with the scripts as written:
-- The CSV headers/module output names must remain as:
+- The module output names must remain as:
   - Count_nuclei
   - FileName_images
 
 - The CellProfiler output CSV file name must remain as:
   - path/to/CellPyAbility_py/cp_output/CellPyAbilityImage.csv
 
+The modularity of the Python scripts and CellProfiler pipeline may prove useful. For example, if the user wishes to use all 96 wells instead of 60, minor Python knowledge and effort would be needed to enact this change. As another example, the user could analyze microscope images of 10x magnification instead of 4x magnification by increasing the expected pixel ranges for nuclei in the [CellProfiler pipeline](CellPyAbility_py/CellPyAbility.cppipe).
+
 ## Example Outputs
-The [GDA script](CellPyAbility_py/CellPyAbility_GDA.py) outputs three tabular files with increasing degrees of analysis:
+### GDA Module
+The GDA module outputs three tabular files with increasing degrees of analysis:
 - [raw nuclei counts](test/test_expected_outputs/test_GDA_counts.csv)
 
 - [normalized cell viability matrix](test/test_expected_outputs/test_GDA_ViabilityMatrix.csv)
@@ -171,12 +190,13 @@ Additionally, the script generates a plot with 5-parameter logistic curves:
 
 ![GDA plot](test/test_expected_outputs/test_GDA_plot.png)
 
-The [synergy script](CellPyAbility_py/CellPyAbility_synergy.py) outputs four tabular files:
+### Synergy Module
+The synergy module outputs four tabular files:
 - [raw nuclei counts](test/test_expected_outputs/test_synergy_counts.csv)
 
 - [normalized cell viability matrix](test/test_expected_outputs/test_synergy_ViabilityMatrix.csv)
 
-- [cell viability statistics](test/test_expected_outputs/test_synergy_counts.csv)
+- [cell viability statistics](test/test_expected_outputs/test_synergy_stats.csv)
 
 - [Bliss synergy matrix](test/test_expected_outputs/test_synergy_BlissMatrix.csv)
 
@@ -184,18 +204,17 @@ Additionally, the script generates a 3D surface map in HTML with a synergy heatm
 
 ![synergy plot](test/test_expected_outputs/test_synergy_plot_screenshot.png)
 
-Finally, the [simple script](CellPyAbility_py/CellPyAbility_simple.py) outputs nuclei counts in a 96-well matrix format. This offers maximum flexibility but does not provide any analysis.
+### Simple Module
+Finally, the simple module outputs nuclei counts in a 96-well matrix format. This offers maximum flexibility but does not provide any analysis.
 - [count matrix](test/test_expected_outputs/test_simple_CountMatrix.csv)
 
 ### Testing
 
 The example outputs above are the results from running the [GDA test data](test/test_GDA/) and the [synergy test data](test/test_synergy/). I recommend running these test sets to ensure the scripts are working properly prior to running one's own data. 
 
-Due to the size of the files in the test directory, it is saved to [Git LFS](https://git-lfs.com/). If the user has Git LFS installed, the test directory can be downloaded by entering 'git lfs pull' in the directory's terminal after cloning the repo.
+Due to the size of the files in the test directory, it is saved to [Git LFS](https://git-lfs.com/). If the user has Git LFS installed, the test directory can be downloaded by entering '**git lfs pull**' in the directory's terminal after cloning the repo.
 
-
-
-Please note that we have not tested the analysis scripts on other protocols. For best results, please follow the provided [protocol](protocol).
+Please note that we have not tested the analysis scripts on other protocols. For best results, please follow the provided [protocol](protocol.pdf).
 
 ## Contributions
 Summary information regarding the authors as of 2025:
