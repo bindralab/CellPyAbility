@@ -200,7 +200,7 @@ The synergy module outputs four tabular files:
 
 - [Bliss synergy matrix](test/test_expected_outputs/test_synergy_BlissMatrix.csv)
 
-Additionally, the script generates a 3D surface map in HTML with a synergy heatmap:
+Additionally, the script generates an interactive [3D surface map](test/test_expected_outputs/test_synergy_plot.html) in HTML with synergy as heat:
 
 ![synergy plot](test/test_expected_outputs/test_synergy_plot_screenshot.png)
 
