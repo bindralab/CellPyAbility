@@ -210,7 +210,7 @@ Finally, the simple module outputs nuclei counts in a 96-well matrix format. Thi
 
 ### Testing
 
-The example outputs above are the results from running the [GDA test data](test/test_GDA/) and the [synergy test data](test/test_synergy/). I recommend running these test sets to ensure the scripts are working properly prior to running one's own data. 
+The example outputs above are the results from running the [GDA test data](test/test_GDA/) and the [synergy test data](test/test_synergy/). I recommend running these test sets to ensure the scripts are working properly prior to running one's own data. The [test parameters](test/test_params.txt) text file contains the exact experimental info used to generate the example outputs. 
 
 Due to the size of the files in the test directory, it is saved to [Git LFS](https://git-lfs.com/). If the user has Git LFS installed, the test directory can be downloaded by entering '**git lfs pull**' in the directory's terminal after cloning the repo.
 
