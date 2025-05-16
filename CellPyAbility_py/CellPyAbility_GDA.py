@@ -33,7 +33,7 @@ def gda_gui():
         ('title_name', 'Enter the title of the experiment:'),
         ('upper_name', 'Enter the name for the upper cell condition (rows B-D):'),
         ('lower_name', 'Enter the name for the lower cell condition (rows E-G):'),
-        ('top_conc', 'Enter the top concentration of drug used (column 11):'),
+        ('top_conc', 'Enter the top concentration of drug used (column 11) in molar:'),
         ('dilution', 'Enter the drug dilution factor (x-fold):'),
     ]
     for key, text in fields:
