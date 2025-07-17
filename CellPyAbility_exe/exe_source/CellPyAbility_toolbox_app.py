@@ -8,7 +8,9 @@ import logging
 import os
 import subprocess
 import sys
+import tkinter as tk
 from pathlib import Path
+from tkinter import ttk, filedialog, simpledialog
 
 import pandas as pd
 
@@ -75,7 +77,35 @@ def save_txt(config_file, path):
     logger.info(f'Path saved succesfully in {config_file} as: {path}')
 
 def prompt_path():
-    return input("Enter the path to the CellProfiler program: ").strip().strip('"').strip("'")
+    # We cannot use input() in the app since there is no terminal window
+    # Create a hidden root window
+    root = tk.Tk()
+    root.withdraw()
+    logger.debug('Hidden tkinter window created')
+
+    # Prompt the user to pick the CellProfiler executable via a file dialog
+    path = filedialog.askopenfilename(
+        title="Select your CellProfiler executable",
+        filetypes=[("Executables", "*.exe" if os.name == "nt" else "*"), ("All files", "*.*")]
+    )
+
+    # If they hit “Cancel” (empty string), fall back to a simple text prompt
+    if not path:
+        path = simpledialog.askstring(
+            title="Enter CellProfiler Path",
+            prompt="Could not pick a file. Please type the full path to CellProfiler:"
+        )
+
+    root.destroy()
+
+    # Final cleanup of quotes, just in case
+    if path:
+        logger.debug("CellProfiler unqiue path location prompt complete")
+        return path.strip().strip('"').strip("'")
+    else:
+        # CellProfiler path is essential, so raise error if they do not provide it
+        logger.critical('No CellProfiler path provided')
+        raise RuntimeError('No path provided for CellProfiler executable')
 
 # Include 'cp_path = get_cellprofiler_path()' at start of script
 def get_cellprofiler_path():
