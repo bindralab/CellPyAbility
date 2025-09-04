@@ -5,6 +5,7 @@ CellPyAbility is an open-source cell viability and dose-response analysis tool t
 CellPyAbility is still in development; if you encounter any bugs, please contact me at james.elia@yale.edu. Thank you for your patience :)
 
 ## Table of Contents
+- [Quick Start](#quick-start): ignore my hard work on the documentation and run CellPyAbility ASAP
 
 - [Abstract](#abstract): overview of the method and software
 
@@ -25,6 +26,36 @@ CellPyAbility is still in development; if you encounter any bugs, please contact
   - [Testing](#testing): test data for validating software setup
 
 - [Contributions](#contributions): who did what
+
+## Quick Start
+
+### Windows Application
+- Download the [Windows executable](CellPyAbility_exe/CellPyAbility.exe)
+  - We recommend moving CellPyAbility.exe into an empty directory (running it will create files)
+- Download the [GDA test data](test/test_GDA)
+- Run CellPyAbility.exe and select the GDA module from the menu
+- Run the test data and compare the results to the [expected output](test/test_expected_outputs)
+
+### Python
+```bash
+# make a copy of the repo in the root directory and navigate to it
+git clone https://github.com/CellPyAbility
+cd CellPyAbility
+
+# if using conda, create and use a stable CellPyAbility environment
+conda env create -f CellPyAbility_py/environment.yml
+conda activate CellPyAbility
+
+# OR if using pip, install the requirements to create a stable environment
+python -m pip install -r CellPyAbility_py/requirements.txt
+
+# download the test data locally via Git Large File Storage
+git lfs pull
+
+# run the GDA script on the test data provided in this repo
+python CellPyAbility_py/CellPyAbility_GDA.py
+```
+Compare the GDA results to the [expected outputs](test/test_expected_outputs).
 
 ## Abstract
 
