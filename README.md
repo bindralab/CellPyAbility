@@ -112,7 +112,10 @@ Reading the [protocols](protocol.pdf) first may aid in understanding the data re
 
 - The user must have a functional Python 3 environment to run the scripts.
 
-- The user should use the [Python dependencies](CellPyAbility_py/requirements.txt). Other package versions have not yet been tested but may work.
+- For pip, the user can install the [Python dependencies](CellPyAbility_py/requirements.txt). Other package versions have not yet been tested but may work.
+
+- For conda, the user can use the [CellPyAbility environment](CellPyAbility_py/environment.yml).
+  - If dependency issues still arise, the [full environment](CellPyAbility_py/full_environment.yml) can be used.
 
 ## Windows Application
 Running the Windows application requires no programming experience, Python environment, or dependencies. It is a single file containing all three modules with graphical user interfaces (GUIs) for user inputs.
