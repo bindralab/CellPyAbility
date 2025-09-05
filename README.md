@@ -28,7 +28,7 @@ CellPyAbility is still in development; if you encounter any bugs, please contact
 - [Contributions](#contributions): who did what
 
 ## Quick Start
-CellProfiler must be downloaded because CellPyAbility uses it as a subprocess. See [Requirements](#requirements) for more information.
+CellProfiler must be installed because CellPyAbility uses it as a subprocess. See [Requirements](#requirements) for more information.
 
 ### Windows Application
 - Download the [Windows executable](CellPyAbility_exe/CellPyAbility.exe)
