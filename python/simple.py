@@ -7,7 +7,7 @@ For more information, please see the README at https://github.com/bindralab/Cell
 import tkinter as tk
 from tkinter import filedialog, ttk
 
-import CellPyAbility_toolbox as tb
+import toolbox as tb
 
 # Initialize toolbox
 logger, base_dir = tb.logger, tb.base_dir

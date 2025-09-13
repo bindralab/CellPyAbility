@@ -31,7 +31,7 @@ CellPyAbility is still in development; if you encounter any bugs, please contact
 CellProfiler must be installed because CellPyAbility uses it as a subprocess. See [Requirements](#requirements) for more information.
 
 ### Windows Application
-- Download the [Windows executable](CellPyAbility_exe/CellPyAbility.exe)
+- Download the [Windows executable](windows_app/CellPyAbility.exe)
   - We recommend moving CellPyAbility.exe into an empty directory (running it will create files)
 - Download the [GDA test data](test/test_GDA)
 - Run CellPyAbility.exe and select the GDA module from the menu
@@ -44,17 +44,17 @@ git clone https://github.com/CellPyAbility
 cd CellPyAbility
 
 # if using conda, create and use a stable CellPyAbility environment
-conda env create -f CellPyAbility_py/environment.yml
+conda env create -f python/environment.yml
 conda activate CellPyAbility
 
 # OR if using pip, install the requirements to create a stable environment
-python -m pip install -r CellPyAbility_py/requirements.txt
+python -m pip install -r python/requirements.txt
 
 # download the test data locally via Git Large File Storage
 git lfs pull
 
 # run the GDA script on the test data provided in this repo
-python CellPyAbility_py/CellPyAbility_GDA.py
+python python/GDA.py
 ```
 Compare the GDA results to the [expected outputs](test/test_expected_outputs).
 
@@ -112,15 +112,15 @@ Reading the [protocols](protocol.pdf) first may aid in understanding the data re
 
 - The user must have a functional Python 3 environment to run the scripts.
 
-- For pip, the user can install the [Python dependencies](CellPyAbility_py/requirements.txt). Other package versions have not yet been tested but may work.
+- For pip, the user can install the [Python dependencies](python/requirements.txt). Other package versions have not yet been tested but may work.
 
-- For conda, the user can use the [CellPyAbility environment](CellPyAbility_py/environment.yml).
-  - If dependency issues still arise, the [full environment](CellPyAbility_py/full_environment.yml) can be used.
+- For conda, the user can use the [CellPyAbility environment](python/environment.yml).
+  - If dependency issues still arise, the [full environment](python/full_environment.yml) can be used.
 
 ## Windows Application
 Running the Windows application requires no programming experience, Python environment, or dependencies. It is a single file containing all three modules with graphical user interfaces (GUIs) for user inputs.
 
-Download the [CellPyAbility application](CellPyAbility_exe/CellPyAbility.exe). I recommend saving it to an empty directory dedicated to CellPyAbility because running the application will generate several files in its directory.
+Download the [CellPyAbility application](windows_app/CellPyAbility.exe). I recommend saving it to an empty directory dedicated to CellPyAbility because running the application will generate several files in its directory.
 
 Upon the first run, CellPyAbility may take some time (<1 min) to load. Once running, a GUI prompts the user to choose from three modules. Hovering over each module will give a description of its uses:
 
@@ -159,16 +159,16 @@ A log file with detailed logging is written to the directory. If the application
 ## Python Scripts
 For those who resist the corporate yoke of Microsoft, or for users looking for more control over the software, CellPyAbility can be run directly in Python with out-of-the-box scripts.
 
-Download the [CellPyAbility_py directory](CellPyAbility_py). This is the working directory for our program and contains three modules:
-- [CellPyAbility_GDA](CellPyAbility_py/CellPyAbility_GDA.py): dose-response analysis of two cell lines/cell conditions with a drug gradient.
+Download the [python directory](python). This is the working directory for our program and contains three modules:
+- [GDA](python/GDA.py): dose-response analysis of two cell lines/cell conditions with a drug gradient.
 
-- [CellPyAbility_synergy](CellPyAbility_py/CellPyAbility_synergy.py): dose-response and synergy (Bliss) analysis of one cell line/cell condition with simultaneous horizontal and vertical drug gradients.
+- [synergy](python/synergy.py): dose-response and synergy (Bliss) analysis of one cell line/cell condition with simultaneous horizontal and vertical drug gradients.
 
-- [CellPyAbility_simple](CellPyAbility_py/CellPyAbility_simple.py): raw nuclei count matrix recapitulating the 96-well format.
+- [simple](python/simple.py): raw nuclei count matrix recapitulating the 96-well format.
 
-[CellPyAbility_toolbox](CellPyAbility_py/CellPyAbility_toolbox.py) is a script containing functions, variables, and imports used across the modules, like logging and handling relative paths.
+[toolbox](python/toolbox.py) is a script containing functions, variables, and imports used across the modules, like logging and handling relative paths.
 
-Note that the scripts reference items in the directory, so the [CellPyAbility_py directory](CellPyAbility_py) must be downloaded and **should not be altered** without foresight.
+Note that the scripts reference items in the directory, so the [python directory](python) must be downloaded and **should not be altered** without foresight.
 
 Upon running a module, the script will look for the CellProfiler application in the default save locations:
 - **Windows 64-bit**: "C:\Program Files\CellProfiler\CellProfiler.exe"
@@ -185,7 +185,7 @@ If CellProfiler cannot be found, the user will be prompted to input the path to 
 
 The path is saved to a .txt file within the directory for future reference, so subsequent runs will proceed directly to the next step.
 
-A GUI will prompt the user for experimental details. I will use [CellPyAbility_GDA](CellPyAbility_py/CellPyAbility_GDA.py) as an example, but [CellPyAbility_synergy](CellPyAbility_py/CellPyAbility_synergy.py) and [CellPyAbility_simple](CellPyAbility_py/CellPyAbility_simple.py) follow the same workflow. The GDA GUI asks for the following: 
+A GUI will prompt the user for experimental details. I will use [GDA](python/GDA.py) as an example, but [synergy](python/synergy.py) and [simple](python/simple.py) follow the same workflow. The GDA GUI asks for the following: 
 - title of the experiment (e.g. 20250101_CellLine_Drug)
 
 - name of the cell condition in rows B-D (e.g. Cell Line Wildtype)
@@ -202,15 +202,15 @@ A log file with detailed logging is written to the directory. Additionally messa
 
 ### Modifying the CellProfiler Pipeline
 
-Across multiple cell lines and densities, our provided [CellProfiler Pipeline](CellPyAbility_py/CellPyAbility.cppipe) appears robust. However, if the user wishes to make any changes, a few guidelines must be followed to maintain compatibility with the scripts as written:
+Across multiple cell lines and densities, our provided [CellProfiler Pipeline](python/CellPyAbility.cppipe) appears robust. However, if the user wishes to make any changes, a few guidelines must be followed to maintain compatibility with the scripts as written:
 - The module output names must remain as:
   - Count_nuclei
   - FileName_images
 
 - The CellProfiler output CSV file name must remain as:
-  - path/to/CellPyAbility_py/cp_output/CellPyAbilityImage.csv
+  - path/to/python/cp_output/CellPyAbilityImage.csv
 
-The modularity of the Python scripts and CellProfiler pipeline may prove useful. For example, if the user wishes to use all 96 wells instead of 60, minor Python knowledge and effort would be needed to enact this change. As another example, the user could analyze microscope images of 10x magnification instead of 4x magnification by increasing the expected pixel ranges for nuclei in the [CellProfiler pipeline](CellPyAbility_py/CellPyAbility.cppipe).
+The modularity of the Python scripts and CellProfiler pipeline may prove useful. For example, if the user wishes to use all 96 wells instead of 60, minor Python knowledge and effort would be needed to enact this change. As another example, the user could analyze microscope images of 10x magnification instead of 4x magnification by increasing the expected pixel ranges for nuclei in the [CellProfiler pipeline](python/CellPyAbility.cppipe).
 
 ## Example Outputs
 ### GDA Module

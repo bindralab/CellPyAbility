@@ -7,7 +7,7 @@ For more information, please see the README at https://github.com/bindralab/Cell
 import tkinter as tk
 from tkinter import ttk, filedialog
 
-import CellPyAbility_toolbox as tb
+import toolbox as tb
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go

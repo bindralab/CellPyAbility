@@ -6,7 +6,7 @@ For more information, please see the README at https://github.com/bindralab/Cell
 import tkinter as tk
 from tkinter import filedialog, ttk
 
-import CellPyAbility_toolbox as tb
+import toolbox as tb
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
