@@ -159,7 +159,7 @@ A log file with detailed logging is written to the directory. If the application
 ## Python Scripts
 For those who resist the corporate yoke of Microsoft, or for users looking for more control over the software, CellPyAbility can be run directly in Python with out-of-the-box scripts.
 
-Download the [python directory](python). This is the working directory for our program and contains three modules:
+Download the [src directory](src/). This is the working directory for our program and contains three modules:
 - [GDA](src/GDA.py): dose-response analysis of two cell lines/cell conditions with a drug gradient.
 
 - [synergy](src/synergy.py): dose-response and synergy (Bliss) analysis of one cell line/cell condition with simultaneous horizontal and vertical drug gradients.
@@ -168,7 +168,7 @@ Download the [python directory](python). This is the working directory for our p
 
 [toolbox](src/toolbox.py) is a script containing functions, variables, and imports used across the modules, like logging and handling relative paths.
 
-Note that the scripts reference items in the directory, so the [python directory](python) must be downloaded and **should not be altered** without foresight.
+Note that the scripts reference items in the directory, so the [src directory](src/) must be downloaded and **should not be altered** without foresight.
 
 Upon running a module, the script will look for the CellProfiler application in the default save locations:
 - **Windows 64-bit**: "C:\Program Files\CellProfiler\CellProfiler.exe"
