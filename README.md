@@ -48,7 +48,7 @@ conda env create -f src/environment.yml
 conda activate CellPyAbility
 
 # OR if using pip, install the requirements to create a stable environment
-python -m pip install -r src/requirements.txt
+# python -m pip install -r src/requirements.txt
 
 # download the test data locally via Git Large File Storage
 git lfs pull
