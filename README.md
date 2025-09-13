@@ -44,17 +44,17 @@ git clone https://github.com/CellPyAbility
 cd CellPyAbility
 
 # if using conda, create and use a stable CellPyAbility environment
-conda env create -f src/environment.yml
+conda env create -f environment.yml
 conda activate CellPyAbility
 
 # OR if using pip, install the requirements to create a stable environment
-# python -m pip install -r src/requirements.txt
+python -m pip install -r requirements.txt
 
 # download the test data locally via Git Large File Storage
 git lfs pull
 
 # run the GDA script on the test data provided in this repo
-python src/GDA.py
+python src/cellpyability/GDA.py
 ```
 Compare the GDA results to the [expected outputs](test/test_expected_outputs).
 
@@ -112,10 +112,10 @@ Reading the [protocols](protocol.pdf) first may aid in understanding the data re
 
 - The user must have a functional Python 3 environment to run the scripts.
 
-- For pip, the user can install the [Python dependencies](src/requirements.txt). Other package versions have not yet been tested but may work.
+- For pip, the user can install the [Python dependencies](requirements.txt). Other package versions have not yet been tested but may work.
 
-- For conda, the user can use the [CellPyAbility environment](src/environment.yml).
-  - If dependency issues still arise, the [full environment](src/full_environment.yml) can be used.
+- For conda, the user can use the [CellPyAbility environment](environment.yml).
+  - If dependency issues still arise, the [full environment](full_environment.yml) can be used.
 
 ## Windows Application
 Running the Windows application requires no programming experience, Python environment, or dependencies. It is a single file containing all three modules with graphical user interfaces (GUIs) for user inputs.
@@ -159,16 +159,16 @@ A log file with detailed logging is written to the directory. If the application
 ## Python Scripts
 For those who resist the corporate yoke of Microsoft, or for users looking for more control over the software, CellPyAbility can be run directly in Python with out-of-the-box scripts.
 
-Download the [src directory](src/). This is the working directory for our program and contains three modules:
-- [GDA](src/GDA.py): dose-response analysis of two cell lines/cell conditions with a drug gradient.
+Download the [Python directory](src/cellpyability/). This is the working directory for our program and contains three modules:
+- [GDA](src/cellpyability/GDA.py): dose-response analysis of two cell lines/cell conditions with a drug gradient.
 
-- [synergy](src/synergy.py): dose-response and synergy (Bliss) analysis of one cell line/cell condition with simultaneous horizontal and vertical drug gradients.
+- [synergy](src/cellpyability/synergy.py): dose-response and synergy (Bliss) analysis of one cell line/cell condition with simultaneous horizontal and vertical drug gradients.
 
-- [simple](src/simple.py): raw nuclei count matrix recapitulating the 96-well format.
+- [simple](src/cellpyability/simple.py): raw nuclei count matrix recapitulating the 96-well format.
 
-[toolbox](src/toolbox.py) is a script containing functions, variables, and imports used across the modules, like logging and handling relative paths.
+[toolbox](src/cellpyability/toolbox.py) is a script containing functions, variables, and imports used across the modules, like logging and handling relative paths.
 
-Note that the scripts reference items in the directory, so the [src directory](src/) must be downloaded and **should not be altered** without foresight.
+Note that the scripts reference items in the directory, so the [src/cellpyability directory](src/cellpyability) must be downloaded and **should not be altered** without foresight.
 
 Upon running a module, the script will look for the CellProfiler application in the default save locations:
 - **Windows 64-bit**: "C:\Program Files\CellProfiler\CellProfiler.exe"
@@ -185,7 +185,7 @@ If CellProfiler cannot be found, the user will be prompted to input the path to 
 
 The path is saved to a .txt file within the directory for future reference, so subsequent runs will proceed directly to the next step.
 
-A GUI will prompt the user for experimental details. I will use [GDA](src/GDA.py) as an example, but [synergy](src/synergy.py) and [simple](src/simple.py) follow the same workflow. The GDA GUI asks for the following: 
+A GUI will prompt the user for experimental details. I will use [GDA](src/cellpyability/GDA.py) as an example, but [synergy](src/cellpyability/synergy.py) and [simple](src/cellpyability/simple.py) follow the same workflow. The GDA GUI asks for the following: 
 - title of the experiment (e.g. 20250101_CellLine_Drug)
 
 - name of the cell condition in rows B-D (e.g. Cell Line Wildtype)
@@ -202,15 +202,15 @@ A log file with detailed logging is written to the directory. Additionally messa
 
 ### Modifying the CellProfiler Pipeline
 
-Across multiple cell lines and densities, our provided [CellProfiler Pipeline](src/CellPyAbility.cppipe) appears robust. However, if the user wishes to make any changes, a few guidelines must be followed to maintain compatibility with the scripts as written:
+Across multiple cell lines and densities, our provided [CellProfiler Pipeline](src/cellpyability/CellPyAbility.cppipe) appears robust. However, if the user wishes to make any changes, a few guidelines must be followed to maintain compatibility with the scripts as written:
 - The module output names must remain as:
   - Count_nuclei
   - FileName_images
 
 - The CellProfiler output CSV file name must remain as:
-  - path/to/src/cp_output/CellPyAbilityImage.csv
+  - path/to/src/cellpyability/cp_output/CellPyAbilityImage.csv
 
-The modularity of the Python scripts and CellProfiler pipeline may prove useful. For example, if the user wishes to use all 96 wells instead of 60, minor Python knowledge and effort would be needed to enact this change. As another example, the user could analyze microscope images of 10x magnification instead of 4x magnification by increasing the expected pixel ranges for nuclei in the [CellProfiler pipeline](src/CellPyAbility.cppipe).
+The modularity of the Python scripts and CellProfiler pipeline may prove useful. For example, if the user wishes to use all 96 wells instead of 60, minor Python knowledge and effort would be needed to enact this change. As another example, the user could analyze microscope images of 10x magnification instead of 4x magnification by increasing the expected pixel ranges for nuclei in the [CellProfiler pipeline](src/cellpyability/CellPyAbility.cppipe).
 
 ## Example Outputs
 ### GDA Module
