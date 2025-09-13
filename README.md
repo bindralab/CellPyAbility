@@ -40,7 +40,7 @@ CellProfiler must be installed because CellPyAbility uses it as a subprocess. Se
 ### Python
 ```bash
 # make a copy of the repo in the root directory and navigate to it
-git clone https://github.com/CellPyAbility
+git clone https://github.com/bindralab/CellPyAbility
 cd CellPyAbility
 
 # if using conda, create and use a stable CellPyAbility environment
