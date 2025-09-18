@@ -53,8 +53,11 @@ conda activate CellPyAbility
 # download the test data locally via Git Large File Storage
 git lfs pull
 
+# for ease of use, change to src/cellpyability subdirectory
+cd src/cellpyability
+
 # run the GDA script on the test data provided in this repo
-python src/cellpyability/GDA.py
+python GDA.py
 ```
 Compare the GDA results to the [expected outputs](test/test_expected_outputs).
 
