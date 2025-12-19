@@ -8,3 +8,13 @@ synergy_output
 simple_output
 log.log
 __pycache__
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/

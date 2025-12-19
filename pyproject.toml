@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cellpyability"
+version = "0.1.0"
+description = "Open-source cell viability and dose-response analysis tool"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "James Elia", email = "james.elia@yale.edu"}
+]
+maintainers = [
+    {name = "James Elia", email = "james.elia@yale.edu"}
+]
+keywords = ["cell viability", "dose-response", "image analysis", "drug screening", "synergy"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+dependencies = [
+    "matplotlib>=3.10.1",
+    "numpy>=1.24.4",
+    "pandas>=2.2.3",
+    "plotly>=5.23.0",
+    "scipy>=1.15.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[project.scripts]
+cellpyability = "cellpyability.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/bindralab/CellPyAbility"
+Repository = "https://github.com/bindralab/CellPyAbility"
+Issues = "https://github.com/bindralab/CellPyAbility/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cellpyability*"]
+
+[tool.setuptools.package-data]
+cellpyability = ["*.cppipe"]
