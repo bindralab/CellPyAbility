@@ -75,6 +75,11 @@ def create_parser():
         action='store_true',
         help='Skip displaying the plot (still saves it)'
     )
+    gda_parser.add_argument(
+        '--counts-file',
+        type=str,
+        help='Path to pre-existing counts CSV file (for testing, bypasses CellProfiler)'
+    )
     
     # Synergy module parser
     synergy_parser = subparsers.add_parser(
@@ -131,6 +136,11 @@ def create_parser():
         action='store_true',
         help='Skip displaying the plot (still saves it)'
     )
+    synergy_parser.add_argument(
+        '--counts-file',
+        type=str,
+        help='Path to pre-existing counts CSV file (for testing, bypasses CellProfiler)'
+    )
     
     # Simple module parser
     simple_parser = subparsers.add_parser(
@@ -148,6 +158,11 @@ def create_parser():
         type=str,
         help='Directory containing the well images'
     )
+    simple_parser.add_argument(
+        '--counts-file',
+        type=str,
+        help='Path to pre-existing counts CSV file (for testing, bypasses CellProfiler)'
+    )
     
     return parser
 
@@ -164,7 +179,8 @@ def run_gda(args):
         top_conc=args.top_conc,
         dilution=args.dilution,
         image_dir=args.image_dir,
-        show_plot=not args.no_plot
+        show_plot=not args.no_plot,
+        counts_file=getattr(args, 'counts_file', None)
     )
 
 
@@ -181,7 +197,8 @@ def run_synergy(args):
         y_top_conc=args.y_top_conc,
         y_dilution=args.y_dilution,
         image_dir=args.image_dir,
-        show_plot=not args.no_plot
+        show_plot=not args.no_plot,
+        counts_file=getattr(args, 'counts_file', None)
     )
 
 
@@ -191,7 +208,8 @@ def run_simple(args):
     
     simple_analysis.run_simple(
         title=args.title,
-        image_dir=args.image_dir
+        image_dir=args.image_dir,
+        counts_file=getattr(args, 'counts_file', None)
     )
 
 

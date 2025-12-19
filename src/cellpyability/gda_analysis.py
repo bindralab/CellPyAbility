@@ -15,7 +15,7 @@ from . import toolbox as tb
 logger, base_dir = tb.logger, tb.base_dir
 
 
-def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, show_plot=True):
+def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, show_plot=True, counts_file=None):
     """
     Run GDA (Growth Delay Assay) analysis.
     
@@ -35,13 +35,15 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
         Directory containing the 60 well images
     show_plot : bool
         Whether to display the plot (default: True)
+    counts_file : str, optional
+        Path to pre-existing counts CSV file (for testing)
     """
     
     # Create a concentration range array
     doses = tb.dose_range_x(top_conc, dilution)
     
     # Run CellProfiler headless and return a DataFrame with the raw nuclei counts and the .csv path
-    df_cp, cp_csv = tb.run_cellprofiler(image_dir)
+    df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file)
     
     # Load the CellProfiler counts into a DataFrame
     df_cp.drop('ImageNumber', axis=1, inplace=True)

@@ -12,6 +12,10 @@ __version__ = "0.1.0"
 __author__ = "James Elia"
 __email__ = "james.elia@yale.edu"
 
-from cellpyability import toolbox
+# Import analysis modules for programmatic access
+from . import toolbox
+from . import gda_analysis
+from . import synergy_analysis
+from . import simple_analysis
 
-__all__ = ['toolbox']
+__all__ = ['toolbox', 'gda_analysis', 'synergy_analysis', 'simple_analysis']

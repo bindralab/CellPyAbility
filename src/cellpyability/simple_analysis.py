@@ -9,7 +9,7 @@ from . import toolbox as tb
 logger, base_dir = tb.logger, tb.base_dir
 
 
-def run_simple(title, image_dir):
+def run_simple(title, image_dir, counts_file=None):
     """
     Run simple nuclei counting analysis.
     
@@ -19,10 +19,12 @@ def run_simple(title, image_dir):
         Title of the experiment
     image_dir : str
         Directory containing the well images
+    counts_file : str, optional
+        Path to pre-existing counts CSV file (for testing)
     """
     
     # Run CellProfiler via the command line
-    df_cp, cp_csv = tb.run_cellprofiler(image_dir)
+    df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file)
     df_cp.drop(columns='ImageNumber', inplace=True)
     df_cp.columns = ['nuclei','well']
     

@@ -13,7 +13,7 @@ from . import toolbox as tb
 logger, base_dir = tb.logger, tb.base_dir
 
 
-def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, y_dilution, image_dir, show_plot=True):
+def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, y_dilution, image_dir, show_plot=True, counts_file=None):
     """
     Run synergy analysis for drug combination experiments.
     
@@ -37,6 +37,8 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
         Directory containing the 180 well images
     show_plot : bool
         Whether to display the plot (default: True)
+    counts_file : str, optional
+        Path to pre-existing counts CSV file (for testing)
     """
     
     # Calculate x and y concentration gradients
@@ -46,7 +48,7 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     logger.debug('y_doses gradient calculated.')
     
     # Run CellProfiler headless and return a DataFrame with the raw nuclei counts and the .csv path
-    df_cp, cp_csv = tb.run_cellprofiler(image_dir)
+    df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file)
     
     # Load the CellProfiler counts into a DataFrame and rename wells
     df_cp.drop('ImageNumber', axis=1, inplace=True)
