@@ -1,5 +1,5 @@
 """
-CellPyAbility_GDA.py is intended for dose-response experiments of two conditions with 9 concs and a vehicle.
+GDA.py is a standalone GUI script for dose-response experiments of two conditions with 9 concs and a vehicle.
 This script should remain in the same directory as the other CellPyAbility scripts.
 For more information, please see the README at https://github.com/bindralab/CellPyAbility.
 """
