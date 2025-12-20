@@ -62,7 +62,7 @@ class TestCellProfilerSubprocess(unittest.TestCase):
             command_list = call_args[0][0]
             
             # Print the command for visibility
-            print(f"\n✓ CellProfiler subprocess call verified")
+            print(f"\nCellProfiler subprocess call verified")
             print(f"  Full command: {' '.join(str(a) for a in command_list)}")
             
             # Verify command structure
@@ -95,7 +95,7 @@ class TestCellProfilerSubprocess(unittest.TestCase):
             print(f"    [6] Input: {command_list[6]}")
             print(f"    [7] -o (output flag)")
             print(f"    [8] Output: {command_list[8]}")
-            print(f"\n✓ All required flags present in correct order")
+            print(f"\n All required flags present in correct order")
     
     @patch('cellpyability.toolbox._ensure_cellprofiler_path')
     @patch('cellpyability.toolbox.subprocess.run')
@@ -137,7 +137,7 @@ class TestCellProfilerSubprocess(unittest.TestCase):
             self.assertIn('-i', command, "Missing -i (input)")
             self.assertIn('-o', command, "Missing -o (output)")
             
-            print(f"\n✓ All CellProfiler flags verified: -c, -r, -p, -i, -o")
+            print(f"\n All CellProfiler flags verified: -c, -r, -p, -i, -o")
 
 
 def main():
