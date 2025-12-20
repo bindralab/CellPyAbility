@@ -75,7 +75,7 @@ For more CLI options, run `cellpyability --help` or `cellpyability gda --help`.
 - Run CellPyAbility.exe and select the GDA module from the menu
 - Run the test data and compare the results to the [expected output](example/example_expected_outputs)
 
-### Python Scripts (Legacy)
+### Python Scripts (Legacy, GUI)
 ```bash
 # make a copy of the repo in the root directory and navigate to it
 git clone https://github.com/bindralab/CellPyAbility
@@ -249,7 +249,7 @@ cellpyability simple \
 **Parameters:**
 - `--title`: Experiment title
 - `--image-dir`: Directory containing well images
-- `--counts-file`: (Optional) Use pre-existing counts CSV
+- `--counts-file`: (Optional) Use pre-existing CellProfiler counts CSV
 
 ### Batch Processing Example
 
@@ -257,17 +257,24 @@ The CLI enables automated batch processing with shell scripts:
 
 ```bash
 #!/bin/bash
-# Process multiple experiments
-for dir in experiments/*/; do
-    exp_name=$(basename "$dir")
-    cellpyability gda \
-        --title "$exp_name" \
-        --upper-name "WT" \
-        --lower-name "KO" \
-        --top-conc 0.000001 \
-        --dilution 3 \
-        --image-dir "$dir" \
-        --no-plot
+# Process multiple experiments using a CSV config file
+tail -n +2 "$CONFIG_FILE" | while IFS=, read -r dir title upper lower conc dil; do
+    
+    echo "Processing: $title in directory $dir..."
+
+    if [ -d "$dir" ]; then
+        cellpyability gda \
+            --title "$title" \
+            --upper-name "$upper" \
+            --lower-name "$lower" \
+            --top-conc "$conc" \
+            --dilution "$dil" \
+            --image-dir "$dir" \
+            --no-plot
+    else
+        echo "Warning: Directory $dir not found. Skipping."
+    fi
+
 done
 ```
 
@@ -275,8 +282,8 @@ done
 
 All analysis modules create output in subdirectories of `src/cellpyability/`:
 - GDA: `src/cellpyability/gda_output/`
-- Synergy: `src/cellpyability/synergy_output/`
-- Simple: `src/cellpyability/simple_output/`
+- synergy: `src/cellpyability/synergy_output/`
+- simple: `src/cellpyability/simple_output/`
 
 ## Windows Application
 Running the Windows application requires no programming experience, Python environment, or dependencies. It is a single file containing all three modules with graphical user interfaces (GUIs) for user inputs.
@@ -296,7 +303,7 @@ After selecting a module, the application will look for the CellProfiler.exe in 
 
 - "C:\Program Files (x86)\CellProfiler\CellProfiler.exe"
 
-If CellProfiler.exe cannot be found, the user will be prompted to input the path to the CellProfiler.exe file. The path is saved to a .txt file within the directory for future reference, so subsequent runs will proceed directly to the next step.
+If CellProfiler.exe cannot be found, the user will be prompted to input the path to the CellProfiler.exe file via the command line. The path is saved to a .txt file within the directory for future reference, so subsequent runs will proceed directly to the next step.
 
 A GUI specific to each module will prompt the user for experimental details. Using the GDA module as an example:
 - title of the experiment (e.g. 20250101_CellLine_Drug)
@@ -317,8 +324,8 @@ A small GUI window will then prompt the user if they would like to run another e
 
 A log file with detailed logging is written to the directory. If the application fails at any point, it may be useful to consult the log for critical messages or to identify the last step to succeed.
 
-## Python Scripts
-For those who resist the corporate yoke of Microsoft, or for users looking for more control over the software, CellPyAbility can be run directly in Python with out-of-the-box scripts.
+## Python Scripts (Legacy, GUI)
+These scripts were the original core logic for CellPyAbility and ran as standalone GUI scripts. They still serve a small purpose if a user wants baseline functionality without installing the package. The scripts can still be run out-of-the-box as follows:
 
 Download the [Python directory](src/cellpyability/). This is the working directory for our program and contains three modules:
 - [GDA](src/cellpyability/GDA.py): dose-response analysis of two cell lines/cell conditions with a drug gradient.
@@ -361,18 +368,6 @@ After submitting the GUI, a terminal window will open to track CellProfiler's im
 
 A log file with detailed logging is written to the directory. Additionally messages with results and output file locations (INFO), warnings (WARNING), errors (ERROR), or critical failure (CRITICAL) messages will be written directly to the terminal.
 
-### Modifying the CellProfiler Pipeline
-
-Across multiple cell lines and densities, our provided [CellProfiler Pipeline](src/cellpyability/CellPyAbility.cppipe) appears robust. However, if the user wishes to make any changes, a few guidelines must be followed to maintain compatibility with the scripts as written:
-- The module output names must remain as:
-  - Count_nuclei
-  - FileName_images
-
-- The CellProfiler output CSV file name must remain as:
-  - path/to/src/cellpyability/cp_output/CellPyAbilityImage.csv
-
-The modularity of the Python scripts and CellProfiler pipeline may prove useful. For example, if the user wishes to use all 96 wells instead of 60, minor Python knowledge and effort would be needed to enact this change. As another example, the user could analyze microscope images of 10x magnification instead of 4x magnification by increasing the expected pixel ranges for nuclei in the [CellProfiler pipeline](src/cellpyability/CellPyAbility.cppipe).
-
 ## Example Outputs
 ### GDA Module
 The GDA module outputs three tabular files with increasing degrees of analysis:
@@ -385,7 +380,6 @@ The GDA module outputs three tabular files with increasing degrees of analysis:
 Additionally, the script generates a plot with 5-parameter logistic curves:
 
 ![GDA plot](example/example_expected_outputs/example_gda_plot.png)
-
 ### Synergy Module
 The synergy module outputs four tabular files:
 - [raw nuclei counts](example/example_expected_outputs/example_synergy_counts.csv)
@@ -403,6 +397,18 @@ Additionally, the script generates an interactive [3D surface map](example/examp
 ### Simple Module
 Finally, the simple module outputs nuclei counts in a 96-well matrix format. This offers maximum flexibility but does not provide any analysis.
 - [count matrix](example/example_expected_outputs/example_simple_CountMatrix.csv)
+
+## Modifying the CellProfiler Pipeline
+
+Across multiple cell lines and densities, our provided [CellProfiler Pipeline](src/cellpyability/CellPyAbility.cppipe) appears robust. However, if the user wishes to make any changes, a few guidelines must be followed to maintain compatibility with the scripts as written:
+- The module output names must remain as:
+  - Count_nuclei
+  - FileName_images
+
+- The CellProfiler output CSV file name must remain as:
+  - path/to/src/cellpyability/cp_output/CellPyAbilityImage.csv
+
+The modularity of the Python scripts and CellProfiler pipeline may prove useful. For example, if the user wishes to use all 96 wells instead of 60, minor Python knowledge and effort would be needed to enact this change. As another example, the user could analyze microscope images of 10x magnification instead of 4x magnification by increasing the expected pixel ranges for nuclei in the [CellProfiler pipeline](src/cellpyability/CellPyAbility.cppipe).
 
 ## Testing
 
