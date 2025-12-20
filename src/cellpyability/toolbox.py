@@ -97,8 +97,8 @@ def prompt_path():
 
 # Include 'cp_path = get_cellprofiler_path()' at start of script
 def get_cellprofiler_path():
-    # First check if a CellProfiler path exists in the directory
-    config_file = base_dir / "cellprofiler_path.txt"
+    # Store CellProfiler path in current working directory (PyPI-compatible)
+    config_file = Path.cwd() / "cellprofiler_path.txt"
 
     if config_file.exists():
         with open(config_file, "r") as file:

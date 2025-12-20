@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `toolbox.py` now copies (not moves) test data files when using `--counts-file`
-- Proper handling of runtime-generated files (e.g., `cellprofiler_path.txt`)
+- Runtime-generated files (`cellprofiler_path.txt`, `cellpyability.log`) now written to current working directory (PyPI-compatible)
 
 ## [0.0.1] - Pre-release
 

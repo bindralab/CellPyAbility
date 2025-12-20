@@ -144,14 +144,19 @@ The package may show warnings about `license-file` metadata during build. These 
 
 ### Runtime-Generated Files
 
-The package creates `cellprofiler_path.txt` at runtime in the installation directory on first use. This is normal and expected behavior:
-- The file is excluded from the distribution via MANIFEST.in
-- Users will be prompted for CellProfiler path on first run
-- Path is saved for future sessions
+The package creates configuration and log files in the current working directory (PyPI-compatible):
+- `cellprofiler_path.txt` - Created on first run when CellProfiler path needs to be saved
+- `cellpyability.log` - Debug log file created during each run
+- `cellpyability_output/` - Directory containing all analysis results
 
-### Permission Errors
+All these files are created in the user's working directory, not in the package installation directory, ensuring compatibility with read-only system installations.
 
-If you get permission errors during installation, the base directory (package installation location) may not be writable. This is normal in system-wide installations. Users should install in a virtual environment or use `--user` flag.
+### No Permission Issues
+
+The package is designed to work correctly in read-only environments:
+- NO writes to package installation directory
+- All output to current working directory by default
+- Works in virtual environments, user installations, and system-wide installations
 
 ## Resources
 
