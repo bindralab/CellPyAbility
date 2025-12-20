@@ -13,13 +13,10 @@ CellPyAbility is still in development; if you encounter any bugs, please contact
 
   - [Data Requirements](#data-requirements): applies to all uses
   - [Application Requirements](#application-requirements): applies to Windows application
-  - [Python Script Requirements](#python-script-requirements): applies to stand-alone scripts
 
 - [Command Line Interface](#command-line-interface-cli): modern CLI for automated workflows and testing
 
 - [Windows Application](#windows-application): code-free executable for Windows OS
-
-- [Python Scripts](#python-scripts): stand-alone Python scripts for each module
 
 - [Example Outputs](#example-outputs): examples of figures and tables for each module
   - [GDA Module](#gda-module): two cell lines, one drug gradient
