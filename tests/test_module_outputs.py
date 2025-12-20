@@ -106,7 +106,7 @@ def test_gda_module():
         if match:
             print(f"[PASS] PASSED: GDA Stats output matches expected file")
             print(f"   {message}")
-            return True
+            result = True
         else:
             print(f"[FAIL] FAILED: GDA Stats output does not match")
             print(f"   {message}")
@@ -119,11 +119,16 @@ def test_gda_module():
             df_exp = pd.read_csv(expected_stats, index_col=0)
             print(df_exp.head())
             
-            return False
+            result = False
     finally:
-        # Clean up output files
+        # Clean up output files - use ignore_errors for Windows compatibility
         if output_stats.exists():
-            shutil.rmtree(output_stats.parent)
+            try:
+                shutil.rmtree(output_stats.parent, ignore_errors=True)
+            except Exception as e:
+                print(f"Warning: Could not clean up output directory: {e}")
+    
+    return result
 
 
 def test_synergy_module():
@@ -168,7 +173,7 @@ def test_synergy_module():
         if match:
             print(f"[PASS] PASSED: Synergy Stats output matches expected file")
             print(f"   {message}")
-            return True
+            result = True
         else:
             print(f"[FAIL] FAILED: Synergy Stats output does not match")
             print(f"   {message}")
@@ -181,11 +186,16 @@ def test_synergy_module():
             df_exp = pd.read_csv(expected_stats)
             print(df_exp.head())
             
-            return False
+            result = False
     finally:
-        # Clean up output files
+        # Clean up output files - use ignore_errors for Windows compatibility
         if output_stats.exists():
-            shutil.rmtree(output_stats.parent)
+            try:
+                shutil.rmtree(output_stats.parent, ignore_errors=True)
+            except Exception as e:
+                print(f"Warning: Could not clean up output directory: {e}")
+    
+    return result
 
 
 def test_simple_module():
@@ -224,7 +234,7 @@ def test_simple_module():
         if match:
             print(f"[PASS] PASSED: Simple CountMatrix output matches expected file")
             print(f"   {message}")
-            return True
+            result = True
         else:
             print(f"[FAIL] FAILED: Simple CountMatrix output does not match")
             print(f"   {message}")
@@ -237,11 +247,16 @@ def test_simple_module():
             df_exp = pd.read_csv(expected_output, index_col=0)
             print(df_exp)
             
-            return False
+            result = False
     finally:
-        # Clean up output files
+        # Clean up output files - use ignore_errors for Windows compatibility
         if output_matrix.exists():
-            shutil.rmtree(output_matrix.parent)
+            try:
+                shutil.rmtree(output_matrix.parent, ignore_errors=True)
+            except Exception as e:
+                print(f"Warning: Could not clean up output directory: {e}")
+    
+    return result
 
 
 def main():
