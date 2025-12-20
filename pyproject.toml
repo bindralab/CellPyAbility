@@ -29,11 +29,11 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
 dependencies = [
-    "matplotlib>=3.10.1",
-    "numpy>=1.24.4",
-    "pandas>=2.2.3",
-    "plotly>=5.23.0",
-    "scipy>=1.15.2",
+    "matplotlib>=3.5.0,<4.0.0",
+    "numpy>=1.24.4,<2.0.0",
+    "pandas>=2.0.0,<3.0.0",
+    "plotly>=5.0.0,<6.0.0",
+    "scipy>=1.10.0,<2.0.0",
 ]
 
 [project.optional-dependencies]
