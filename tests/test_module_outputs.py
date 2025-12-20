@@ -72,9 +72,9 @@ def test_gda_module():
     print("Testing GDA Module")
     print("="*80)
     
-    repo_root = Path(__file__).parent.parent
-    counts_file = repo_root / "test/test_expected_outputs/test_GDA_counts.csv"
-    expected_stats = repo_root / "test/test_expected_outputs/test_GDA_Stats.csv"
+    test_data_dir = Path(__file__).parent / "data"
+    counts_file = test_data_dir / "expected_test_GDA_counts.csv"
+    expected_stats = test_data_dir / "expected_test_GDA_Stats.csv"
     
     # Run GDA analysis (output goes to src/cellpyability/GDA_output)
     print(f"Running GDA analysis with counts file: {counts_file}")
@@ -90,6 +90,7 @@ def test_gda_module():
     )
     
     # Check output file (in src/cellpyability/GDA_output/)
+    repo_root = Path(__file__).parent.parent
     output_stats = repo_root / "src/cellpyability/GDA_output/test_GDA_Stats.csv"
     
     try:
@@ -131,9 +132,9 @@ def test_synergy_module():
     print("Testing Synergy Module")
     print("="*80)
     
-    repo_root = Path(__file__).parent.parent
-    counts_file = repo_root / "test/test_expected_outputs/test_synergy_counts.csv"
-    expected_stats = repo_root / "test/test_expected_outputs/test_synergy_stats.csv"
+    test_data_dir = Path(__file__).parent / "data"
+    counts_file = test_data_dir / "expected_test_synergy_counts.csv"
+    expected_stats = test_data_dir / "expected_test_synergy_stats.csv"
     
     # Run Synergy analysis (output goes to src/cellpyability/synergy_output)
     print(f"Running Synergy analysis with counts file: {counts_file}")
@@ -151,6 +152,7 @@ def test_synergy_module():
     )
     
     # Check output file (in src/cellpyability/synergy_output/)
+    repo_root = Path(__file__).parent.parent
     output_stats = repo_root / "src/cellpyability/synergy_output/test_synergy_stats.csv"
     
     try:
@@ -192,10 +194,10 @@ def test_simple_module():
     print("Testing Simple Module")
     print("="*80)
     
-    repo_root = Path(__file__).parent.parent
-    # Use synergy counts for simple module test (it just needs any counts file)
-    counts_file = repo_root / "test/test_expected_outputs/test_synergy_counts.csv"
-    expected_output = repo_root / "test/test_expected_outputs/test_simple_CountMatrix.csv"
+    test_data_dir = Path(__file__).parent / "data"
+    # Use GDA counts for simple module test
+    counts_file = test_data_dir / "expected_test_GDA_counts.csv"
+    expected_output = test_data_dir / "expected_test_simple_CountMatrix.csv"
     
     # Run Simple analysis (output goes to src/cellpyability/simple_output)
     print(f"Running Simple analysis with counts file: {counts_file}")
@@ -206,6 +208,7 @@ def test_simple_module():
     )
     
     # Check output file (in src/cellpyability/simple_output/)
+    repo_root = Path(__file__).parent.parent
     output_matrix = repo_root / "src/cellpyability/simple_output/test_simple_CountMatrix.csv"
     
     try:

@@ -225,9 +225,23 @@ def rename_wells(tiff_name, wells):
     return tiff_name  # Keep original if no target matches
 
 def rename_counts(cp_csv, counts_csv):
+    """
+    Rename or copy CellProfiler counts file to final output location.
+    Uses copy if source is not in cp_output (e.g., test data), otherwise renames.
+    """
     try:
-        os.rename(cp_csv, counts_csv)
-        logger.debug(f'{cp_csv} succesfully renamed to {counts_csv}')
+        cp_csv_path = Path(cp_csv)
+        counts_csv_path = Path(counts_csv)
+        
+        # If source is not in cp_output directory, copy instead of rename
+        # This preserves test data files
+        if 'cp_output' not in str(cp_csv_path):
+            import shutil
+            shutil.copy2(cp_csv, counts_csv)
+            logger.debug(f'{cp_csv} succesfully copied to {counts_csv}')
+        else:
+            os.rename(cp_csv, counts_csv)
+            logger.debug(f'{cp_csv} succesfully renamed to {counts_csv}')
     except FileNotFoundError:
         logger.debug(f'{cp_csv} not found')
     except PermissionError:
