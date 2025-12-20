@@ -52,7 +52,7 @@ cellpyability gda \
   --lower-name "Cell Line B" \
   --top-conc 0.000001 \
   --dilution 3 \
-  --image-dir example/test_GDA
+  --image-dir example/example_gda
 
 # Or test without CellProfiler using pre-counted data
 cellpyability gda \
@@ -62,7 +62,7 @@ cellpyability gda \
   --top-conc 0.000001 \
   --dilution 3 \
   --image-dir /tmp \
-  --counts-file tests/data/expected_test_GDA_counts.csv \
+  --counts-file tests/data/test_gda_counts.csv \
   --no-plot
 ```
 
@@ -71,9 +71,9 @@ For more CLI options, run `cellpyability --help` or `cellpyability gda --help`.
 ### Windows Application
 - Download the [Windows executable](windows_app/CellPyAbility.exe)
   - We recommend moving CellPyAbility.exe into an empty directory (running it will create files)
-- Download the [GDA test data](example/test_GDA)
+- Download the [GDA test data](example/example_gda)
 - Run CellPyAbility.exe and select the GDA module from the menu
-- Run the test data and compare the results to the [expected output](example/test_expected_outputs)
+- Run the test data and compare the results to the [expected output](example/example_expected_outputs)
 
 ### Python Scripts (Legacy)
 ```bash
@@ -97,7 +97,7 @@ cd src/cellpyability
 # run the GDA script on the test data provided in this repo
 python GDA.py
 ```
-Compare the GDA results to the [expected outputs](example/test_expected_outputs).
+Compare the GDA results to the [expected outputs](example/example_expected_outputs).
 
 ## Abstract
 
@@ -274,7 +274,7 @@ done
 ### Output Locations
 
 All analysis modules create output in subdirectories of `src/cellpyability/`:
-- GDA: `src/cellpyability/GDA_output/`
+- GDA: `src/cellpyability/gda_output/`
 - Synergy: `src/cellpyability/synergy_output/`
 - Simple: `src/cellpyability/simple_output/`
 
@@ -311,7 +311,7 @@ A GUI specific to each module will prompt the user for experimental details. Usi
 
 - a file browser to select the directory containing the 60 images
 
-After submitting the GUI, a terminal window will open to track CellProfiler's image analysis progress. Once all images are counted, subsequent analysis is almost instant. All figures and tabular results will be in a subdirectory named after the module (e.g. GDA_output). See [Example Outputs](#example-outputs).
+After submitting the GUI, a terminal window will open to track CellProfiler's image analysis progress. Once all images are counted, subsequent analysis is almost instant. All figures and tabular results will be in a subdirectory named after the module (e.g. gda_output). See [Example Outputs](#example-outputs).
 
 A small GUI window will then prompt the user if they would like to run another experiment. If "yes", the initial module selection GUI will prompt the user again. If "no", the application will close.
 
@@ -357,7 +357,7 @@ A GUI will prompt the user for experimental details. I will use [GDA](src/cellpy
 
 - a file browser to select the directory containing the 60 images
 
-After submitting the GUI, a terminal window will open to track CellProfiler's image analysis progress. Once all images are counted, subsequent analysis is almost instant. All figures and tabular results will be in a subdirectory named after the module (e.g. GDA_output). See [Example Outputs](#example-outputs).
+After submitting the GUI, a terminal window will open to track CellProfiler's image analysis progress. Once all images are counted, subsequent analysis is almost instant. All figures and tabular results will be in a subdirectory named after the module (e.g. gda_output). See [Example Outputs](#example-outputs).
 
 A log file with detailed logging is written to the directory. Additionally messages with results and output file locations (INFO), warnings (WARNING), errors (ERROR), or critical failure (CRITICAL) messages will be written directly to the terminal.
 
@@ -376,33 +376,33 @@ The modularity of the Python scripts and CellProfiler pipeline may prove useful.
 ## Example Outputs
 ### GDA Module
 The GDA module outputs three tabular files with increasing degrees of analysis:
-- [raw nuclei counts](example/test_expected_outputs/test_GDA_counts.csv)
+- [raw nuclei counts](example/example_expected_outputs/example_gda_counts.csv)
 
-- [normalized cell viability matrix](example/test_expected_outputs/test_GDA_ViabilityMatrix.csv)
+- [normalized cell viability matrix](example/example_expected_outputs/example_gda_ViabilityMatrix.csv)
 
-- [cell viability statistics](example/test_expected_outputs/test_GDA_Stats.csv)
+- [cell viability statistics](example/example_expected_outputs/example_gda_Stats.csv)
 
 Additionally, the script generates a plot with 5-parameter logistic curves:
 
-![GDA plot](example/test_expected_outputs/test_GDA_plot.png)
+![GDA plot](example/example_expected_outputs/example_gda_plot.png)
 
 ### Synergy Module
 The synergy module outputs four tabular files:
-- [raw nuclei counts](example/test_expected_outputs/test_synergy_counts.csv)
+- [raw nuclei counts](example/example_expected_outputs/example_synergy_counts.csv)
 
-- [normalized cell viability matrix](example/test_expected_outputs/test_synergy_ViabilityMatrix.csv)
+- [normalized cell viability matrix](example/example_expected_outputs/example_synergy_ViabilityMatrix.csv)
 
-- [cell viability statistics](example/test_expected_outputs/test_synergy_stats.csv)
+- [cell viability statistics](example/example_expected_outputs/example_synergy_stats.csv)
 
-- [Bliss synergy matrix](example/test_expected_outputs/test_synergy_BlissMatrix.csv)
+- [Bliss synergy matrix](example/example_expected_outputs/example_synergy_BlissMatrix.csv)
 
-Additionally, the script generates an interactive [3D surface map](example/test_expected_outputs/test_synergy_plot.html) in HTML with synergy as heat:
+Additionally, the script generates an interactive [3D surface map](example/example_expected_outputs/example_synergy_plot.html) in HTML with synergy as heat:
 
-![synergy plot](example/test_expected_outputs/test_synergy_plot_screenshot.png)
+![synergy plot](example/example_expected_outputs/example_synergy_plot_screenshot.png)
 
 ### Simple Module
 Finally, the simple module outputs nuclei counts in a 96-well matrix format. This offers maximum flexibility but does not provide any analysis.
-- [count matrix](example/test_expected_outputs/test_simple_CountMatrix.csv)
+- [count matrix](example/example_expected_outputs/example_simple_CountMatrix.csv)
 
 ## Testing
 
@@ -428,9 +428,9 @@ The test suite validates that each module (GDA, Synergy, Simple) produces output
 - ✅ Simple Module: Verifies nuclei count matrix generation
 
 Test data is located in `tests/data/` and includes:
-- `expected_test_GDA_counts.csv`: Pre-counted nuclei for GDA test
-- `expected_test_synergy_counts.csv`: Pre-counted nuclei for synergy test
-- `expected_test_*_Stats.csv`: Expected analysis outputs for validation
+- `test_gda_counts.csv`: Pre-counted nuclei for gda test
+- `test_synergy_counts.csv`: Pre-counted nuclei for synergy test
+- `test_*_Stats.csv`: Expected analysis outputs for validation
 
 ### Manual Testing with Example Data
 
@@ -449,18 +449,18 @@ For manual verification, the `example/` directory contains real experimental dat
      --lower-name "Cell Line B" \
      --top-conc 0.000001 \
      --dilution 3 \
-     --image-dir example/test_GDA
+     --image-dir example/example_gda
    ```
 
 3. **Compare Your Results:**
-   - Your outputs in `src/cellpyability/GDA_output/`
-   - Expected outputs in `example/test_expected_outputs/`
-   - [Test parameters](example/test_params.txt) used to generate examples
+   - Your outputs in `src/cellpyability/gda_output/`
+   - Expected outputs in `example/example_expected_outputs/`
+   - [Test parameters](example/example_params.txt) used to generate examples
 
 **Available Example Datasets:**
-- [GDA test data](example/test_GDA/): 60 well images for dose-response analysis
-- [Synergy test data](example/test_synergy/): 180 well images for drug combination analysis
-- [Expected outputs](example/test_expected_outputs/): Reference results for validation
+- [GDA test data](example/example_gda/): 60 well images for dose-response analysis
+- [Synergy test data](example/example_synergy/): 180 well images for drug combination analysis
+- [Expected outputs](example/example_expected_outputs/): Reference results for validation
 
 This dual approach ensures both automated validation (for development/CI) and manual verification (to confirm your specific environment is working correctly).
 

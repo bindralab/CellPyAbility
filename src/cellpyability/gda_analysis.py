@@ -88,10 +88,10 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     column_labels = [str(i) for i in range(2,12)]
     column_concentrations = dict(zip(column_labels, [0] + doses))
     
-    # Define file path to or create CellPyAbility/GDA_output/ subfolder
-    gda_output_dir = base_dir / 'GDA_output'
+    # Define file path to or create CellPyAbility/gda_output/ subfolder
+    gda_output_dir = base_dir / 'gda_output'
     gda_output_dir.mkdir(exist_ok=True)
-    logger.debug('CellPyAbility/GDA_output/ identified or created and identified.')
+    logger.debug('CellPyAbility/gda_output/ identified or created and identified.')
     
     # Consolidate analytics into a new .csv file
     df_stats = pd.DataFrame(columns=column_labels)
@@ -101,8 +101,8 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     df_stats.loc[f'Relative Cell Viability {lower_name}'] = lower_normalized_means
     df_stats.loc[f'Relative Standard Deviation {upper_name}'] = upper_sd
     df_stats.loc[f'Relative Standard Deviation {lower_name}'] = lower_sd
-    df_stats.to_csv(gda_output_dir / f'{title_name}_GDA_Stats.csv')
-    logger.info(f'{title_name}_GDA_Stats saved to GDA_output.')
+    df_stats.to_csv(gda_output_dir / f'{title_name}_gda_Stats.csv')
+    logger.info(f'{title_name}_gda_Stats saved to gda_output.')
     
     # Normalize nuclei counts for each well individually
     def normalize_row(row):
@@ -123,8 +123,8 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     logger.debug('Created viability matrix via vectorized pivot.')
     
     # Save the viability matrix as a .csv
-    viability_matrix.to_csv(gda_output_dir / f'{title_name}_GDA_ViabilityMatrix.csv')
-    logger.info(f'{title_name} viability matrix saved to GDA_output.')
+    viability_matrix.to_csv(gda_output_dir / f'{title_name}_gda_ViabilityMatrix.csv')
+    logger.info(f'{title_name} viability matrix saved to gda_output.')
     
     # Assign doses to the x-axis
     x = np.array(doses)
@@ -318,8 +318,8 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
         transform=plt.gca().transAxes
     )
     plt.legend()
-    plt.savefig(gda_output_dir / f'{title_name}_GDA_plot.png', dpi=200, bbox_inches='tight')
-    logger.info(f'{title_name} GDA plot saved to CellPyAbility/GDA_output/.')
+    plt.savefig(gda_output_dir / f'{title_name}_gda_plot.png', dpi=200, bbox_inches='tight')
+    logger.info(f'{title_name} GDA plot saved to CellPyAbility/gda_output/.')
     
     if show_plot:
         plt.show()
@@ -327,7 +327,7 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
         plt.close()
     
     # Rename the CellProfiler output using the provided title name
-    counts_csv = gda_output_dir / f'{title_name}_GDA_counts.csv'
+    counts_csv = gda_output_dir / f'{title_name}_gda_counts.csv'
     
     tb.rename_counts(cp_csv, counts_csv)
-    logger.info(f'{title_name} raw counts saved to GDA_output.')
+    logger.info(f'{title_name} raw counts saved to gda_output.')

@@ -67,17 +67,17 @@ def compare_csv_files(output_file, expected_file, tolerance=1e-6):
 
 
 def test_gda_module():
-    """Test GDA module with test counts file."""
+    """Test gda module with test counts file."""
     print("\n" + "="*80)
-    print("Testing GDA Module")
+    print("Testing gda Module")
     print("="*80)
     
     test_data_dir = Path(__file__).parent / "data"
-    counts_file = test_data_dir / "expected_test_GDA_counts.csv"
-    expected_stats = test_data_dir / "expected_test_GDA_Stats.csv"
+    counts_file = test_data_dir / "test_gda_counts.csv"
+    expected_stats = test_data_dir / "test_gda_Stats.csv"
     
-    # Run GDA analysis (output goes to src/cellpyability/GDA_output)
-    print(f"Running GDA analysis with counts file: {counts_file}")
+    # Run gda analysis (output goes to src/cellpyability/gda_output)
+    print(f"Running gda analysis with counts file: {counts_file}")
     gda_analysis.run_gda(
         title_name="test",
         upper_name="Cell Line A",
@@ -89,9 +89,9 @@ def test_gda_module():
         counts_file=str(counts_file)
     )
     
-    # Check output file (in src/cellpyability/GDA_output/)
+    # Check output file (in src/cellpyability/gda_output/)
     repo_root = Path(__file__).parent.parent
-    output_stats = repo_root / "src/cellpyability/GDA_output/test_GDA_Stats.csv"
+    output_stats = repo_root / "src/cellpyability/gda_output/test_gda_Stats.csv"
     
     try:
         if not output_stats.exists():
@@ -127,14 +127,14 @@ def test_gda_module():
 
 
 def test_synergy_module():
-    """Test Synergy module with test counts file."""
+    """Test synergy module with test counts file."""
     print("\n" + "="*80)
-    print("Testing Synergy Module")
+    print("Testing synergy Module")
     print("="*80)
     
     test_data_dir = Path(__file__).parent / "data"
-    counts_file = test_data_dir / "expected_test_synergy_counts.csv"
-    expected_stats = test_data_dir / "expected_test_synergy_stats.csv"
+    counts_file = test_data_dir / "test_synergy_counts.csv"
+    expected_stats = test_data_dir / "test_synergy_stats.csv"
     
     # Run Synergy analysis (output goes to src/cellpyability/synergy_output)
     print(f"Running Synergy analysis with counts file: {counts_file}")
@@ -189,15 +189,15 @@ def test_synergy_module():
 
 
 def test_simple_module():
-    """Test Simple module with test counts file."""
+    """Test simple module with test counts file."""
     print("\n" + "="*80)
-    print("Testing Simple Module")
+    print("Testing simple Module")
     print("="*80)
     
     test_data_dir = Path(__file__).parent / "data"
-    # Use GDA counts for simple module test
-    counts_file = test_data_dir / "expected_test_GDA_counts.csv"
-    expected_output = test_data_dir / "expected_test_simple_CountMatrix.csv"
+    # Use gda counts for simple module test
+    counts_file = test_data_dir / "test_gda_counts.csv"
+    expected_output = test_data_dir / "test_simple_CountMatrix.csv"
     
     # Run Simple analysis (output goes to src/cellpyability/simple_output)
     print(f"Running Simple analysis with counts file: {counts_file}")
@@ -252,9 +252,9 @@ def main():
     print("Testing that analysis modules produce expected output from test count files")
     
     results = {
-        'GDA': test_gda_module(),
-        'Synergy': test_synergy_module(),
-        'Simple': test_simple_module()
+        'gda': test_gda_module(),
+        'synergy': test_synergy_module(),
+        'simple': test_simple_module()
     }
     
     print("\n" + "="*80)
