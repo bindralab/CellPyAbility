@@ -43,24 +43,48 @@ def cellpyability_logger():
 # Define logger so it can be referenced in later functions
 logger = cellpyability_logger()
 
-# Establishes the base directory as /CellPyAbility/
-# Include 'base_dir = establish_base() at start of script
+# Establishes the base directory for package resources (read-only)
+# Use get_output_base_dir() for writable output directories
 def establish_base():
-    # Establish the base directory as the script's location
+    """Get the package installation directory (for reading resources like .cppipe files)."""
     base_dir = Path(__file__).resolve().parent
     
     if not base_dir.exists():
-        logger.critical(f'Base directory {base_dir} does not exist.')
-        exit(1)
-    elif not os.access(base_dir, os.W_OK):
-        logger.critical(f'Base directory {base_dir} is not writable.')
+        logger.critical(f'Package directory {base_dir} does not exist.')
         exit(1)
     
-    logger.info(f'Base directory {base_dir} established ...')
+    logger.info(f'Package directory {base_dir} established ...')
     return base_dir
 
-# Define base_dir so it can be used in later scripts
+# Define base_dir for package resources (pipeline files, etc.)
 base_dir = establish_base()
+
+def get_output_base_dir(output_dir=None):
+    """
+    Get the base directory for output files.
+    
+    Args:
+        output_dir: Optional custom output directory path. If None, uses current working directory.
+    
+    Returns:
+        Path object to the output base directory
+    """
+    if output_dir is None:
+        # Use current working directory for PyPI compatibility
+        output_base = Path.cwd() / 'cellpyability_output'
+    else:
+        output_base = Path(output_dir)
+    
+    # Create the output directory if it doesn't exist
+    output_base.mkdir(parents=True, exist_ok=True)
+    
+    # Verify it's writable
+    if not os.access(output_base, os.W_OK):
+        logger.critical(f'Output directory {output_base} is not writable.')
+        exit(1)
+    
+    logger.info(f'Output directory {output_base} established ...')
+    return output_base
 
 # The next two functions will be used in get_cellprofiler_path()
 def save_txt(config_file, path):
@@ -143,7 +167,7 @@ def dose_range_y(dose_max, dilution):
 
 # Runs CellProfiler from the command line with the path to the image directory as a parameter
 # When ready to run, write 'df_cp = run_cellprofiler()'
-def run_cellprofiler(image_dir, counts_file=None):
+def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
     """
     Run CellProfiler on images or load pre-existing counts file.
     
@@ -154,6 +178,8 @@ def run_cellprofiler(image_dir, counts_file=None):
     counts_file : str, optional
         Path to pre-existing counts CSV file (for testing). If provided,
         CellProfiler is not run and this file is used instead.
+    output_dir : str, optional
+        Base directory for output files. If None, uses current working directory.
     
     Returns:
     --------
@@ -173,17 +199,19 @@ def run_cellprofiler(image_dir, counts_file=None):
         df_cp = pd.read_csv(counts_path)
         return df_cp, counts_path
     
-    ## Define the path to the pipeline (.cppipe)
+    ## Define the path to the pipeline (.cppipe) - this is in the package directory
     cppipe_path = base_dir / 'CellPyAbility.cppipe'
     if cppipe_path.exists():
-        logger.debug('CellProfiler pipeline exists in directory ...')
+        logger.debug('CellProfiler pipeline exists in package directory ...')
     else:
-        logger.critical('CellProfiler pipeline CellPyAbility.cppipe not found in directory.')
+        logger.critical('CellProfiler pipeline CellPyAbility.cppipe not found in package directory.')
         logger.info('If you are using a different pipeline, make sure it is named CellPyAbility.cppipe and is in the base directory.')
         exit(1)
 
     ## Define the folder where CellProfiler will output the .csv results
-    cp_output_dir = base_dir / 'cp_output'
+    # Use the output directory structure for writable files
+    output_base = get_output_base_dir(output_dir)
+    cp_output_dir = output_base / 'cp_output'
     cp_output_dir.mkdir(exist_ok=True)
     logger.debug('CellPyAbility/cp_output/ identified or created and identified.')
 
