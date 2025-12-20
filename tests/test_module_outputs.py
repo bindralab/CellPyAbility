@@ -98,7 +98,7 @@ def test_gda_module():
             print(f"[FAIL] FAILED: Output file not created: {output_stats}")
             return False
         
-        print(f"✓ Output file created: {output_stats}")
+        print(f"Output file created: {output_stats}")
         
         # Compare files
         match, message = compare_csv_files(output_stats, expected_stats)
@@ -165,7 +165,7 @@ def test_synergy_module():
             print(f"[FAIL] FAILED: Output file not created: {output_stats}")
             return False
         
-        print(f"✓ Output file created: {output_stats}")
+        print(f"Output file created: {output_stats}")
         
         # Compare files
         match, message = compare_csv_files(output_stats, expected_stats, tolerance=1e-10)
@@ -226,7 +226,7 @@ def test_simple_module():
             print(f"[FAIL] FAILED: Output file not created: {output_matrix}")
             return False
         
-        print(f"✓ Output file created: {output_matrix}")
+        print(f"Output file created: {output_matrix}")
         
         # Compare files
         match, message = compare_csv_files(output_matrix, expected_output)
