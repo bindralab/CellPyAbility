@@ -179,7 +179,8 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
         Path to pre-existing counts CSV file (for testing). If provided,
         CellProfiler is not run and this file is used instead.
     output_dir : str, optional
-        Base directory for output files. If None, uses current working directory.
+        Base directory for output files. If None, uses current working directory
+        and creates './cellpyability_output/' subdirectory for results.
     
     Returns:
     --------
@@ -205,7 +206,7 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
         logger.debug('CellProfiler pipeline exists in package directory ...')
     else:
         logger.critical('CellProfiler pipeline CellPyAbility.cppipe not found in package directory.')
-        logger.info('If you are using a different pipeline, make sure it is named CellPyAbility.cppipe and is in the base directory.')
+        logger.info('If you are using a different pipeline, make sure it is named CellPyAbility.cppipe and is in the package directory.')
         exit(1)
 
     ## Define the folder where CellProfiler will output the .csv results

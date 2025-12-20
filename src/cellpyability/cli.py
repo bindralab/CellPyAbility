@@ -83,7 +83,7 @@ def create_parser():
     gda_parser.add_argument(
         '--output-dir',
         type=str,
-        help='Custom output directory (default: ./cellpyability_output/)'
+        help='Custom output directory (default: ./cellpyability_output/ in current working directory)'
     )
     
     # Synergy module parser
@@ -149,7 +149,7 @@ def create_parser():
     synergy_parser.add_argument(
         '--output-dir',
         type=str,
-        help='Custom output directory (default: ./cellpyability_output/)'
+        help='Custom output directory (default: ./cellpyability_output/ in current working directory)'
     )
     
     # Simple module parser
@@ -176,7 +176,7 @@ def create_parser():
     simple_parser.add_argument(
         '--output-dir',
         type=str,
-        help='Custom output directory (default: ./cellpyability_output/)'
+        help='Custom output directory (default: ./cellpyability_output/ in current working directory)'
     )
     
     return parser

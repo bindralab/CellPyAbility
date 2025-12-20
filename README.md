@@ -288,13 +288,18 @@ Generate a nuclei count matrix without further analysis:
 ```bash
 cellpyability simple \
   --title "20250101_Counts" \
-  --image-dir /path/to/images
+  --image-dir /path/to/images \
+  --output-dir /path/to/results  # Optional: custom output location
 ```
 
 **Parameters:**
 - `--title`: Experiment title
 - `--image-dir`: Directory containing well images
 - `--counts-file`: (Optional) Use pre-existing CellProfiler counts CSV
+- `--output-dir`: (Optional) Custom output directory (default: `./cellpyability_output/`)
+
+**Outputs** (saved to `./cellpyability_output/simple_output/` by default):
+- `{title}_simple_CountMatrix.csv`: 96-well nuclei count matrix
 
 ### Batch Processing Example
 
