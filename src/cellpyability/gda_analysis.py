@@ -15,7 +15,7 @@ from . import toolbox as tb
 logger, base_dir = tb.logger, tb.base_dir
 
 
-def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, show_plot=True, counts_file=None):
+def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, show_plot=True, counts_file=None, output_dir=None):
     """
     Run GDA (Growth Delay Assay) analysis.
     
@@ -37,13 +37,15 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
         Whether to display the plot (default: True)
     counts_file : str, optional
         Path to pre-existing counts CSV file (for testing)
+    output_dir : str, optional
+        Custom output directory. If None, uses current working directory.
     """
     
     # Create a concentration range array
     doses = tb.dose_range_x(top_conc, dilution)
     
     # Run CellProfiler headless and return a DataFrame with the raw nuclei counts and the .csv path
-    df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file)
+    df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file, output_dir=output_dir)
     
     # Load the CellProfiler counts into a DataFrame
     df_cp.drop('ImageNumber', axis=1, inplace=True)
@@ -88,10 +90,11 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     column_labels = [str(i) for i in range(2,12)]
     column_concentrations = dict(zip(column_labels, [0] + doses))
     
-    # Define file path to or create CellPyAbility/gda_output/ subfolder
-    gda_output_dir = base_dir / 'gda_output'
+    # Define file path to or create gda_output/ subfolder in output directory
+    output_base = tb.get_output_base_dir(output_dir)
+    gda_output_dir = output_base / 'gda_output'
     gda_output_dir.mkdir(exist_ok=True)
-    logger.debug('CellPyAbility/gda_output/ identified or created and identified.')
+    logger.debug(f'gda_output/ directory created at {gda_output_dir}')
     
     # Consolidate analytics into a new .csv file
     df_stats = pd.DataFrame(columns=column_labels)
@@ -102,7 +105,7 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     df_stats.loc[f'Relative Standard Deviation {upper_name}'] = upper_sd
     df_stats.loc[f'Relative Standard Deviation {lower_name}'] = lower_sd
     df_stats.to_csv(gda_output_dir / f'{title_name}_gda_Stats.csv')
-    logger.info(f'{title_name}_gda_Stats saved to gda_output.')
+    logger.info(f'{title_name}_gda_Stats saved to {gda_output_dir}.')
     
     # Normalize nuclei counts for each well individually
     def normalize_row(row):
@@ -124,7 +127,7 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     
     # Save the viability matrix as a .csv
     viability_matrix.to_csv(gda_output_dir / f'{title_name}_gda_ViabilityMatrix.csv')
-    logger.info(f'{title_name} viability matrix saved to gda_output.')
+    logger.info(f'{title_name} viability matrix saved to {gda_output_dir}.')
     
     # Assign doses to the x-axis
     x = np.array(doses)
@@ -319,7 +322,7 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     )
     plt.legend()
     plt.savefig(gda_output_dir / f'{title_name}_gda_plot.png', dpi=200, bbox_inches='tight')
-    logger.info(f'{title_name} GDA plot saved to CellPyAbility/gda_output/.')
+    logger.info(f'{title_name} GDA plot saved to {gda_output_dir}.')
     
     if show_plot:
         plt.show()
@@ -330,4 +333,4 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     counts_csv = gda_output_dir / f'{title_name}_gda_counts.csv'
     
     tb.rename_counts(cp_csv, counts_csv)
-    logger.info(f'{title_name} raw counts saved to gda_output.')
+    logger.info(f'{title_name} raw counts saved to {gda_output_dir}.')

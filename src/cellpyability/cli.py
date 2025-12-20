@@ -80,6 +80,11 @@ def create_parser():
         type=str,
         help='Path to pre-existing counts CSV file (for testing, bypasses CellProfiler)'
     )
+    gda_parser.add_argument(
+        '--output-dir',
+        type=str,
+        help='Custom output directory (default: ./cellpyability_output/)'
+    )
     
     # Synergy module parser
     synergy_parser = subparsers.add_parser(
@@ -141,6 +146,11 @@ def create_parser():
         type=str,
         help='Path to pre-existing counts CSV file (for testing, bypasses CellProfiler)'
     )
+    synergy_parser.add_argument(
+        '--output-dir',
+        type=str,
+        help='Custom output directory (default: ./cellpyability_output/)'
+    )
     
     # Simple module parser
     simple_parser = subparsers.add_parser(
@@ -163,6 +173,11 @@ def create_parser():
         type=str,
         help='Path to pre-existing counts CSV file (for testing, bypasses CellProfiler)'
     )
+    simple_parser.add_argument(
+        '--output-dir',
+        type=str,
+        help='Custom output directory (default: ./cellpyability_output/)'
+    )
     
     return parser
 
@@ -180,7 +195,8 @@ def run_gda(args):
         dilution=args.dilution,
         image_dir=args.image_dir,
         show_plot=not args.no_plot,
-        counts_file=getattr(args, 'counts_file', None)
+        counts_file=getattr(args, 'counts_file', None),
+        output_dir=getattr(args, 'output_dir', None)
     )
 
 
@@ -198,7 +214,8 @@ def run_synergy(args):
         y_dilution=args.y_dilution,
         image_dir=args.image_dir,
         show_plot=not args.no_plot,
-        counts_file=getattr(args, 'counts_file', None)
+        counts_file=getattr(args, 'counts_file', None),
+        output_dir=getattr(args, 'output_dir', None)
     )
 
 
@@ -209,7 +226,8 @@ def run_simple(args):
     simple_analysis.run_simple(
         title=args.title,
         image_dir=args.image_dir,
-        counts_file=getattr(args, 'counts_file', None)
+        counts_file=getattr(args, 'counts_file', None),
+        output_dir=getattr(args, 'output_dir', None)
     )
 
 

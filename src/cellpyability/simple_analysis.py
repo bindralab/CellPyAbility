@@ -9,7 +9,7 @@ from . import toolbox as tb
 logger, base_dir = tb.logger, tb.base_dir
 
 
-def run_simple(title, image_dir, counts_file=None):
+def run_simple(title, image_dir, counts_file=None, output_dir=None):
     """
     Run simple nuclei counting analysis.
     
@@ -21,10 +21,12 @@ def run_simple(title, image_dir, counts_file=None):
         Directory containing the well images
     counts_file : str, optional
         Path to pre-existing counts CSV file (for testing)
+    output_dir : str, optional
+        Custom output directory. If None, uses current working directory.
     """
     
     # Run CellProfiler via the command line
-    df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file)
+    df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file, output_dir=output_dir)
     df_cp.drop(columns='ImageNumber', inplace=True)
     df_cp.columns = ['nuclei','well']
     
@@ -41,8 +43,9 @@ def run_simple(title, image_dir, counts_file=None):
         .reindex(index=row_labels, columns=column_labels)
     )
     
-    # Define or create and define CellPyAbility/simple_output/ directory
-    outdir = base_dir / 'simple_output'
+    # Define or create simple_output/ directory in output directory
+    output_base = tb.get_output_base_dir(output_dir)
+    outdir = output_base / 'simple_output'
     outdir.mkdir(exist_ok=True)
     
     # Save the count matrix to the simple_output directory

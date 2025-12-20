@@ -13,7 +13,7 @@ from . import toolbox as tb
 logger, base_dir = tb.logger, tb.base_dir
 
 
-def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, y_dilution, image_dir, show_plot=True, counts_file=None):
+def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, y_dilution, image_dir, show_plot=True, counts_file=None, output_dir=None):
     """
     Run synergy analysis for drug combination experiments.
     
@@ -39,6 +39,8 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
         Whether to display the plot (default: True)
     counts_file : str, optional
         Path to pre-existing counts CSV file (for testing)
+    output_dir : str, optional
+        Custom output directory. If None, uses current working directory.
     """
     
     # Calculate x and y concentration gradients
@@ -48,7 +50,7 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     logger.debug('y_doses gradient calculated.')
     
     # Run CellProfiler headless and return a DataFrame with the raw nuclei counts and the .csv path
-    df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file)
+    df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file, output_dir=output_dir)
     
     # Load the CellProfiler counts into a DataFrame and rename wells
     df_cp.drop('ImageNumber', axis=1, inplace=True)
@@ -106,14 +108,15 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     }
     df_stats = pd.DataFrame(well_descriptions)
     
-    # Define file path for synergy_output subfolder
-    synergy_output_dir = base_dir / 'synergy_output'
+    # Define file path for synergy_output subfolder in output directory
+    output_base = tb.get_output_base_dir(output_dir)
+    synergy_output_dir = output_base / 'synergy_output'
     synergy_output_dir.mkdir(exist_ok=True)
-    logger.debug('CellPyAbility/synergy_output/ identified or created and identified.')
+    logger.debug(f'synergy_output/ directory created at {synergy_output_dir}')
     
     # Save the experiment viability statistics as a .csv
     df_stats.to_csv(synergy_output_dir / f'{title_name}_synergy_stats.csv', index=False)
-    logger.info(f'{title_name} synergy stats saved to synergy_output')
+    logger.info(f'{title_name} synergy stats saved to {synergy_output_dir}')
     
     # Initialize a list to store Bliss independence results
     bliss_results = []
@@ -166,9 +169,9 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     
     # Save viability and Bliss matrices as .csv files
     normalized_means_pivot.to_csv(synergy_output_dir / f'{title_name}_synergy_ViabilityMatrix.csv')
-    logger.info(f'{title_name} viability matrix saved to synergy_output.')
+    logger.info(f'{title_name} viability matrix saved to {synergy_output_dir}.')
     bliss_independence_pivot.to_csv(synergy_output_dir / f'{title_name}_synergy_BlissMatrix.csv')
-    logger.info(f'{title_name} Bliss score matrix saved to synergy_output.')
+    logger.info(f'{title_name} Bliss score matrix saved to {synergy_output_dir}.')
     
     # Extract x and y values from the pivot tables
     x_values = normalized_means_pivot.columns.values
@@ -200,11 +203,11 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     counts_csv = synergy_output_dir / f'{title_name}_synergy_counts.csv'
     
     tb.rename_counts(cp_csv, counts_csv)
-    logger.info(f'{title_name} raw counts saved to synergy_output.')
+    logger.info(f'{title_name} raw counts saved to {synergy_output_dir}.')
     
     # Save the interactable plot as an HTML
     fig.write_html(synergy_output_dir / f'{title_name}_synergy_plot.html')
-    logger.info(f'{title_name} synergy plot saved to synergy_output.')
+    logger.info(f'{title_name} synergy plot saved to {synergy_output_dir}.')
     
     if show_plot:
         fig.show()

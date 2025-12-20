@@ -5,7 +5,7 @@ CellPyAbility is an open-source cell viability and dose-response analysis tool t
 CellPyAbility is still in development; if you encounter any bugs, please contact me at james.elia@yale.edu. Thank you for your patience :)
 
 ## Table of Contents
-- [Quick Start](#quick-start): ignore my hard work on the documentation and run CellPyAbility ASAP
+- [Quick Start](#quick-start): Get started with CellPyAbility
 
 - [Abstract](#abstract): overview of the method and software
 
@@ -33,19 +33,54 @@ CellPyAbility is still in development; if you encounter any bugs, please contact
 ## Quick Start
 CellProfiler must be installed because CellPyAbility uses it as a subprocess. See [Requirements](#requirements) for more information.
 
-### Command Line Interface (CLI) - Recommended
+### PyPI Installation (Recommended for Users)
+Install CellPyAbility from PyPI to use it as a command-line tool:
+
+```bash
+# Install from PyPI
+pip install cellpyability
+
+# Run analysis on your images
+# Outputs are saved to ./cellpyability_output/ by default
+cellpyability gda \
+  --title "MyExperiment" \
+  --upper-name "Cell Line A" \
+  --lower-name "Cell Line B" \
+  --top-conc 0.000001 \
+  --dilution 3 \
+  --image-dir /path/to/your/images
+
+# Specify custom output location
+cellpyability gda \
+  --title "MyExperiment" \
+  --upper-name "Cell Line A" \
+  --lower-name "Cell Line B" \
+  --top-conc 0.000001 \
+  --dilution 3 \
+  --image-dir /path/to/your/images \
+  --output-dir /path/to/results
+```
+
+**To download example data for testing:**
+- Download the [example data ZIP](https://github.com/bindralab/CellPyAbility/archive/refs/heads/main.zip)
+- Extract and navigate to the `example/` directory
+- Run: `cellpyability gda --image-dir /path/to/example/example_gda ...`
+
+### Development Installation (For Contributors)
+Clone the repository for development and access to example data:
+
 ```bash
 # Clone the repository
 git clone https://github.com/bindralab/CellPyAbility
 cd CellPyAbility
 
-# Install the package
+# Install in editable mode
 pip install -e .
 
-# Download example data
+# Download example data (requires Git LFS)
 git lfs pull
 
-# Run GDA analysis
+# Run GDA analysis with example data
 cellpyability gda \
   --title "MyExperiment" \
   --upper-name "Cell Line A" \
@@ -71,30 +106,30 @@ For more CLI options, run `cellpyability --help` or `cellpyability gda --help`.
 ### Windows Application
 - Download the [Windows executable](windows_app/CellPyAbility.exe)
   - We recommend moving CellPyAbility.exe into an empty directory (running it will create files)
-- Download the [GDA test data](example/example_gda)
+- Download the [GDA test data](https://github.com/bindralab/CellPyAbility/tree/main/example/example_gda) from the repository
 - Run CellPyAbility.exe and select the GDA module from the menu
-- Run the test data and compare the results to the [expected output](example/example_expected_outputs)
+- Run the test data and compare the results to the [expected output](https://github.com/bindralab/CellPyAbility/tree/main/example/example_expected_outputs)
 
 ### Python Scripts (Legacy, GUI)
 ```bash
-# make a copy of the repo in the root directory and navigate to it
+# Clone the repository
 git clone https://github.com/bindralab/CellPyAbility
 cd CellPyAbility
 
-# if using conda, create and use a stable CellPyAbility environment
+# If using conda, create and use a stable CellPyAbility environment
 conda env create -f environment.yml
 conda activate CellPyAbility
 
-# OR if using pip, install the requirements to create a stable environment
+# OR if using pip, install the requirements
 # python -m pip install -r requirements.txt
 
-# download the test data locally via Git Large File Storage
+# Download the test data via Git Large File Storage
 git lfs pull
 
-# for ease of use, change to src/cellpyability subdirectory
+# Navigate to the source directory
 cd src/cellpyability
 
-# run the GDA script on the test data provided in this repo
+# Run the GDA script on the test data
 python GDA.py
 ```
 Compare the GDA results to the [expected outputs](example/example_expected_outputs).
@@ -195,7 +230,8 @@ cellpyability gda \
   --lower-name "HCT116_KO" \
   --top-conc 0.000001 \
   --dilution 3 \
-  --image-dir /path/to/images
+  --image-dir /path/to/images \
+  --output-dir /path/to/results  # Optional: custom output location
 ```
 
 **Parameters:**
@@ -207,6 +243,13 @@ cellpyability gda \
 - `--image-dir`: Directory containing 60 well images
 - `--no-plot`: (Optional) Skip displaying plot window
 - `--counts-file`: (Optional) Use pre-existing counts CSV for testing
+- `--output-dir`: (Optional) Custom output directory (default: `./cellpyability_output/`)
+
+**Outputs** (saved to `./cellpyability_output/gda_output/` by default):
+- `{title}_gda_Stats.csv`: Dose-response statistics
+- `{title}_gda_ViabilityMatrix.csv`: Normalized viability matrix
+- `{title}_gda_plot.png`: Publication-ready dose-response plot
+- `{title}_gda_counts.csv`: Raw nuclei counts
 
 ### Synergy Module
 
@@ -221,7 +264,8 @@ cellpyability synergy \
   --y-drug "Drug_B" \
   --y-top-conc 0.0001 \
   --y-dilution 4 \
-  --image-dir /path/to/images
+  --image-dir /path/to/images \
+  --output-dir /path/to/results  # Optional: custom output location
 ```
 
 **Parameters:**
@@ -235,6 +279,7 @@ cellpyability synergy \
 - `--image-dir`: Directory containing images
 - `--no-plot`: (Optional) Skip displaying plot
 - `--counts-file`: (Optional) Use pre-existing counts CSV
+- `--output-dir`: (Optional) Custom output directory (default: `./cellpyability_output/`)
 
 ### Simple Module
 
@@ -280,9 +325,17 @@ done
 
 ### Output Locations
 
-All analysis modules create output in subdirectories of `src/cellpyability/`:
-- GDA: `src/cellpyability/gda_output/`
-- synergy: `src/cellpyability/synergy_output/`
+By default, analysis modules create output in `./cellpyability_output/` (in your current working directory):
+- GDA: `./cellpyability_output/gda_output/`
+- Synergy: `./cellpyability_output/synergy_output/`
+- Simple: `./cellpyability_output/simple_output/`
+
+You can customize the output location using the `--output-dir` flag:
+```bash
+cellpyability gda --output-dir /path/to/results ...
+```
+
+This ensures the package works correctly whether installed via PyPI or in development mode.
 - simple: `src/cellpyability/simple_output/`
 
 ## Windows Application
