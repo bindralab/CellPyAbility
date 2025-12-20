@@ -95,7 +95,7 @@ def test_gda_module():
     
     try:
         if not output_stats.exists():
-            print(f"❌ FAILED: Output file not created: {output_stats}")
+            print(f"[FAIL] FAILED: Output file not created: {output_stats}")
             return False
         
         print(f"✓ Output file created: {output_stats}")
@@ -104,11 +104,11 @@ def test_gda_module():
         match, message = compare_csv_files(output_stats, expected_stats)
         
         if match:
-            print(f"✅ PASSED: GDA Stats output matches expected file")
+            print(f"[PASS] PASSED: GDA Stats output matches expected file")
             print(f"   {message}")
             return True
         else:
-            print(f"❌ FAILED: GDA Stats output does not match")
+            print(f"[FAIL] FAILED: GDA Stats output does not match")
             print(f"   {message}")
             
             # Show first few rows for debugging
@@ -157,7 +157,7 @@ def test_synergy_module():
     
     try:
         if not output_stats.exists():
-            print(f"❌ FAILED: Output file not created: {output_stats}")
+            print(f"[FAIL] FAILED: Output file not created: {output_stats}")
             return False
         
         print(f"✓ Output file created: {output_stats}")
@@ -166,11 +166,11 @@ def test_synergy_module():
         match, message = compare_csv_files(output_stats, expected_stats, tolerance=1e-10)
         
         if match:
-            print(f"✅ PASSED: Synergy Stats output matches expected file")
+            print(f"[PASS] PASSED: Synergy Stats output matches expected file")
             print(f"   {message}")
             return True
         else:
-            print(f"❌ FAILED: Synergy Stats output does not match")
+            print(f"[FAIL] FAILED: Synergy Stats output does not match")
             print(f"   {message}")
             
             # Show first few rows for debugging
@@ -213,7 +213,7 @@ def test_simple_module():
     
     try:
         if not output_matrix.exists():
-            print(f"❌ FAILED: Output file not created: {output_matrix}")
+            print(f"[FAIL] FAILED: Output file not created: {output_matrix}")
             return False
         
         print(f"✓ Output file created: {output_matrix}")
@@ -222,11 +222,11 @@ def test_simple_module():
         match, message = compare_csv_files(output_matrix, expected_output)
         
         if match:
-            print(f"✅ PASSED: Simple CountMatrix output matches expected file")
+            print(f"[PASS] PASSED: Simple CountMatrix output matches expected file")
             print(f"   {message}")
             return True
         else:
-            print(f"❌ FAILED: Simple CountMatrix output does not match")
+            print(f"[FAIL] FAILED: Simple CountMatrix output does not match")
             print(f"   {message}")
             
             # Show files for debugging
@@ -263,7 +263,7 @@ def main():
     
     all_passed = True
     for module, passed in results.items():
-        status = "✅ PASSED" if passed else "❌ FAILED"
+        status = "[PASS] PASSED" if passed else "[FAIL] FAILED"
         print(f"{module:15} {status}")
         if not passed:
             all_passed = False
@@ -271,10 +271,10 @@ def main():
     print("="*80)
     
     if all_passed:
-        print("\n🎉 All tests passed! Outputs match expected files.")
+        print("\nAll tests passed! Outputs match expected files.")
         return 0
     else:
-        print("\n⚠️  Some tests failed. See details above.")
+        print("\n[WARNING] Some tests failed. See details above.")
         return 1
 
 
