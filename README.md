@@ -64,6 +64,7 @@ cellpyability gda \
 **To download example data for testing:**
 - Download the [example data ZIP](example/example_GDA/)
 - Run: `cellpyability gda --image-dir /path/to/example/example_gda ...`
+- Compare to [expected outputs](example/example_expected_outputs/)
 
 ### Development Installation (For Contributors)
 Clone the repository for development and access to example data:
@@ -108,30 +109,6 @@ For more CLI options, run `cellpyability --help` or `cellpyability gda --help`.
 - Download the [GDA test data](https://github.com/bindralab/CellPyAbility/tree/main/example/example_gda) from the repository
 - Run CellPyAbility.exe and select the GDA module from the menu
 - Run the test data and compare the results to the [expected output](https://github.com/bindralab/CellPyAbility/tree/main/example/example_expected_outputs)
-
-### Python Scripts (Legacy, GUI)
-```bash
-# Clone the repository
-git clone https://github.com/bindralab/CellPyAbility
-cd CellPyAbility
-
-# If using conda, create and use a stable CellPyAbility environment
-conda env create -f environment.yml
-conda activate CellPyAbility
-
-# OR if using pip, install the requirements
-# python -m pip install -r requirements.txt
-
-# Download the test data via Git Large File Storage
-git lfs pull
-
-# Navigate to the source directory
-cd src/cellpyability
-
-# Run the GDA script on the test data
-python GDA.py
-```
-Compare the GDA results to the [expected outputs](example/example_expected_outputs).
 
 ## Abstract
 
@@ -179,18 +156,6 @@ Reading the [protocols](protocol.pdf) first may aid in understanding the data re
   - [Windows 64-bit Version 4.2.5](https://cellprofiler-releases.s3.amazonaws.com/CellProfiler-Windows-4.2.5.exe)
 
 - The user must have Windows OS.
-
-### Python Script Requirements
-
-- The user must have CellProfiler (tested on version 4.2.5, though others may work)
-  - [Windows 64-bit Version 4.2.5](https://cellprofiler-releases.s3.amazonaws.com/CellProfiler-Windows-4.2.5.exe) | [MacOS Version 4.2.5](https://cellprofiler-releases.s3.amazonaws.com/CellProfiler-macOS-4.2.5.zip)
-
-- The user must have a functional Python 3 environment to run the scripts.
-
-- For pip, the user can install the [Python dependencies](requirements.txt). Other package versions have not yet been tested but may work.
-
-- For conda, the user can use the [CellPyAbility environment](environment.yml).
-  - If dependency issues still arise, the [full environment](full_environment.yml) can be used.
 
 ## Command Line Interface (CLI)
 
@@ -379,50 +344,6 @@ After submitting the GUI, a terminal window will open to track CellProfiler's im
 A small GUI window will then prompt the user if they would like to run another experiment. If "yes", the initial module selection GUI will prompt the user again. If "no", the application will close.
 
 A log file with detailed logging is written to the directory. If the application fails at any point, it may be useful to consult the log for critical messages or to identify the last step to succeed.
-
-## Python Scripts (Legacy, GUI)
-These scripts were the original core logic for CellPyAbility and ran as standalone GUI scripts. They still serve a small purpose if a user wants baseline functionality without installing the package. The scripts can still be run out-of-the-box as follows:
-
-Download the [Python directory](src/cellpyability/). This is the working directory for our program and contains three modules:
-- [GDA](src/cellpyability/GDA.py): dose-response analysis of two cell lines/cell conditions with a drug gradient.
-
-- [synergy](src/cellpyability/synergy.py): dose-response and synergy (Bliss) analysis of one cell line/cell condition with simultaneous horizontal and vertical drug gradients.
-
-- [simple](src/cellpyability/simple.py): raw nuclei count matrix recapitulating the 96-well format.
-
-[toolbox](src/cellpyability/toolbox.py) is a script containing functions, variables, and imports used across the modules, like logging and handling relative paths.
-
-Note that the scripts reference items in the directory, so the [src/cellpyability directory](src/cellpyability) must be downloaded and **should not be altered** without foresight.
-
-Upon running a module, the script will look for the CellProfiler application in the default save locations:
-- **Windows 64-bit**: "C:\Program Files\CellProfiler\CellProfiler.exe"
-
-- **Windows 32-bit**: "C:\Program Files (x86)\CellProfiler\CellProfiler.exe"
-
-- **Mac OS**: "/Applications/CellProfiler.app/Contents/MacOS/cp"
-
-If CellProfiler cannot be found, the user will be prompted to input the path to the CellProfiler file:
-- For Windows, this is the 'CellProfiler\CellProfiler.exe' file
-
-- For MacOS, this is the 'CellProfiler.app/Contents/MacOS/cp' file 
-  - CellProfiler.app is a directory and will cause 'PermissionError: [Errno 13]' if used as the file path
-
-The path is saved to a .txt file within the directory for future reference, so subsequent runs will proceed directly to the next step.
-
-A GUI will prompt the user for experimental details. I will use [GDA](src/cellpyability/GDA.py) as an example, but [synergy](src/cellpyability/synergy.py) and [simple](src/cellpyability/simple.py) follow the same workflow. The GDA GUI asks for the following: 
-- title of the experiment (e.g. 20250101_CellLine_Drug)
-
-- name of the cell condition in rows B-D (e.g. Cell Line Wildtype)
-
-- name of the cell condition in rows E-G (e.g. Cell Line Gene A KO)
-
-- concentration gradient in molar units, excluding 0 and tab-separated
-
-- a file browser to select the directory containing the 60 images
-
-After submitting the GUI, a terminal window will open to track CellProfiler's image analysis progress. Once all images are counted, subsequent analysis is almost instant. All figures and tabular results will be in a subdirectory named after the module (e.g. gda_output). See [Example Outputs](#example-outputs).
-
-A log file with detailed logging is written to the directory. Additionally messages with results and output file locations (INFO), warnings (WARNING), errors (ERROR), or critical failure (CRITICAL) messages will be written directly to the terminal.
 
 ## Example Outputs
 ### GDA Module
