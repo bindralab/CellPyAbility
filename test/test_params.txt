@@ -1,3 +1,15 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:190dfd9f5992237305f37d038d700d27fadb1c309579a19a789837ca4ec361dd
-size 389
+GDA parameters
+title:                test
+cell condition B-D:   Cell Line A
+cell condition E-G:   Cell Line B
+top concentration:    0.000001
+dilution factor:      3
+
+synergy parameters
+title:                test
+horizontal drug:      Drug X
+h top concentration:  0.0004
+h dilution factor:    4
+vertical drug:        Drug Y
+v top concentration:  0.0001
+v dilution factor:    4
