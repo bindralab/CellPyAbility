@@ -23,15 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Comprehensive Test Suite**:
   - Module I/O validation tests (all passing)
   - CellProfiler subprocess mock tests
-  - Test data in `tests/data/` for automated validation
-  - Example data in `example/` for manual verification
+  - Test data tables in `tests/data/` for automated validation
+  - Example data and outputs moved to `example/` for manual verification
 - **Documentation**: Updated README with CLI usage, batch processing examples, and testing guide
 - **Code Quality**: Consistent naming conventions, proper logging, error handling
 
 ### Changed
-- Lowercase "gda" in code (kept uppercase in user documentation)
-- Renamed `test/` directory to `example/` for clarity
-- Output directories: `gda_output/`, `synergy_output/`, `simple_output/`
 - Lazy CellProfiler path initialization for better cross-platform support
 
 ### Fixed
