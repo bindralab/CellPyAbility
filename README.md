@@ -62,8 +62,7 @@ cellpyability gda \
 ```
 
 **To download example data for testing:**
-- Download the [example data ZIP](https://github.com/bindralab/CellPyAbility/archive/refs/heads/main.zip)
-- Extract and navigate to the `example/` directory
+- Download the [example data ZIP](example/example_GDA/)
 - Run: `cellpyability gda --image-dir /path/to/example/example_gda ...`
 
 ### Development Installation (For Contributors)
