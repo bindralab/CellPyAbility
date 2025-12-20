@@ -336,7 +336,6 @@ cellpyability gda --output-dir /path/to/results ...
 ```
 
 This ensures the package works correctly whether installed via PyPI or in development mode.
-- simple: `src/cellpyability/simple_output/`
 
 ## Windows Application
 Running the Windows application requires no programming experience, Python environment, or dependencies. It is a single file containing all three modules with graphical user interfaces (GUIs) for user inputs.

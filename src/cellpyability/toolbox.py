@@ -213,7 +213,7 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
     output_base = get_output_base_dir(output_dir)
     cp_output_dir = output_base / 'cp_output'
     cp_output_dir.mkdir(exist_ok=True)
-    logger.debug('CellPyAbility/cp_output/ identified or created and identified.')
+    logger.debug(f'cp_output/ directory identified or created at {cp_output_dir}')
 
     # Run CellProfiler from the command line
     logger.debug('Starting CellProfiler from command line ...')
