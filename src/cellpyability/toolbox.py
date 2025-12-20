@@ -19,8 +19,8 @@ def cellpyability_logger():
     # Log all messages
     logger.setLevel(logging.DEBUG)
 
-    # Create a log.log file with all messages
-    log_file = Path(__file__).with_name("log.log")
+    # Create a log.log file in current working directory (PyPI-compatible)
+    log_file = Path.cwd() / "cellpyability.log"
     fh = logging.FileHandler(log_file)
     fh.setLevel(logging.DEBUG)
 
