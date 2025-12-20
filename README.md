@@ -15,6 +15,8 @@ CellPyAbility is still in development; if you encounter any bugs, please contact
   - [Application Requirements](#application-requirements): applies to Windows application
   - [Python Script Requirements](#python-script-requirements): applies to stand-alone scripts
 
+- [Command Line Interface](#command-line-interface-cli): modern CLI for automated workflows and testing
+
 - [Windows Application](#windows-application): code-free executable for Windows OS
 
 - [Python Scripts](#python-scripts): stand-alone Python scripts for each module
@@ -23,21 +25,57 @@ CellPyAbility is still in development; if you encounter any bugs, please contact
   - [GDA Module](#gda-module): two cell lines, one drug gradient
   - [Synergy Module](#synergy-module): one cell line, two drug gradients
   - [Simple Module](#simple-module): nuclei count matrix
-  - [Testing](#testing): test data for validating software setup
+
+- [Testing](#testing): automated tests and example data for validation
 
 - [Contributions](#contributions): who did what
 
 ## Quick Start
 CellProfiler must be installed because CellPyAbility uses it as a subprocess. See [Requirements](#requirements) for more information.
 
+### Command Line Interface (CLI) - Recommended
+```bash
+# Clone the repository
+git clone https://github.com/bindralab/CellPyAbility
+cd CellPyAbility
+
+# Install the package
+pip install -e .
+
+# Download example data
+git lfs pull
+
+# Run GDA analysis
+cellpyability gda \
+  --title "MyExperiment" \
+  --upper-name "Cell Line A" \
+  --lower-name "Cell Line B" \
+  --top-conc 0.000001 \
+  --dilution 3 \
+  --image-dir example/test_GDA
+
+# Or test without CellProfiler using pre-counted data
+cellpyability gda \
+  --title test \
+  --upper-name "Cell Line A" \
+  --lower-name "Cell Line B" \
+  --top-conc 0.000001 \
+  --dilution 3 \
+  --image-dir /tmp \
+  --counts-file tests/data/expected_test_GDA_counts.csv \
+  --no-plot
+```
+
+For more CLI options, run `cellpyability --help` or `cellpyability gda --help`.
+
 ### Windows Application
 - Download the [Windows executable](windows_app/CellPyAbility.exe)
   - We recommend moving CellPyAbility.exe into an empty directory (running it will create files)
-- Download the [GDA test data](test/test_GDA)
+- Download the [GDA test data](example/test_GDA)
 - Run CellPyAbility.exe and select the GDA module from the menu
-- Run the test data and compare the results to the [expected output](test/test_expected_outputs)
+- Run the test data and compare the results to the [expected output](example/test_expected_outputs)
 
-### Python
+### Python Scripts (Legacy)
 ```bash
 # make a copy of the repo in the root directory and navigate to it
 git clone https://github.com/bindralab/CellPyAbility
@@ -59,7 +97,7 @@ cd src/cellpyability
 # run the GDA script on the test data provided in this repo
 python GDA.py
 ```
-Compare the GDA results to the [expected outputs](test/test_expected_outputs).
+Compare the GDA results to the [expected outputs](example/test_expected_outputs).
 
 ## Abstract
 
@@ -119,6 +157,126 @@ Reading the [protocols](protocol.pdf) first may aid in understanding the data re
 
 - For conda, the user can use the [CellPyAbility environment](environment.yml).
   - If dependency issues still arise, the [full environment](full_environment.yml) can be used.
+
+## Command Line Interface (CLI)
+
+The CellPyAbility CLI provides a modern, scriptable interface for automated workflows, batch processing, and continuous integration testing.
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/bindralab/CellPyAbility
+cd CellPyAbility
+
+# Install the package (creates 'cellpyability' command)
+pip install -e .
+```
+
+### Basic Usage
+
+The CLI provides three subcommands corresponding to the three analysis modules:
+
+```bash
+cellpyability --help          # Show available modules
+cellpyability gda --help      # Show GDA module options
+cellpyability synergy --help  # Show synergy module options  
+cellpyability simple --help   # Show simple module options
+```
+
+### GDA Module
+
+Analyze dose-response experiments with two cell conditions and one drug gradient:
+
+```bash
+cellpyability gda \
+  --title "20250101_Experiment" \
+  --upper-name "HCT116_WT" \
+  --lower-name "HCT116_KO" \
+  --top-conc 0.000001 \
+  --dilution 3 \
+  --image-dir /path/to/images
+```
+
+**Parameters:**
+- `--title`: Experiment title (used for output file names)
+- `--upper-name`: Name for cell condition in rows B-D
+- `--lower-name`: Name for cell condition in rows E-G
+- `--top-conc`: Top drug concentration in molar (e.g., 0.000001 for 1 µM)
+- `--dilution`: Dilution factor between columns (e.g., 3 for 3-fold dilution)
+- `--image-dir`: Directory containing 60 well images
+- `--no-plot`: (Optional) Skip displaying plot window
+- `--counts-file`: (Optional) Use pre-existing counts CSV for testing
+
+### Synergy Module
+
+Analyze drug combination experiments with two drug gradients:
+
+```bash
+cellpyability synergy \
+  --title "20250101_Synergy" \
+  --x-drug "Drug_A" \
+  --x-top-conc 0.0004 \
+  --x-dilution 4 \
+  --y-drug "Drug_B" \
+  --y-top-conc 0.0001 \
+  --y-dilution 4 \
+  --image-dir /path/to/images
+```
+
+**Parameters:**
+- `--title`: Experiment title
+- `--x-drug`: Name of horizontal gradient drug
+- `--x-top-conc`: Horizontal top concentration in molar
+- `--x-dilution`: Horizontal dilution factor
+- `--y-drug`: Name of vertical gradient drug
+- `--y-top-conc`: Vertical top concentration in molar
+- `--y-dilution`: Vertical dilution factor
+- `--image-dir`: Directory containing images
+- `--no-plot`: (Optional) Skip displaying plot
+- `--counts-file`: (Optional) Use pre-existing counts CSV
+
+### Simple Module
+
+Generate a nuclei count matrix without further analysis:
+
+```bash
+cellpyability simple \
+  --title "20250101_Counts" \
+  --image-dir /path/to/images
+```
+
+**Parameters:**
+- `--title`: Experiment title
+- `--image-dir`: Directory containing well images
+- `--counts-file`: (Optional) Use pre-existing counts CSV
+
+### Batch Processing Example
+
+The CLI enables automated batch processing with shell scripts:
+
+```bash
+#!/bin/bash
+# Process multiple experiments
+for dir in experiments/*/; do
+    exp_name=$(basename "$dir")
+    cellpyability gda \
+        --title "$exp_name" \
+        --upper-name "WT" \
+        --lower-name "KO" \
+        --top-conc 0.000001 \
+        --dilution 3 \
+        --image-dir "$dir" \
+        --no-plot
+done
+```
+
+### Output Locations
+
+All analysis modules create output in subdirectories of `src/cellpyability/`:
+- GDA: `src/cellpyability/GDA_output/`
+- Synergy: `src/cellpyability/synergy_output/`
+- Simple: `src/cellpyability/simple_output/`
 
 ## Windows Application
 Running the Windows application requires no programming experience, Python environment, or dependencies. It is a single file containing all three modules with graphical user interfaces (GUIs) for user inputs.
@@ -218,41 +376,95 @@ The modularity of the Python scripts and CellProfiler pipeline may prove useful.
 ## Example Outputs
 ### GDA Module
 The GDA module outputs three tabular files with increasing degrees of analysis:
-- [raw nuclei counts](test/test_expected_outputs/test_GDA_counts.csv)
+- [raw nuclei counts](example/test_expected_outputs/test_GDA_counts.csv)
 
-- [normalized cell viability matrix](test/test_expected_outputs/test_GDA_ViabilityMatrix.csv)
+- [normalized cell viability matrix](example/test_expected_outputs/test_GDA_ViabilityMatrix.csv)
 
-- [cell viability statistics](test/test_expected_outputs/test_GDA_Stats.csv)
+- [cell viability statistics](example/test_expected_outputs/test_GDA_Stats.csv)
 
 Additionally, the script generates a plot with 5-parameter logistic curves:
 
-![GDA plot](test/test_expected_outputs/test_GDA_plot.png)
+![GDA plot](example/test_expected_outputs/test_GDA_plot.png)
 
 ### Synergy Module
 The synergy module outputs four tabular files:
-- [raw nuclei counts](test/test_expected_outputs/test_synergy_counts.csv)
+- [raw nuclei counts](example/test_expected_outputs/test_synergy_counts.csv)
 
-- [normalized cell viability matrix](test/test_expected_outputs/test_synergy_ViabilityMatrix.csv)
+- [normalized cell viability matrix](example/test_expected_outputs/test_synergy_ViabilityMatrix.csv)
 
-- [cell viability statistics](test/test_expected_outputs/test_synergy_stats.csv)
+- [cell viability statistics](example/test_expected_outputs/test_synergy_stats.csv)
 
-- [Bliss synergy matrix](test/test_expected_outputs/test_synergy_BlissMatrix.csv)
+- [Bliss synergy matrix](example/test_expected_outputs/test_synergy_BlissMatrix.csv)
 
-Additionally, the script generates an interactive [3D surface map](test/test_expected_outputs/test_synergy_plot.html) in HTML with synergy as heat:
+Additionally, the script generates an interactive [3D surface map](example/test_expected_outputs/test_synergy_plot.html) in HTML with synergy as heat:
 
-![synergy plot](test/test_expected_outputs/test_synergy_plot_screenshot.png)
+![synergy plot](example/test_expected_outputs/test_synergy_plot_screenshot.png)
 
 ### Simple Module
 Finally, the simple module outputs nuclei counts in a 96-well matrix format. This offers maximum flexibility but does not provide any analysis.
-- [count matrix](test/test_expected_outputs/test_simple_CountMatrix.csv)
+- [count matrix](example/test_expected_outputs/test_simple_CountMatrix.csv)
 
-### Testing
+## Testing
 
-The example outputs above are the results from running the [GDA test data](test/test_GDA/) and the [synergy test data](test/test_synergy/). I recommend running these test sets to ensure the scripts are working properly prior to running one's own data. The [test parameters](test/test_params.txt) text file contains the exact experimental info used to generate the example outputs. 
+CellPyAbility includes comprehensive testing infrastructure for both automated validation and manual verification.
 
-Due to the size of the files in the test directory, it is saved to [Git LFS](https://git-lfs.com/). If the user has Git LFS installed, the test directory can be downloaded by entering '**git lfs pull**' in the directory's terminal after cloning the repo.
+### Automated Tests
 
-Please note that we have not tested the analysis scripts on other protocols. For best results, please follow the provided [protocol](protocol.pdf).
+Run the automated test suite to verify all modules produce expected outputs:
+
+```bash
+# Install the package if not already installed
+pip install -e .
+
+# Run all module tests
+python tests/test_module_outputs.py
+```
+
+The test suite validates that each module (GDA, Synergy, Simple) produces output matching expected results when processing test data. All tests should pass before using CellPyAbility for your experiments.
+
+**Test Results:**
+- ✅ GDA Module: Verifies dose-response analysis accuracy
+- ✅ Synergy Module: Verifies drug combination and Bliss independence calculations  
+- ✅ Simple Module: Verifies nuclei count matrix generation
+
+Test data is located in `tests/data/` and includes:
+- `expected_test_GDA_counts.csv`: Pre-counted nuclei for GDA test
+- `expected_test_synergy_counts.csv`: Pre-counted nuclei for synergy test
+- `expected_test_*_Stats.csv`: Expected analysis outputs for validation
+
+### Manual Testing with Example Data
+
+For manual verification, the `example/` directory contains real experimental data that you can process yourself to verify you get identical results:
+
+1. **Download Example Data:**
+   ```bash
+   git lfs pull  # Downloads large image files
+   ```
+
+2. **Run GDA Example:**
+   ```bash
+   cellpyability gda \
+     --title test \
+     --upper-name "Cell Line A" \
+     --lower-name "Cell Line B" \
+     --top-conc 0.000001 \
+     --dilution 3 \
+     --image-dir example/test_GDA
+   ```
+
+3. **Compare Your Results:**
+   - Your outputs in `src/cellpyability/GDA_output/`
+   - Expected outputs in `example/test_expected_outputs/`
+   - [Test parameters](example/test_params.txt) used to generate examples
+
+**Available Example Datasets:**
+- [GDA test data](example/test_GDA/): 60 well images for dose-response analysis
+- [Synergy test data](example/test_synergy/): 180 well images for drug combination analysis
+- [Expected outputs](example/test_expected_outputs/): Reference results for validation
+
+This dual approach ensures both automated validation (for development/CI) and manual verification (to confirm your specific environment is working correctly).
+
+**Note:** We have not tested the analysis scripts on protocols other than those provided. For best results, please follow the provided [protocol](protocol.pdf).
 
 ## Contributions
 Summary information regarding the authors as of 2025:
