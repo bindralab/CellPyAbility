@@ -45,12 +45,11 @@ Thank you for your interest in contributing to CellPyAbility! This document prov
 
 ## Code Style Guidelines
 
-- Use **lowercase** for module names and internal variables (e.g., `gda`, not `GDA`)
-- Keep **uppercase** for user-facing documentation and GUI labels
 - Follow **PEP 8** style guidelines for Python code
 - Add **docstrings** to new functions and modules
 - Keep functions **focused and single-purpose**
 - Use **descriptive variable names**
+- Be mindful of **existing namespace**
 
 ## Testing Guidelines
 
@@ -59,10 +58,10 @@ Thank you for your interest in contributing to CellPyAbility! This document prov
 When adding new features, please include tests:
 
 1. **Module I/O tests**: Add test cases to `tests/test_module_outputs.py`
-   - Include test data in `tests/data/` with `test_` prefix
+   - Include any new test data in `tests/data/` with `test_` prefix
    - Ensure outputs match expected files
 
-2. **Example data**: Add example data to `example/` with `example_` prefix
+2. **Example data**: Add any new example data to `example/` with `example_` prefix
    - This helps users manually verify the tool works correctly
 
 3. **Mock tests**: For subprocess calls or external dependencies, use `unittest.mock`
@@ -83,7 +82,7 @@ cellpyability gda --help
 
 - Update the **README.md** if you add new features or change usage
 - Update the **CHANGELOG.md** with your changes (under "Unreleased" section)
-- Add **inline comments** for complex logic
+- Add **inline comments** when it improves clarity
 - Update **CLI help text** if you modify command-line arguments
 
 ## Commit Message Guidelines
@@ -101,7 +100,7 @@ Use clear, descriptive commit messages:
 
 - **Bug reports**: Open an issue on GitHub with a clear description and steps to reproduce
 - **Feature requests**: Open an issue describing the feature and its use case
-- **Questions**: Open a discussion on GitHub or reach out to the maintainers
+- **Questions**: Open a discussion on GitHub or reach out to james.elia@yale.edu
 
 ## License
 
