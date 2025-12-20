@@ -90,7 +90,7 @@ def get_output_base_dir(output_dir=None):
 def save_txt(config_file, path):
     with open(config_file, 'w') as file:
         file.write(str(path))
-    logger.info(f'Path saved succesfully in {config_file} as: {path}')
+    logger.info(f'Path saved successfully in {config_file} as: {path}')
 
 def prompt_path():
     return input("Enter the path to the CellProfiler program: ").strip().strip('"').strip("'")
@@ -136,7 +136,7 @@ def get_cellprofiler_path():
         # Save the path to the file for future use
         save_txt(config_file, new_path)
 
-    logger.info('CellProfiler path succesfully identified ...')
+    logger.info('CellProfiler path successfully identified ...')
     return new_path
 
 # Define cp_path as None initially - will be set when needed
@@ -267,10 +267,10 @@ def rename_counts(cp_csv, counts_csv):
         if 'cp_output' not in str(cp_csv_path):
             import shutil
             shutil.copy2(cp_csv, counts_csv)
-            logger.debug(f'{cp_csv} succesfully copied to {counts_csv}')
+            logger.debug(f'{cp_csv} successfully copied to {counts_csv}')
         else:
             os.rename(cp_csv, counts_csv)
-            logger.debug(f'{cp_csv} succesfully renamed to {counts_csv}')
+            logger.debug(f'{cp_csv} successfully renamed to {counts_csv}')
     except FileNotFoundError:
         logger.debug(f'{cp_csv} not found')
     except PermissionError:
