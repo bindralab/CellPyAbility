@@ -115,8 +115,15 @@ def get_cellprofiler_path():
     logger.info('CellProfiler path succesfully identified ...')
     return new_path
 
-# Define cp_path
-cp_path = get_cellprofiler_path()
+# Define cp_path as None initially - will be set when needed
+cp_path = None
+
+def _ensure_cellprofiler_path():
+    """Ensure CellProfiler path is set, calling get_cellprofiler_path if needed."""
+    global cp_path
+    if cp_path is None:
+        cp_path = get_cellprofiler_path()
+    return cp_path
 
 def dose_range_x(dose_max, dilution):
     dose_array = [dose_max]
@@ -136,7 +143,36 @@ def dose_range_y(dose_max, dilution):
 
 # Runs CellProfiler from the command line with the path to the image directory as a parameter
 # When ready to run, write 'df_cp = run_cellprofiler()'
-def run_cellprofiler(image_dir):
+def run_cellprofiler(image_dir, counts_file=None):
+    """
+    Run CellProfiler on images or load pre-existing counts file.
+    
+    Parameters:
+    -----------
+    image_dir : str
+        Directory containing images to analyze
+    counts_file : str, optional
+        Path to pre-existing counts CSV file (for testing). If provided,
+        CellProfiler is not run and this file is used instead.
+    
+    Returns:
+    --------
+    df_cp : pandas.DataFrame
+        DataFrame with nuclei counts
+    cp_csv : Path
+        Path to the counts CSV file
+    """
+    
+    # If a counts file is provided, use it instead of running CellProfiler
+    if counts_file is not None:
+        counts_path = Path(counts_file)
+        if not counts_path.exists():
+            logger.critical(f'Counts file {counts_file} does not exist.')
+            exit(1)
+        logger.info(f'Using pre-existing counts file: {counts_file}')
+        df_cp = pd.read_csv(counts_path)
+        return df_cp, counts_path
+    
     ## Define the path to the pipeline (.cppipe)
     cppipe_path = base_dir / 'CellPyAbility.cppipe'
     if cppipe_path.exists():
@@ -153,7 +189,8 @@ def run_cellprofiler(image_dir):
 
     # Run CellProfiler from the command line
     logger.debug('Starting CellProfiler from command line ...')
-    subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', cp_output_dir])
+    cp_exe = _ensure_cellprofiler_path()
+    subprocess.run([cp_exe, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', cp_output_dir])
     logger.info('CellProfiler nuclei counting complete.')
 
     # Define the path to the CellProfiler counting output
