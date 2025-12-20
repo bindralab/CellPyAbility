@@ -59,7 +59,7 @@ cellpyability gda \
 ```
 
 **To download example data for testing:**
-- Download the [example data ZIP](example/example_GDA/)
+- Download the [example GDA images](example/example_GDA/)
 - Run: `cellpyability gda --image-dir /path/to/example/example_gda ...`
 - Compare to [expected outputs](example/example_expected_outputs/)
 
