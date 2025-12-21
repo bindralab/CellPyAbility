@@ -6,21 +6,36 @@ For more information, please see the README at https://github.com/bindralab/Cell
 
 import logging
 import os
+import re
 import subprocess
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
+from scipy.optimize import curve_fit
+import shutil
 
-# Creates logging protocol for CellPyAbility
-# Include 'logger = cellpyability_logger()' at start of script
 def cellpyability_logger():
+    """
+    Creates and configures the CellPyAbility logger.
+    
+    Logs all messages (DEBUG and above) to cellpyability.log in current working directory.
+    Logs INFO and above to console output.
+    
+    Returns:
+    --------
+    logger : logging.Logger
+        Configured logger instance
+    """
     logger = logging.getLogger("CellPyAbility")
+    logger.setLevel(logging.DEBUG) # print all messages to log
 
-    # Log all messages
-    logger.setLevel(logging.DEBUG)
+    # If handlers exist, return immediately to avoid duplicates
+    if logger.hasHandlers():
+        return logger
 
-    # Create a log.log file with all messages
-    log_file = Path(__file__).with_name("log.log")
+    # Create a cellpyability.log file in current working directory (PyPI-compatible)
+    log_file = Path.cwd() / "cellpyability.log"
     fh = logging.FileHandler(log_file)
     fh.setLevel(logging.DEBUG)
 
@@ -43,38 +58,90 @@ def cellpyability_logger():
 # Define logger so it can be referenced in later functions
 logger = cellpyability_logger()
 
-# Establishes the base directory as /CellPyAbility/
-# Include 'base_dir = establish_base() at start of script
+# Establishes the base directory for package resources (read-only)
+# Use get_output_base_dir() for writable output directories
 def establish_base():
-    # Establish the base directory as the script's location
+    """Get the package installation directory (for reading resources like .cppipe files)."""
     base_dir = Path(__file__).resolve().parent
     
     if not base_dir.exists():
-        logger.critical(f'Base directory {base_dir} does not exist.')
-        exit(1)
-    elif not os.access(base_dir, os.W_OK):
-        logger.critical(f'Base directory {base_dir} is not writable.')
+        logger.critical(f'Package directory {base_dir} does not exist.')
         exit(1)
     
-    logger.info(f'Base directory {base_dir} established ...')
+    logger.info(f'Package directory {base_dir} established ...')
     return base_dir
 
-# Define base_dir so it can be used in later scripts
+# Define base_dir for package resources (pipeline files, etc.)
 base_dir = establish_base()
 
-# The next two functions will be used in get_cellprofiler_path()
+def get_output_base_dir(output_dir=None):
+    """
+    Get the base directory for output files.
+    
+    Args:
+        output_dir: Optional custom output directory path. If None, uses current working directory.
+    
+    Returns:
+        Path object to the output base directory
+    """
+    if output_dir is None:
+        # Use current working directory for PyPI compatibility
+        output_base = Path.cwd() / 'cellpyability_output'
+    else:
+        output_base = Path(output_dir)
+    
+    # Create the output directory if it doesn't exist
+    output_base.mkdir(parents=True, exist_ok=True)
+    
+    # Verify it's writable
+    if not os.access(output_base, os.W_OK):
+        logger.critical(f'Output directory {output_base} is not writable.')
+        exit(1)
+    
+    logger.info(f'Output directory {output_base} established ...')
+    return output_base
+
 def save_txt(config_file, path):
+    """
+    Save a path string to a text file.
+    
+    Parameters:
+    -----------
+    config_file : str or Path
+        Path to the configuration file to write
+    path : str or Path
+        Path to save in the configuration file
+    """
     with open(config_file, 'w') as file:
         file.write(str(path))
-    logger.info(f'Path saved succesfully in {config_file} as: {path}')
+    logger.info(f'Path saved successfully in {config_file} as: {path}')
 
 def prompt_path():
+    """
+    Prompt user to enter the CellProfiler executable path.
+    
+    Returns:
+    --------
+    str
+        User-provided path with quotes and whitespace stripped
+    """
     return input("Enter the path to the CellProfiler program: ").strip().strip('"').strip("'")
 
-# Include 'cp_path = get_cellprofiler_path()' at start of script
 def get_cellprofiler_path():
-    # First check if a CellProfiler path exists in the directory
-    config_file = base_dir / "cellprofiler_path.txt"
+    """
+    Get the path to the CellProfiler executable.
+    
+    Checks for saved path in cellprofiler_path.txt, then checks default installation
+    locations on Windows and macOS. If not found, prompts user for the path.
+    Saves the path for future use.
+    
+    Returns:
+    --------
+    str or Path
+        Path to the CellProfiler executable
+    """
+    # Store CellProfiler path in current working directory (PyPI-compatible)
+    config_file = Path.cwd() / "cellprofiler_path.txt"
 
     if config_file.exists():
         with open(config_file, "r") as file:
@@ -112,48 +179,97 @@ def get_cellprofiler_path():
         # Save the path to the file for future use
         save_txt(config_file, new_path)
 
-    logger.info('CellProfiler path succesfully identified ...')
+    logger.info('CellProfiler path successfully identified ...')
     return new_path
 
-# Define cp_path
-cp_path = get_cellprofiler_path()
+# Define cp_path as None initially - will be set when needed
+cp_path = None
 
-def dose_range_x(dose_max, dilution):
-    dose_array = [dose_max]
-    for i in range(8):
-        dose_max /= (dilution)
-        dose_array.insert(0, dose_max)
-    logger.debug('Concentration gradient array created.')
-    return dose_array
+def _ensure_cellprofiler_path():
+    """Ensure CellProfiler path is set, calling get_cellprofiler_path if needed."""
+    global cp_path
+    if cp_path is None:
+        cp_path = get_cellprofiler_path()
+    return cp_path
 
-def dose_range_y(dose_max, dilution):
-    dose_array = [dose_max]
-    for i in range(4):
-        dose_max /= (dilution)
-        dose_array.insert(0, dose_max)
+def gen_dose_range(dose_max, dilution, num_doses):
+    """
+    Generates a dose gradient from low to high (excluding vehicle).
+
+    Parameters:
+    -----------
+    dose_max: top concentration (source of serial dilutions)
+    dilution: multiplicative gaps between concentrations (3 = 3fold dilutions)
+    num_doses: the number of concentrations, including the top and excluding vehicle
+
+    Returns:
+    -----------
+    dose_array : NumPy array
+    """
+    # Calculate lowest dose directly to avoid accumulating error from float division
+    dose_min = dose_max / (dilution ** (num_doses-1))
+
+    # generate the array log spaced
+    dose_array = np.geomspace(dose_min, dose_max, num_doses)
+    
     logger.debug('Concentration gradient array created.')
     return dose_array
 
 # Runs CellProfiler from the command line with the path to the image directory as a parameter
 # When ready to run, write 'df_cp = run_cellprofiler()'
-def run_cellprofiler(image_dir):
-    ## Define the path to the pipeline (.cppipe)
+def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
+    """
+    Run CellProfiler on images or load pre-existing counts file.
+    
+    Parameters:
+    -----------
+    image_dir : str
+        Directory containing images to analyze
+    counts_file : str, optional
+        Path to pre-existing counts CSV file (for testing). If provided,
+        CellProfiler is not run and this file is used instead.
+    output_dir : str, optional
+        Base directory for output files. If None, uses current working directory
+        and creates './cellpyability_output/' subdirectory for results.
+    
+    Returns:
+    --------
+    df_cp : pandas.DataFrame
+        DataFrame with nuclei counts
+    cp_csv : Path
+        Path to the counts CSV file
+    """
+    
+    # If a counts file is provided, use it instead of running CellProfiler
+    if counts_file is not None:
+        counts_path = Path(counts_file)
+        if not counts_path.exists():
+            logger.critical(f'Counts file {counts_file} does not exist.')
+            exit(1)
+        logger.info(f'Using pre-existing counts file: {counts_file}')
+        df_cp = pd.read_csv(counts_path)
+        return df_cp, counts_path
+    
+    ## Define the path to the pipeline (.cppipe) - this is in the package directory
     cppipe_path = base_dir / 'CellPyAbility.cppipe'
     if cppipe_path.exists():
-        logger.debug('CellProfiler pipeline exists in directory ...')
+        logger.debug('CellProfiler pipeline exists in package directory ...')
     else:
-        logger.critical('CellProfiler pipeline CellPyAbility.cppipe not found in directory.')
-        logger.info('If you are using a different pipeline, make sure it is named CellPyAbility.cppipe and is in the base directory.')
+        logger.critical('CellProfiler pipeline CellPyAbility.cppipe not found in package directory.')
+        logger.info('If you are using a different pipeline, make sure it is named CellPyAbility.cppipe and is in the package directory.')
         exit(1)
 
     ## Define the folder where CellProfiler will output the .csv results
-    cp_output_dir = base_dir / 'cp_output'
+    # Use the output directory structure for writable files
+    output_base = get_output_base_dir(output_dir)
+    cp_output_dir = output_base / 'cp_output'
     cp_output_dir.mkdir(exist_ok=True)
-    logger.debug('CellPyAbility/cp_output/ identified or created and identified.')
+    logger.debug(f'cp_output/ directory identified or created at {cp_output_dir}')
 
     # Run CellProfiler from the command line
     logger.debug('Starting CellProfiler from command line ...')
-    subprocess.run([cp_path, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', cp_output_dir])
+    cp_exe = _ensure_cellprofiler_path()
+    subprocess.run([cp_exe, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', cp_output_dir])
     logger.info('CellProfiler nuclei counting complete.')
 
     # Define the path to the CellProfiler counting output
@@ -180,20 +296,148 @@ wells = [
     'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11',
     ]
 
-def rename_wells(tiff_name, wells):
-    for well in wells:
-        if well in tiff_name:
-            return well
-    logger.debug('Well names extracted from file names.')
-    return tiff_name  # Keep original if no target matches
+def rename_wells(tiff_name, wells=None): 
+    """
+    Maps well ID from file name to 96-well plate wells.
+    """
+    match = re.search(r'([A-Ha-h])0*(\d{1,2})', tiff_name)
+    
+    if match:
+        row = match.group(1).upper() # Force uppercase (b -> B)
+        col = match.group(2)         # Capture digit (02 -> 2 due to 0* placement)
+        
+        # Return clean "B2" format
+        return f"{row}{col}"
+        
+    return tiff_name
 
 def rename_counts(cp_csv, counts_csv):
+    """
+    Rename or copy CellProfiler counts file to final output location.
+    Uses copy if source is not in cp_output (e.g., test data), otherwise renames.
+    """
     try:
-        os.rename(cp_csv, counts_csv)
-        logger.debug(f'{cp_csv} succesfully renamed to {counts_csv}')
+        cp_csv_path = Path(cp_csv)
+        counts_csv_path = Path(counts_csv)
+        
+        # If source is not in cp_output directory, copy instead of rename
+        # This preserves test data files
+        if 'cp_output' not in str(cp_csv_path):
+            shutil.copy2(cp_csv, counts_csv)
+            logger.debug(f'{cp_csv} successfully copied to {counts_csv}')
+        else:
+            os.rename(cp_csv, counts_csv)
+            logger.debug(f'{cp_csv} successfully renamed to {counts_csv}')
     except FileNotFoundError:
         logger.debug(f'{cp_csv} not found')
     except PermissionError:
         logger.debug(f'Permission denied. {cp_csv} may be open or in use.')
     except Exception as e:
         logger.debug(f'While renaming {cp_csv}, an error occurred: {e}')
+
+# Define models at module level so they are accessible
+def fivePL(x, A, B, C, D, G):
+    """
+    Five-parameter logistic (5PL) dose-response model.
+    
+    Parameters:
+    -----------
+    x : array-like
+        Dose/concentration values
+    A : float
+        Minimum asymptote (response at infinite dose)
+    B : float
+        Hill slope
+    C : float
+        Inflection point (IC50/EC50)
+    D : float
+        Maximum asymptote (response at zero dose)
+    G : float
+        Asymmetry factor
+    
+    Returns:
+    --------
+    array-like
+        Predicted response values
+    """
+    return ((A - D) / (1.0 + (x / C) ** B) ** G) + D
+
+def hill(x, Emax, EC50, HillSlope):
+    """
+    Hill equation for dose-response curves.
+    
+    Parameters:
+    -----------
+    x : array-like
+        Dose/concentration values
+    Emax : float
+        Maximum effect
+    EC50 : float
+        Half-maximal effective concentration
+    HillSlope : float
+        Hill coefficient (slope factor)
+    
+    Returns:
+    --------
+    array-like
+        Predicted response values
+    """
+    return Emax * (x**HillSlope) / (EC50**HillSlope + x**HillSlope)
+
+def fit_response_curve(x, y, name):
+    """
+    Fits 5PL, falls back to Hill, returns (x_plot, y_plot, IC50, params).
+    Solves for IC50 algebraically. Returns NaN if IC50 is unsolvable.
+    Input x and y should be numpy arrays.
+    """
+    # Create smooth x-axis for plotting
+    x_plot = np.logspace(np.log10(min(x[x > 0])), np.log10(max(x)), 1000)
+
+    # Initial Guesses (Heuristic)
+    y_max = np.max(y)
+    y_min = np.min(y)
+    
+    # Find x closest to half-maximal response for initial C/EC50 guess
+    # We clip 0.5 to be between min and max to avoid indexing errors
+    target_y = (y_max + y_min) / 2
+    idx = (np.abs(y - target_y)).argmin()
+    c_guess = x[idx]
+    
+    # [A (max), B (slope), C (inflection), D (min), G (asymmetry)]
+    p0_5PL = [y_max, 1.0, c_guess, y_min, 1.0] 
+    
+    # [Emax, EC50, HillSlope]
+    p0_Hill = [y_max, c_guess, 1.0]
+
+    try:
+        # Try 5PL
+        popt, _ = curve_fit(fivePL, x, y, p0=p0_5PL, maxfev=5000)
+        
+        # Algebraic IC50 for 5PL
+        A, B, C, D, G = popt
+        
+        # Check domain validity for IC50 (must be able to take roots)
+        # We need the term inside the root to be positive
+        try:
+             term = (A - D) / (0.5 - D)
+             if term <= 0:
+                 raise ValueError("IC50 undefined (curve doesn't cross 0.5)")
+             
+             # Solve for x where y = 0.5
+             ic50 = C * ((term**(1/G)) - 1)**(1/B)
+        except (ValueError, ArithmeticError):
+             ic50 = np.nan
+
+        return x_plot, fivePL(x_plot, *popt), ic50
+        
+    except (RuntimeError, ValueError):
+        # Fallback to Hill
+        try:
+             popt, _ = curve_fit(hill, x, y, p0=p0_Hill, maxfev=10000)
+             # Hill parameter index 1 is EC50
+             ic50 = popt[1] 
+             return x_plot, hill(x_plot, *popt), ic50
+        except:
+             logger.warning(f"Could not fit {name}. Returning connect-the-dots")
+             # Return straight lines between points if fit fails
+             return x, y, np.nan

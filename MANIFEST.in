@@ -1,0 +1,31 @@
+# MANIFEST.in - Include non-Python files in the package distribution
+
+# Include the CellProfiler pipeline file
+include src/cellpyability/CellPyAbility.cppipe
+
+# Include license and readme files
+include LICENSE.txt
+include README.md
+include CellProfilerLicense.txt
+
+# Include documentation files
+include CHANGELOG.md
+include CONTRIBUTING.md
+include PYPI_UPLOAD_GUIDE.md
+
+# Exclude example data (680MB+ of images - users should download from GitHub)
+# These are available via: git clone + git lfs pull or direct download from GitHub releases
+prune example
+
+# Exclude the Windows application (useless to Python users)
+prune windows_app
+
+# Exclude test data (not needed in distributed package)
+prune tests
+
+# Exclude unnecessary files
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.log
+global-exclude cellprofiler_path.txt

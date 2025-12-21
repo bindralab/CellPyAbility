@@ -1,10 +1,16 @@
+# generated on runs
 cellprofiler_path.txt
-todo.txt
-20250212_SF_advice.pdf
-CellPyAbility_GDA_neat.py
-cp_output
-GDA_output
-synergy_output
-simple_output
-log.log
+*.log
 __pycache__
+cellpyability_output/ 
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
