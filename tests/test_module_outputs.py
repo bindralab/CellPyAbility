@@ -138,7 +138,7 @@ def test_synergy_module():
     
     test_data_dir = Path(__file__).parent / "data"
     counts_file = test_data_dir / "test_synergy_counts.csv"
-    expected_stats = test_data_dir / "test_synergy_stats.csv"
+    expected_bliss = test_data_dir / "test_synergy_BlissMatrix.csv"
     
     # Run Synergy analysis (output goes to ./cellpyability_output/synergy_output/)
     print(f"Running Synergy analysis with counts file: {counts_file}")
@@ -156,40 +156,40 @@ def test_synergy_module():
     )
     
     # Check output file (in current working directory)
-    output_stats = Path.cwd() / "cellpyability_output/synergy_output/test_synergy_stats.csv"
+    output_bliss = Path.cwd() / "cellpyability_output/synergy_output/test_synergy_BlissMatrix.csv"
     
     try:
-        if not output_stats.exists():
-            print(f"[FAIL] FAILED: Output file not created: {output_stats}")
+        if not output_bliss.exists():
+            print(f"[FAIL] FAILED: Output file not created: {output_bliss}")
             return False
         
-        print(f"Output file created: {output_stats}")
+        print(f"Output file created: {output_bliss}")
         
         # Compare files
-        match, message = compare_csv_files(output_stats, expected_stats, tolerance=1e-10)
+        match, message = compare_csv_files(output_bliss, expected_bliss, tolerance=1e-10)
         
         if match:
-            print(f"[PASS] PASSED: Synergy Stats output matches expected file")
+            print(f"[PASS] PASSED: Synergy BlissMatrix output matches expected file")
             print(f"   {message}")
             result = True
         else:
-            print(f"[FAIL] FAILED: Synergy Stats output does not match")
+            print(f"[FAIL] FAILED: Synergy BlissMatrix output does not match")
             print(f"   {message}")
             
             # Show first few rows for debugging
             print("\n   First rows of output:")
-            df_out = pd.read_csv(output_stats)
+            df_out = pd.read_csv(output_bliss)
             print(df_out.head())
             print("\n   First rows of expected:")
-            df_exp = pd.read_csv(expected_stats)
+            df_exp = pd.read_csv(expected_bliss)
             print(df_exp.head())
             
             result = False
     finally:
         # Clean up output files - use ignore_errors for Windows compatibility
-        if output_stats.exists():
+        if output_bliss.exists():
             try:
-                shutil.rmtree(output_stats.parent, ignore_errors=True)
+                shutil.rmtree(output_bliss.parent, ignore_errors=True)
             except Exception as e:
                 print(f"Warning: Could not clean up output directory: {e}")
     

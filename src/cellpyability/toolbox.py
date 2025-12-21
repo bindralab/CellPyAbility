@@ -15,9 +15,18 @@ import numpy as np
 from scipy.optimize import curve_fit
 import shutil
 
-# Creates logging protocol for CellPyAbility
-# Include 'logger = cellpyability_logger()' at start of script
 def cellpyability_logger():
+    """
+    Creates and configures the CellPyAbility logger.
+    
+    Logs all messages (DEBUG and above) to cellpyability.log in current working directory.
+    Logs INFO and above to console output.
+    
+    Returns:
+    --------
+    logger : logging.Logger
+        Configured logger instance
+    """
     logger = logging.getLogger("CellPyAbility")
     logger.setLevel(logging.DEBUG) # print all messages to log
 
@@ -92,17 +101,45 @@ def get_output_base_dir(output_dir=None):
     logger.info(f'Output directory {output_base} established ...')
     return output_base
 
-# The next two functions will be used in get_cellprofiler_path()
 def save_txt(config_file, path):
+    """
+    Save a path string to a text file.
+    
+    Parameters:
+    -----------
+    config_file : str or Path
+        Path to the configuration file to write
+    path : str or Path
+        Path to save in the configuration file
+    """
     with open(config_file, 'w') as file:
         file.write(str(path))
     logger.info(f'Path saved successfully in {config_file} as: {path}')
 
 def prompt_path():
+    """
+    Prompt user to enter the CellProfiler executable path.
+    
+    Returns:
+    --------
+    str
+        User-provided path with quotes and whitespace stripped
+    """
     return input("Enter the path to the CellProfiler program: ").strip().strip('"').strip("'")
 
-# Include 'cp_path = get_cellprofiler_path()' at start of script
 def get_cellprofiler_path():
+    """
+    Get the path to the CellProfiler executable.
+    
+    Checks for saved path in cellprofiler_path.txt, then checks default installation
+    locations on Windows and macOS. If not found, prompts user for the path.
+    Saves the path for future use.
+    
+    Returns:
+    --------
+    str or Path
+        Path to the CellProfiler executable
+    """
     # Store CellProfiler path in current working directory (PyPI-compatible)
     config_file = Path.cwd() / "cellprofiler_path.txt"
 
@@ -300,9 +337,51 @@ def rename_counts(cp_csv, counts_csv):
 
 # Define models at module level so they are accessible
 def fivePL(x, A, B, C, D, G):
+    """
+    Five-parameter logistic (5PL) dose-response model.
+    
+    Parameters:
+    -----------
+    x : array-like
+        Dose/concentration values
+    A : float
+        Minimum asymptote (response at infinite dose)
+    B : float
+        Hill slope
+    C : float
+        Inflection point (IC50/EC50)
+    D : float
+        Maximum asymptote (response at zero dose)
+    G : float
+        Asymmetry factor
+    
+    Returns:
+    --------
+    array-like
+        Predicted response values
+    """
     return ((A - D) / (1.0 + (x / C) ** B) ** G) + D
 
 def hill(x, Emax, EC50, HillSlope):
+    """
+    Hill equation for dose-response curves.
+    
+    Parameters:
+    -----------
+    x : array-like
+        Dose/concentration values
+    Emax : float
+        Maximum effect
+    EC50 : float
+        Half-maximal effective concentration
+    HillSlope : float
+        Hill coefficient (slope factor)
+    
+    Returns:
+    --------
+    array-like
+        Predicted response values
+    """
     return Emax * (x**HillSlope) / (EC50**HillSlope + x**HillSlope)
 
 def fit_response_curve(x, y, name):
