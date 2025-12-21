@@ -76,7 +76,7 @@ def test_gda_module():
     counts_file = test_data_dir / "test_gda_counts.csv"
     expected_stats = test_data_dir / "test_gda_Stats.csv"
     
-    # Run gda analysis (output goes to src/cellpyability/gda_output)
+    # Run gda analysis (output goes to ./cellpyability_output/gda_output/)
     print(f"Running gda analysis with counts file: {counts_file}")
     gda_analysis.run_gda(
         title_name="test",
@@ -89,9 +89,8 @@ def test_gda_module():
         counts_file=str(counts_file)
     )
     
-    # Check output file (in src/cellpyability/gda_output/)
-    repo_root = Path(__file__).parent.parent
-    output_stats = repo_root / "src/cellpyability/gda_output/test_gda_Stats.csv"
+    # Check output file (in current working directory)
+    output_stats = Path.cwd() / "cellpyability_output/gda_output/test_gda_Stats.csv"
     
     try:
         if not output_stats.exists():
@@ -141,7 +140,7 @@ def test_synergy_module():
     counts_file = test_data_dir / "test_synergy_counts.csv"
     expected_stats = test_data_dir / "test_synergy_stats.csv"
     
-    # Run Synergy analysis (output goes to src/cellpyability/synergy_output)
+    # Run Synergy analysis (output goes to ./cellpyability_output/synergy_output/)
     print(f"Running Synergy analysis with counts file: {counts_file}")
     synergy_analysis.run_synergy(
         title_name="test",
@@ -156,9 +155,8 @@ def test_synergy_module():
         counts_file=str(counts_file)
     )
     
-    # Check output file (in src/cellpyability/synergy_output/)
-    repo_root = Path(__file__).parent.parent
-    output_stats = repo_root / "src/cellpyability/synergy_output/test_synergy_stats.csv"
+    # Check output file (in current working directory)
+    output_stats = Path.cwd() / "cellpyability_output/synergy_output/test_synergy_stats.csv"
     
     try:
         if not output_stats.exists():
@@ -209,7 +207,7 @@ def test_simple_module():
     counts_file = test_data_dir / "test_gda_counts.csv"
     expected_output = test_data_dir / "test_simple_CountMatrix.csv"
     
-    # Run Simple analysis (output goes to src/cellpyability/simple_output)
+    # Run Simple analysis (output goes to ./cellpyability_output/simple_output/)
     print(f"Running Simple analysis with counts file: {counts_file}")
     simple_analysis.run_simple(
         title="test",
@@ -217,9 +215,8 @@ def test_simple_module():
         counts_file=str(counts_file)
     )
     
-    # Check output file (in src/cellpyability/simple_output/)
-    repo_root = Path(__file__).parent.parent
-    output_matrix = repo_root / "src/cellpyability/simple_output/test_simple_CountMatrix.csv"
+    # Check output file (in current working directory)
+    output_matrix = Path.cwd() / "cellpyability_output/simple_output/test_simple_CountMatrix.csv"
     
     try:
         if not output_matrix.exists():

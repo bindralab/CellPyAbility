@@ -1,0 +1,308 @@
+2025-12-21 13:55:46,706 - DEBUG - Logger setup complete.
+2025-12-21 13:55:46,706 - INFO - Package directory /home/runner/work/CellPyAbility/CellPyAbility/src/cellpyability established ...
+2025-12-21 13:55:48,145 - DEBUG - Concentration gradient array created.
+2025-12-21 13:55:48,145 - INFO - Using pre-existing counts file: /home/runner/work/CellPyAbility/CellPyAbility/tests/data/test_gda_counts.csv
+2025-12-21 13:55:48,148 - DEBUG - CellProfiler output rows renamed to well names.
+2025-12-21 13:55:48,149 - DEBUG - Extracted Row and Column from well names.
+2025-12-21 13:55:48,151 - DEBUG - Pivoted df_cp into count_matrix.
+2025-12-21 13:55:48,153 - DEBUG - Upper and lower mean nuclei counts normalized to vehicle.
+2025-12-21 13:55:48,154 - DEBUG - Computed standard deviations for normalized counts.
+2025-12-21 13:55:48,154 - INFO - Output directory /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output established ...
+2025-12-21 13:55:48,154 - DEBUG - gda_output/ directory created at /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/gda_output
+2025-12-21 13:55:48,158 - INFO - test_gda_Stats saved to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/gda_output.
+2025-12-21 13:55:48,159 - DEBUG - Each well normalized to its condition vehicle.
+2025-12-21 13:55:48,160 - DEBUG - Created viability matrix via vectorized pivot.
+2025-12-21 13:55:48,161 - INFO - test viability matrix saved to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/gda_output.
+2025-12-21 13:55:48,161 - DEBUG - Assigned doses and normalized means to x and y values via NumPy, respectively.
+2025-12-21 13:55:48,161 - DEBUG - Generating a linear space containing highest and lowest doses via NumPy.
+2025-12-21 13:55:48,162 - DEBUG - Fitting a 5-parameter logistic to Cell Line A with maxfev=500.
+2025-12-21 13:55:48,162 - DEBUG - Made 5PL curve for Cell Line A.
+2025-12-21 13:55:48,162 - INFO - 5PL IC50 for Cell Line A: 3.807951088484048e-08.
+2025-12-21 13:55:48,163 - DEBUG - Fitting a 5-parameter logistic to Cell Line B with maxfev=500.
+2025-12-21 13:55:48,164 - DEBUG - Made 5PL curve for Cell Line B.
+2025-12-21 13:55:48,164 - INFO - 5PL IC50 for Cell Line B: 4.0414967112762774e-09.
+2025-12-21 13:55:48,164 - INFO - Cell Line A IC50 / Cell Line B IC50 = 9.422130860231537
+2025-12-21 13:55:48,174 - DEBUG - Plotted data.
+2025-12-21 13:55:48,665 - INFO - test GDA plot saved to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/gda_output.
+2025-12-21 13:55:48,665 - DEBUG - /home/runner/work/CellPyAbility/CellPyAbility/tests/data/test_gda_counts.csv successfully copied to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/gda_output/test_gda_counts.csv
+2025-12-21 13:55:48,665 - INFO - test raw counts saved to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/gda_output.
+2025-12-21 13:55:48,672 - DEBUG - Concentration gradient array created.
+2025-12-21 13:55:48,672 - DEBUG - x_doses gradient calculated.
+2025-12-21 13:55:48,672 - DEBUG - Concentration gradient array created.
+2025-12-21 13:55:48,673 - DEBUG - y_doses gradient calculated.
+2025-12-21 13:55:48,673 - INFO - Using pre-existing counts file: /home/runner/work/CellPyAbility/CellPyAbility/tests/data/test_synergy_counts.csv
+2025-12-21 13:55:48,674 - DEBUG - CellProfiler output rows renamed to well names.
+2025-12-21 13:55:48,675 - DEBUG - Row and column labels extracted from well names.
+2025-12-21 13:55:48,676 - DEBUG - Nuclei mean and standard deviation calculated.
+2025-12-21 13:55:48,677 - DEBUG - Row and column concentrations mapped.
+2025-12-21 13:55:48,677 - DEBUG - Mean nuclei count normalized to vehicle control.
+2025-12-21 13:55:48,677 - INFO - Output directory /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output established ...
+2025-12-21 13:55:48,677 - DEBUG - synergy_output/ directory created at /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/synergy_output
+2025-12-21 13:55:48,678 - INFO - test synergy stats saved to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/synergy_output
+2025-12-21 13:55:48,678 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,678 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,679 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,679 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,679 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,679 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,679 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,679 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,679 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,680 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,680 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,680 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,680 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,680 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,680 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,680 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,680 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,681 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,681 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,681 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,681 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,681 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,681 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,681 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,681 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,682 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,682 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,682 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,682 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,682 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,682 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,682 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,682 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,683 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,683 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,683 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,683 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,683 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,683 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,683 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,683 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,684 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,684 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,684 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,684 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,684 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,684 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,684 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,685 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,685 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,685 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,685 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,685 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,685 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,685 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,685 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,686 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,686 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,686 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,686 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,686 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,686 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,686 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,686 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,687 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,687 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,687 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,687 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,687 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,687 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,687 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,687 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,688 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,688 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,688 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,688 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,688 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,688 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,688 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,689 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,689 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,689 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,689 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,689 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,689 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,689 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,689 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,690 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,690 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,690 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,690 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,690 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,690 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,690 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,690 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,691 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,691 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,691 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,691 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,691 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,691 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,691 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,692 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,692 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,692 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,692 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,692 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,692 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,692 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,692 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,693 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,693 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,693 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,693 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,693 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,693 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,693 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,694 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,694 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,694 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,694 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,694 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,694 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,694 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,694 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,695 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,695 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,695 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,695 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,695 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,695 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,695 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,695 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,696 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,696 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,696 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,696 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,696 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,696 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,696 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,696 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,697 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,697 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,697 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,697 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,697 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,697 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,697 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,697 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,698 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,698 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,698 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,698 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,698 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,698 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,698 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,698 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,699 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,699 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,699 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,699 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,699 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,699 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,699 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,699 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,700 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,700 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,700 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,700 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,700 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,700 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,700 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,700 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,701 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,701 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,701 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,701 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,701 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,701 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,701 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,701 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,702 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,702 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,702 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,702 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,702 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,702 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,702 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,702 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,703 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,703 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,703 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,703 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,703 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,703 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,703 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,703 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,704 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,704 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,704 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,704 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,704 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,704 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,704 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,704 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,705 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,705 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,705 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,705 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,705 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,705 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,705 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,705 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,706 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,706 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,706 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,706 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,706 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,706 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,706 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,706 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,707 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,707 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,707 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,707 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,707 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,707 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,707 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,707 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,708 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,708 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,708 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,708 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,708 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,708 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,708 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,708 - DEBUG - Normalized means pulled from df_stats.
+2025-12-21 13:55:48,709 - DEBUG - x_effect and y_effect identified.
+2025-12-21 13:55:48,709 - DEBUG - Expected combined effects calculated.
+2025-12-21 13:55:48,709 - DEBUG - Bliss independence scores calculated.
+2025-12-21 13:55:48,712 - INFO - test viability matrix saved to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/synergy_output.
+2025-12-21 13:55:48,713 - INFO - test Bliss score matrix saved to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/synergy_output.
+2025-12-21 13:55:48,713 - DEBUG - Replaced zero with non-zero values a fixed log distance from the minimum concentrations.
+2025-12-21 13:55:48,733 - DEBUG - 3D surface plot created.
+2025-12-21 13:55:48,745 - DEBUG - x and y axes changed to log, experiment details added as labels.
+2025-12-21 13:55:48,745 - DEBUG - /home/runner/work/CellPyAbility/CellPyAbility/tests/data/test_synergy_counts.csv successfully copied to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/synergy_output/test_synergy_counts.csv
+2025-12-21 13:55:48,745 - INFO - test raw counts saved to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/synergy_output.
+2025-12-21 13:55:48,763 - INFO - test synergy plot saved to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/synergy_output.
+2025-12-21 13:55:48,779 - INFO - Using pre-existing counts file: /home/runner/work/CellPyAbility/CellPyAbility/tests/data/test_gda_counts.csv
+2025-12-21 13:55:48,783 - INFO - Output directory /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output established ...
+2025-12-21 13:55:48,783 - INFO - Saved count matrix for 'test' to /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/simple_output
+2025-12-21 13:55:56,894 - DEBUG - Logger setup complete.
+2025-12-21 13:55:56,895 - INFO - Package directory /home/runner/work/CellPyAbility/CellPyAbility/src/cellpyability established ...
+2025-12-21 13:55:57,335 - DEBUG - CellProfiler pipeline exists in package directory ...
+2025-12-21 13:55:57,335 - INFO - Output directory /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output established ...
+2025-12-21 13:55:57,336 - DEBUG - cp_output/ directory identified or created at /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/cp_output
+2025-12-21 13:55:57,336 - DEBUG - Starting CellProfiler from command line ...
+2025-12-21 13:55:57,336 - INFO - CellProfiler nuclei counting complete.
+2025-12-21 13:55:57,336 - CRITICAL - CellProfiler output CellPyAbilityImage.csv does not exist in /cp_output/
+2025-12-21 13:55:57,336 - INFO - If CellPyAbility.cppipe is modified, make sure the output is still named CellPyAbilityImage.csv
+2025-12-21 13:55:57,337 - DEBUG - CellProfiler pipeline exists in package directory ...
+2025-12-21 13:55:57,337 - INFO - Output directory /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output established ...
+2025-12-21 13:55:57,337 - DEBUG - cp_output/ directory identified or created at /home/runner/work/CellPyAbility/CellPyAbility/cellpyability_output/cp_output
+2025-12-21 13:55:57,338 - DEBUG - Starting CellProfiler from command line ...
+2025-12-21 13:55:57,338 - INFO - CellProfiler nuclei counting complete.
+2025-12-21 13:55:57,338 - CRITICAL - CellProfiler output CellPyAbilityImage.csv does not exist in /cp_output/
+2025-12-21 13:55:57,338 - INFO - If CellPyAbility.cppipe is modified, make sure the output is still named CellPyAbilityImage.csv
