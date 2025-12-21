@@ -17,6 +17,9 @@ include PYPI_UPLOAD_GUIDE.md
 # These are available via: git clone + git lfs pull or direct download from GitHub releases
 prune example
 
+# Exclude the Windows application (useless to Python users)
+prune windows_app
+
 # Exclude test data (not needed in distributed package)
 prune tests
 
