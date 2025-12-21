@@ -81,6 +81,23 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     conc_map_x = dict(zip(col_order, all_x_doses))
     conc_map_y = dict(zip(row_order, all_y_doses))
     
+    # Create detailed statistics DataFrame for CSV export
+    # We use groupby to get mean and std for every well, identifying replicates by 'well' name
+    df_stats = df_cp.groupby('well')['nuclei'].agg(['mean', 'std']).reset_index()
+    df_stats['normalized_mean'] = df_stats['mean'] / vehicle_val
+    
+    # Map concentrations to the stats dataframe
+    df_stats['Row Drug Concentration'] = df_stats['well'].str[0].map(conc_map_y)
+    df_stats['Column Drug Concentration'] = df_stats['well'].str[1:].map(conc_map_x)
+    
+    # Rename columns for final output
+    df_stats = df_stats.rename(columns={
+        'well': 'Well', 
+        'mean': 'Mean', 
+        'std': 'Standard Deviation',
+        'normalized_mean': 'Normalized Mean'
+    })
+    
     # Bliss Independence calculation
     # Row B represents "Drug X Alone" (since Drug Y is 0 in row B)
     drug_x_alone = viability_matrix.loc['B'].values # Shape (10,)
@@ -106,6 +123,13 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     output_base = tb.get_output_base_dir(output_dir)
     synergy_output_dir = output_base / 'synergy_output'
     synergy_output_dir.mkdir(exist_ok=True)
+    
+    # --- INSERTED STATS SAVE START ---
+    # Save the detailed stats file
+    stats_cols = ['Well', 'Mean', 'Standard Deviation', 'Normalized Mean', 'Row Drug Concentration', 'Column Drug Concentration']
+    df_stats[stats_cols].to_csv(synergy_output_dir / f'{title_name}_synergy_stats.csv', index=False)
+    logger.info(f'{title_name} synergy stats saved to {synergy_output_dir}')
+    # --- INSERTED STATS SAVE END ---
     
     # Save the matrices with experiment labels
     viability_out = viability_matrix.copy()
