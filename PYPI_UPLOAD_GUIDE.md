@@ -41,6 +41,15 @@ This guide explains how to publish CellPyAbility to PyPI (Python Package Index).
 
 ## Testing on TestPyPI (Recommended First Step)
 
+**CRITICAL NOTE**: PyPI and TestPyPI version numbers are **immutable**. Once you upload version `0.1.0`, you cannot upload it again, even after fixing bugs. Version numbers cannot be deleted or reused.
+
+**Best Practice**: If you find issues during testing, you MUST bump the version number before rebuilding:
+- Development versions: `0.1.0.dev1`, `0.1.0.dev2`, etc.
+- Release candidates: `0.1.0rc1`, `0.1.0rc2`, etc.
+- Patch versions: `0.1.1`, `0.1.2`, etc.
+
+Update the version in **both** `src/cellpyability/__init__.py` and `pyproject.toml` before rebuilding.
+
 1. **Upload to TestPyPI**:
    ```bash
    twine upload --repository testpypi dist/*
@@ -62,6 +71,9 @@ This guide explains how to publish CellPyAbility to PyPI (Python Package Index).
    # Test the CLI
    cellpyability --help
    cellpyability gda --help
+   
+   # Verify the version matches what you expect
+   python -c "import cellpyability; print(cellpyability.__version__)"
    ```
 
 3. **If Testing Succeeds**, proceed to PyPI upload.
@@ -127,16 +139,73 @@ password = pypi-YOUR_TESTPYPI_TOKEN_HERE
 
 When releasing a new version:
 
-1. Update version in `src/cellpyability/__init__.py` and `pyproject.toml`
+1. **Update version in BOTH locations** (keep them synchronized):
+   - `src/cellpyability/__init__.py`: Change `__version__ = "0.1.0"` to new version
+   - `pyproject.toml`: Change `version = "0.1.0"` to match
+   
+   **Verification**: After updating, check they match:
+   ```bash
+   # Extract version from pyproject.toml
+   grep 'version = ' pyproject.toml
+   
+   # Extract version from __init__.py
+   grep '__version__' src/cellpyability/__init__.py
+   ```
+
 2. Update `CHANGELOG.md` with changes
+
 3. Rebuild and upload:
    ```bash
    rm -rf dist/ build/ src/*.egg-info
    python -m build
+   
+   # Double-check version is correct before uploading
+   python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])"
+   
    twine upload dist/*
    ```
 
+4. **Verify after publication**:
+   ```bash
+   pip install --upgrade cellpyability
+   python -c "import cellpyability; print(cellpyability.__version__)"
+   ```
+
 ## Troubleshooting
+
+### Version Synchronization
+
+**Critical**: The version number must match in both files:
+- `src/cellpyability/__init__.py`: `__version__ = "0.1.0"`
+- `pyproject.toml`: `version = "0.1.0"`
+
+**Verify synchronization**:
+```bash
+# Check both versions are identical
+python -c "
+import tomli
+with open('pyproject.toml', 'rb') as f:
+    toml_version = tomli.load(f)['project']['version']
+    
+with open('src/cellpyability/__init__.py') as f:
+    for line in f:
+        if '__version__' in line:
+            py_version = line.split('=')[1].strip().strip('\"')
+            break
+            
+if toml_version == py_version:
+    print(f'✓ Versions match: {toml_version}')
+else:
+    print(f'✗ VERSION MISMATCH: pyproject.toml={toml_version}, __init__.py={py_version}')
+    exit(1)
+"
+```
+
+**After installation**, verify the installed version:
+```bash
+pip install cellpyability
+python -c "import cellpyability; print(f'Installed version: {cellpyability.__version__}')"
+```
 
 ### Build Warnings
 
@@ -150,6 +219,12 @@ The package creates configuration and log files in the current working directory
 - `cellpyability_output/` - Directory containing all analysis results
 
 All these files are created in the user's working directory, not in the package installation directory, ensuring compatibility with read-only system installations.
+
+**Design Note**: The config file (`cellprofiler_path.txt`) is created in the current working directory. While this works, it means:
+- ✅ **Pros**: No permission issues, works in any environment
+- ⚠️ **Consideration**: Config file appears in user's working folder (e.g., Desktop if they run commands there)
+
+**Future Enhancement (v0.2.0)**: Consider moving config to user's home directory (`~/.cellpyability/config.txt`) for cleaner behavior, similar to tools like `~/.ssh/` or `~/.aws/`. This would make the config persist globally regardless of working directory.
 
 ### No Permission Issues
 
