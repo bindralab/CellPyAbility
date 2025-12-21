@@ -10,14 +10,19 @@ import subprocess
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
+from scipy.optimize import curve_fit
+import shutil
 
 # Creates logging protocol for CellPyAbility
 # Include 'logger = cellpyability_logger()' at start of script
 def cellpyability_logger():
     logger = logging.getLogger("CellPyAbility")
+    logger.setLevel(logging.DEBUG) # print all messages to log
 
-    # Log all messages
-    logger.setLevel(logging.DEBUG)
+    # If handlers exist, return immediately to avoid duplicates
+    if logger.hasHandlers():
+        return logger
 
     # Create a cellpyability.log file in current working directory (PyPI-compatible)
     log_file = Path.cwd() / "cellpyability.log"
@@ -149,19 +154,26 @@ def _ensure_cellprofiler_path():
         cp_path = get_cellprofiler_path()
     return cp_path
 
-def dose_range_x(dose_max, dilution):
-    dose_array = [dose_max]
-    for i in range(8):
-        dose_max /= (dilution)
-        dose_array.insert(0, dose_max)
-    logger.debug('Concentration gradient array created.')
-    return dose_array
+def gen_dose_range(dose_max, dilution, num_doses):
+    """
+    Generates a dose gradient from low to high (excluding vehicle).
 
-def dose_range_y(dose_max, dilution):
-    dose_array = [dose_max]
-    for i in range(4):
-        dose_max /= (dilution)
-        dose_array.insert(0, dose_max)
+    Parameters:
+    -----------
+    dose_max: top concentration (source of serial dilutions)
+    dilution: multiplicative gaps between concentrations (3 = 3fold dilutions)
+    num_doses: the number of concentrations, including the top and excluding vehicle
+
+    Returns:
+    -----------
+    dose_array : NumPy array
+    """
+    # Calculate lowest dose directly to avoid accumulating error from float division
+    dose_min = dose_max / (dilution ** (num_doses-1))
+
+    # generate the array log spaced
+    dose_array = np.geomspace(dose_min, dose_max, num_doses)
+    
     logger.debug('Concentration gradient array created.')
     return dose_array
 
@@ -265,7 +277,6 @@ def rename_counts(cp_csv, counts_csv):
         # If source is not in cp_output directory, copy instead of rename
         # This preserves test data files
         if 'cp_output' not in str(cp_csv_path):
-            import shutil
             shutil.copy2(cp_csv, counts_csv)
             logger.debug(f'{cp_csv} successfully copied to {counts_csv}')
         else:
@@ -277,3 +288,71 @@ def rename_counts(cp_csv, counts_csv):
         logger.debug(f'Permission denied. {cp_csv} may be open or in use.')
     except Exception as e:
         logger.debug(f'While renaming {cp_csv}, an error occurred: {e}')
+
+import numpy as np
+from scipy.optimize import curve_fit
+
+# Define models at module level so they are accessible
+def fivePL(x, A, B, C, D, G):
+    return ((A - D) / (1.0 + (x / C) ** B) ** G) + D
+
+def hill(x, Emax, EC50, HillSlope):
+    return Emax * (x**HillSlope) / (EC50**HillSlope + x**HillSlope)
+
+def fit_response_curve(x, y, name):
+    """
+    Fits 5PL, falls back to Hill, returns (x_plot, y_plot, IC50, params).
+    Solves for IC50 algebraically. Returns NaN if IC50 is unsolvable.
+    Input x and y should be numpy arrays.
+    """
+    # Create smooth x-axis for plotting
+    x_plot = np.logspace(np.log10(min(x[x > 0])), np.log10(max(x)), 1000)
+
+    # Initial Guesses (Heuristic)
+    y_max = np.max(y)
+    y_min = np.min(y)
+    
+    # Find x closest to half-maximal response for initial C/EC50 guess
+    # We clip 0.5 to be between min and max to avoid indexing errors
+    target_y = (y_max + y_min) / 2
+    idx = (np.abs(y - target_y)).argmin()
+    c_guess = x[idx]
+    
+    # [A (max), B (slope), C (inflection), D (min), G (asymmetry)]
+    p0_5PL = [y_max, 1.0, c_guess, y_min, 1.0] 
+    
+    # [Emax, EC50, HillSlope]
+    p0_Hill = [y_max, c_guess, 1.0]
+
+    try:
+        # Try 5PL
+        popt, _ = curve_fit(fivePL, x, y, p0=p0_5PL, maxfev=5000)
+        
+        # Algebraic IC50 for 5PL
+        A, B, C, D, G = popt
+        
+        # Check domain validity for IC50 (must be able to take roots)
+        # We need the term inside the root to be positive
+        try:
+             term = (A - D) / (0.5 - D)
+             if term <= 0:
+                 raise ValueError("IC50 undefined (curve doesn't cross 0.5)")
+             
+             # Solve for x where y = 0.5
+             ic50 = C * ((term**(1/G)) - 1)**(1/B)
+        except (ValueError, ArithmeticError):
+             ic50 = np.nan
+
+        return x_plot, fivePL(x_plot, *popt), ic50
+        
+    except (RuntimeError, ValueError):
+        # Fallback to Hill
+        try:
+             popt, _ = curve_fit(hill, x, y, p0=p0_Hill, maxfev=10000)
+             # Hill parameter index 1 is EC50
+             ic50 = popt[1] 
+             return x_plot, hill(x_plot, *popt), ic50
+        except:
+             logger.warning(f"Could not fit {name}. Returning connect-the-dots")
+             # Return straight lines between points if fit fails
+             return x, y, np.nan
