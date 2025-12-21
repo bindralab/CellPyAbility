@@ -8,8 +8,17 @@ include LICENSE.txt
 include README.md
 include CellProfilerLicense.txt
 
-# Include example data (optional - for users to test with)
-recursive-include example *.tif *.csv *.txt *.png *.html
+# Include documentation files
+include CHANGELOG.md
+include CONTRIBUTING.md
+include PYPI_UPLOAD_GUIDE.md
+
+# Exclude example data (680MB+ of images - users should download from GitHub)
+# These are available via: git clone + git lfs pull or direct download from GitHub releases
+prune example
+
+# Exclude test data (not needed in distributed package)
+prune tests
 
 # Exclude unnecessary files
 global-exclude *.pyc
