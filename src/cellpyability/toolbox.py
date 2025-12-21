@@ -6,6 +6,7 @@ For more information, please see the README at https://github.com/bindralab/Cell
 
 import logging
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -258,12 +259,20 @@ wells = [
     'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11',
     ]
 
-def rename_wells(tiff_name, wells):
-    for well in wells:
-        if well in tiff_name:
-            return well
-    logger.debug('Well names extracted from file names.')
-    return tiff_name  # Keep original if no target matches
+def rename_wells(tiff_name, wells=None): 
+    """
+    Maps well ID from file name to 96-well plate wells.
+    """
+    match = re.search(r'([A-Ha-h])0*(\d{1,2})', tiff_name)
+    
+    if match:
+        row = match.group(1).upper() # Force uppercase (b -> B)
+        col = match.group(2)         # Capture digit (02 -> 2 due to 0* placement)
+        
+        # Return clean "B2" format
+        return f"{row}{col}"
+        
+    return tiff_name
 
 def rename_counts(cp_csv, counts_csv):
     """
@@ -288,9 +297,6 @@ def rename_counts(cp_csv, counts_csv):
         logger.debug(f'Permission denied. {cp_csv} may be open or in use.')
     except Exception as e:
         logger.debug(f'While renaming {cp_csv}, an error occurred: {e}')
-
-import numpy as np
-from scipy.optimize import curve_fit
 
 # Define models at module level so they are accessible
 def fivePL(x, A, B, C, D, G):
