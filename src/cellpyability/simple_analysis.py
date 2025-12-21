@@ -1,6 +1,6 @@
 """
-Simple analysis module - refactored to separate analysis logic from GUI.
-This can be called from either the CLI or the original GUI script.
+Simple analysis module that returns a nuclei count matrix without further analysis.
+Offers maximum flexibility for plate mapping.
 """
 
 from . import toolbox as tb
@@ -27,16 +27,21 @@ def run_simple(title, image_dir, counts_file=None, output_dir=None):
     
     # Run CellProfiler via the command line
     df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file, output_dir=output_dir)
-    df_cp.drop(columns='ImageNumber', inplace=True)
-    df_cp.columns = ['nuclei','well']
     
-    # Rename wells and define row/column names
-    df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x, tb.wells))
+    # Clean up DataFrame columns
+    df_cp.drop(columns='ImageNumber', inplace=True)
+    df_cp.columns = ['nuclei', 'well']
+    
+    # Rename wells (Updated to match new Toolbox signature - removed tb.wells)
+    df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x))
+    
+    # Extract row/column
     df_cp[['Row','Column']] = df_cp['well'].str.extract(r'^([B-G])(\d+)$')
     
     # Pivot df_cp so it matches a 96-well layout (nuclei count matrix)
     row_labels = ['B','C','D','E','F','G']
     column_labels = [str(i) for i in range(2,12)]
+    
     count_matrix = (
         df_cp
         .pivot(index='Row', columns='Column', values='nuclei')
@@ -51,3 +56,7 @@ def run_simple(title, image_dir, counts_file=None, output_dir=None):
     # Save the count matrix to the simple_output directory
     count_matrix.to_csv(outdir / f'{title}_simple_CountMatrix.csv')
     logger.info(f"Saved count matrix for '{title}' to {outdir}")
+    
+    # Rename the original CellProfiler output for traceability
+    tb.rename_counts(cp_csv, outdir / f'{title}_simple_raw_counts.csv')
+    logger.info(f"Saved raw counts for '{title}' to {outdir}")
