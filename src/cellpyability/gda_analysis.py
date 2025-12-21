@@ -1,6 +1,6 @@
 """
-GDA analysis module - refactored to separate analysis logic from GUI.
-This can be called from either the CLI or the original GUI script.
+GDA analysis module receives user input from CLI, then runs statistical and graphical analysis
+of the nuclei counts from CellProfiler.
 """
 
 import matplotlib.pyplot as plt
@@ -17,7 +17,7 @@ logger, base_dir = tb.logger, tb.base_dir
 
 def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, show_plot=True, counts_file=None, output_dir=None):
     """
-    Run GDA (Growth Delay Assay) analysis.
+    Run GDA (Growth Delay Assay) analysis for two cell lines (B-D, E-G) and one drug gradient (2-11).
     
     Parameters:
     -----------
