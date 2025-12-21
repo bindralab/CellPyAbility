@@ -1,6 +1,6 @@
 """
-Synergy analysis module - refactored to separate analysis logic from GUI.
-This can be called from either the CLI or the original GUI script.
+Synergy analysis module for dose response analysis of one cell line and two drugs.
+Calculates relative viability matrices and surface map with Bliss independence as heat.
 """
 
 import numpy as np
@@ -22,19 +22,19 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     title_name : str
         Title of the experiment
     x_drug : str
-        Drug name for horizontal gradient
+        Drug name for horizontal gradient (Columns)
     x_top_conc : float
         Horizontal top concentration in molar
     x_dilution : float
         Horizontal dilution factor
     y_drug : str
-        Drug name for vertical gradient
+        Drug name for vertical gradient (Rows)
     y_top_conc : float
         Vertical top concentration in molar
     y_dilution : float
         Vertical dilution factor
     image_dir : str
-        Directory containing the 180 well images
+        Directory containing the 60 well images
     show_plot : bool
         Whether to display the plot (default: True)
     counts_file : str, optional
@@ -43,171 +43,138 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
         Custom output directory. If None, uses current working directory.
     """
     
-    # Calculate x and y concentration gradients
-    x_doses = tb.dose_range_x(x_top_conc, x_dilution)
-    logger.debug('x_doses gradient calculated.')
-    y_doses = tb.dose_range_y(y_top_conc, y_dilution)
-    logger.debug('y_doses gradient calculated.')
+    # Calculate concentration gradients (NumPy arrays)
+    x_doses = tb.gen_dose_range(x_top_conc, x_dilution, 9) # 9 doses without vehicle (cols 3-11)
+    y_doses = tb.gen_dose_range(y_top_conc, y_dilution, 5) # 5 doses without vehicle (rows C-G)
     
-    # Run CellProfiler headless and return a DataFrame with the raw nuclei counts and the .csv path
+    # Run CellProfiler
     df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file, output_dir=output_dir)
     
-    # Load the CellProfiler counts into a DataFrame and rename wells
-    df_cp.drop('ImageNumber', axis=1, inplace=True)
+    # Clean CellProfiler output and map it to our 96-well plate
+    df_cp.drop(columns='ImageNumber', inplace=True)
     df_cp.columns = ['nuclei', 'well']
-    # Map TIFF file names to well IDs
-    df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x, tb.wells))
-    logger.debug('CellProfiler output rows renamed to well names.')
+    df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x))
     
-    # Extract row/column for each well for vectorized grouping
+    # Extract rows and columns
     df_cp[['Row','Column']] = df_cp['well'].str.extract(r'^([B-G])(\d+)$')
-    logger.debug('Row and column labels extracted from well names.')
     
-    # Group triplicates and calculate statistics
-    stats = (
-        df_cp
-        .groupby('well')['nuclei']
-        .agg(mean='mean', std='std')
-        .reindex(tb.wells)
+    # Create viability matrix so each cell in the 2D array represents a well
+    # Pivot all replicates into a wide format (rows B-G x cols 2-11)
+    # We take the mean of technical replicates automatically via pivot_table
+    viability_matrix_raw = df_cp.pivot_table(index='Row', columns='Column', values='nuclei', aggfunc='mean')
+    
+    # Ensure standard sorting (rows B-G, cols 2-11 as strings)
+    row_order = ['B','C','D','E','F','G']
+    col_order = [str(i) for i in range(2,12)]
+    viability_matrix_raw = viability_matrix_raw.reindex(index=row_order, columns=col_order)
+    
+    # Normalize entire matrix to the vehicle (B2)
+    vehicle_val = viability_matrix_raw.loc['B', '2']
+    viability_matrix = viability_matrix_raw / vehicle_val
+    logger.debug('Viability matrix calculated and normalized to B2.')
+    
+    # Map concentrations to cols and rows (for labels)
+    all_x_doses = np.insert(x_doses, 0, 0) # Add 0 for vehicle
+    all_y_doses = np.insert(y_doses, 0, 0) # Add 0 for vehicle
+    
+    # Map index/columns to concentrations
+    conc_map_x = dict(zip(col_order, all_x_doses))
+    conc_map_y = dict(zip(row_order, all_y_doses))
+    
+    # Bliss Independence calculation
+    # Row B represents "Drug X Alone" (since Drug Y is 0 in row B)
+    drug_x_alone = viability_matrix.loc['B'].values # Shape (10,)
+    
+    # Column 2 represents "Drug Y Alone" (since Drug X is 0 in col 2)
+    drug_y_alone = viability_matrix['2'].values     # Shape (6,)
+    
+    # Calculate expected independent effect by taking outer product
+    # If P(A) is prob survival with drug A, and P(B) is prob survival with drug B
+    # Expected survival = P(A) * P(B)
+    expected_matrix = pd.DataFrame(
+        np.outer(drug_y_alone, drug_x_alone),
+        index=viability_matrix.index,
+        columns=viability_matrix.columns
     )
-    well_means = stats['mean'].tolist()
-    well_std = stats['std'].tolist()
-    logger.debug('Nuclei mean and standard deviation calculated.')
     
-    # Map concentrations
-    tb_wells = [str(i) for i in range(2,12)]
-    column_concentrations = dict(zip(
-        tb_wells,
-        [0] + x_doses
-    ))
-    row_concentrations = dict(zip(
-        ['B','C','D','E','F','G'],
-        [0] + y_doses
-    ))
-    
-    # Map concentrations to rows and columns
-    rows = stats.index.str[0].tolist()
-    columns = stats.index.str[1:].tolist()
-    row_conc = [row_concentrations[r] for r in rows]
-    col_conc = [column_concentrations[c] for c in columns]
-    logger.debug('Row and column concentrations mapped.')
-    
-    # Normalize well means to vehicle (B2) mean
-    vehicle = well_means[0]
-    normalized_means = [(m/vehicle) for m in well_means]
-    logger.debug('Mean nuclei count normalized to vehicle control.')
-    
-    # Frame that data
-    well_descriptions = {
-        'Well': tb.wells,
-        'Mean': well_means,
-        'Standard Deviation': well_std,
-        'Normalized Mean': normalized_means,
-        'Row Drug Concentration': row_conc,
-        'Column Drug Concentration': col_conc
-    }
-    df_stats = pd.DataFrame(well_descriptions)
-    
-    # Define file path for synergy_output subfolder in output directory
+    # Bliss = Expected Survival - Observed Survival
+    # Positive Bliss score = Synergy (more killing than independence expects)
+    bliss_matrix = expected_matrix - viability_matrix
+    logger.debug('Bliss scores calculated via vectorized outer product.')
+
+    # Setup output directories
     output_base = tb.get_output_base_dir(output_dir)
     synergy_output_dir = output_base / 'synergy_output'
     synergy_output_dir.mkdir(exist_ok=True)
-    logger.debug(f'synergy_output/ directory created at {synergy_output_dir}')
     
-    # Save the experiment viability statistics as a .csv
-    df_stats.to_csv(synergy_output_dir / f'{title_name}_synergy_stats.csv', index=False)
-    logger.info(f'{title_name} synergy stats saved to {synergy_output_dir}')
+    # Save the matrices with experiment labels
+    viability_out = viability_matrix.copy()
+    viability_out.index = viability_out.index.map(conc_map_y)
+    viability_out.columns = viability_out.columns.map(conc_map_x)
+    viability_out.index.name = f'{y_drug} (M)'
+    viability_out.columns.name = f'{x_drug} (M)'
     
-    # Initialize a list to store Bliss independence results
-    bliss_results = []
+    bliss_out = bliss_matrix.copy()
+    bliss_out.index = viability_out.index
+    bliss_out.columns = viability_out.columns
     
-    # Pull viability values from df_stats to calculate Bliss Independence
-    for _, row in df_stats.iterrows():
-        well_name = row['Well']
-        observed_combined_effect = row['Normalized Mean']
-        logger.debug('Normalized means pulled from df_stats.')
-        
-        # Determine the x-alone and y-alone effects based on the well name
-        if well_name[0] in 'BCDEFG' and well_name[1:] in '234567891011':
-            x_effect = df_stats.loc[df_stats['Well']=='B'+well_name[1:], 'Normalized Mean'].iloc[0]
-            y_effect = df_stats.loc[df_stats['Well']==well_name[0]+'2', 'Normalized Mean'].iloc[0]
-            logger.debug('x_effect and y_effect identified.')
+    viability_out.to_csv(synergy_output_dir / f'{title_name}_synergy_ViabilityMatrix.csv')
+    bliss_out.to_csv(synergy_output_dir / f'{title_name}_synergy_BlissMatrix.csv')
+    logger.info(f'{title_name} matrices saved.')
+
+    # Prepare data for plotting
+    # Convert dataframe to NumPy for Plotly
+    z_viability = viability_matrix.values
+    z_bliss = bliss_matrix.values
     
-            # Calculate the expected combined effect
-            expected_combined_effect = x_effect * y_effect
-            logger.debug('Expected combined effects calculated.')
+    x_vals = all_x_doses
+    y_vals = all_y_doses
     
-            # Calculate the Bliss independence
-            bliss_independence = expected_combined_effect - observed_combined_effect
-            logger.debug('Bliss independence scores calculated.')
+    # Calculate (min / dilution) for x and y since we cannot plot 0 on log scale
+    # This places the vehicle "one step down" on the log axis
+    x_min_nonzero = np.min(x_vals[x_vals > 0])
+    y_min_nonzero = np.min(y_vals[y_vals > 0])
+
+    # Take the bigger of the two dilution factors to unify visual zero    
+    visual_dilution = max(x_dilution, y_dilution) 
     
-            bliss_results.append({
-                'Well': well_name,
-                'Expected Combined Effect': expected_combined_effect,
-                'Observed Combined Effect': observed_combined_effect,
-                'Bliss Independence': bliss_independence
-            })
+    # Apply this shared factor to calculate the artificial zero location
+    x_vals_plot = np.where(x_vals == 0, x_min_nonzero / visual_dilution, x_vals)
+    y_vals_plot = np.where(y_vals == 0, y_min_nonzero / visual_dilution, y_vals)
     
-    # Convert the results to a DataFrame
-    df_bliss = pd.DataFrame(bliss_results)
+    # Format tick text
+    x_ticktext = ['0'] + [f'{val:.1e}' for val in x_vals[1:]]
+    y_ticktext = ['0'] + [f'{val:.1e}' for val in y_vals[1:]]
+
+    # Create 3D surface plot
+    fig = go.Figure(data=[
+        go.Surface(
+            z=z_viability, 
+            x=x_vals_plot, 
+            y=y_vals_plot, 
+            surfacecolor=z_bliss, 
+            colorscale='jet_r', 
+            cmin=-0.3, 
+            cmax=0.3, 
+            colorbar=dict(title='Bliss Independence')
+        )
+    ])
     
-    # Add 'Row Drug Concentration' and 'Column Drug Concentration' to df_bliss
-    df_bliss['Row Drug Concentration'] = df_bliss['Well'].str[0].map(row_concentrations)
-    df_bliss['Column Drug Concentration'] = df_bliss['Well'].str[1:].map(column_concentrations)
-    
-    # Create pivot tables for plotting and saving
-    normalized_means_pivot = df_stats.pivot(
-        index='Row Drug Concentration', columns='Column Drug Concentration', values='Normalized Mean'
+    fig.update_layout(
+        title=str(title_name), 
+        scene=dict(
+            xaxis=dict(title=x_drug, type='log', tickvals=x_vals_plot, ticktext=x_ticktext),
+            yaxis=dict(title=y_drug, type='log', tickvals=y_vals_plot, ticktext=y_ticktext),
+            zaxis=dict(title='Relative Cell Survival', range=[0, 1.1])
+        )
     )
-    bliss_independence_pivot = df_bliss.pivot(
-        index='Row Drug Concentration', columns='Column Drug Concentration', values='Bliss Independence'
-    )
     
-    # Convert pivot tables to numpy arrays
-    cell_survival = normalized_means_pivot.values
-    bliss_independence = bliss_independence_pivot.values
-    
-    # Save viability and Bliss matrices as .csv files
-    normalized_means_pivot.to_csv(synergy_output_dir / f'{title_name}_synergy_ViabilityMatrix.csv')
-    logger.info(f'{title_name} viability matrix saved to {synergy_output_dir}.')
-    bliss_independence_pivot.to_csv(synergy_output_dir / f'{title_name}_synergy_BlissMatrix.csv')
-    logger.info(f'{title_name} Bliss score matrix saved to {synergy_output_dir}.')
-    
-    # Extract x and y values from the pivot tables
-    x_values = normalized_means_pivot.columns.values
-    y_values = normalized_means_pivot.index.values
-    
-    # Replace zero values in x_values and y_values with a small positive number of fixed logarithmic distance
-    min_x_value = x_values[x_values>0].min()
-    min_y_value = y_values[y_values>0].min()
-    
-    x_values = np.where(x_values==0, min_x_value/(x_values[3]/x_values[2]), x_values)
-    y_values = np.where(y_values==0, min_y_value/(y_values[3]/y_values[2]), y_values)
-    
-    x_tickvals = np.unique(np.concatenate(([min_x_value/(x_values[3]/x_values[2])], x_values)))
-    y_tickvals = np.unique(np.concatenate(([min_y_value/(y_values[3]/y_values[2])], y_values)))
-    
-    x_ticktext = ['0'] + [f'{val:.1e}' for val in x_tickvals[1:]]
-    y_ticktext = ['0'] + [f'{val:.1e}' for val in y_tickvals[1:]]
-    logger.debug('Replaced zero with non-zero values a fixed log distance from the minimum concentrations.')
-    
-    # Create the 3D surface plot
-    fig = go.Figure(data=[go.Surface(z=cell_survival, x=x_values, y=y_values, surfacecolor=bliss_independence, colorscale='jet_r', cmin=-0.3, cmax=0.3, colorbar=dict(title='Bliss Independence'))])
-    logger.debug('3D surface plot created.')
-    
-    # Update layout to set x and y axes to logarithmic scale
-    fig.update_layout(title=str(title_name), scene=dict(xaxis=dict(title=x_drug, type='log', ticktext=x_ticktext, tickvals=x_tickvals), yaxis=dict(title=y_drug, type='log', ticktext=y_ticktext, tickvals=y_tickvals), zaxis=dict(title='Relative Cell Survival', range=[0,np.max(cell_survival)])))
-    logger.debug('x and y axes changed to log, experiment details added as labels.')
-    
-    # Rename CellProfiler output with experiment title and save in synergy_output
-    counts_csv = synergy_output_dir / f'{title_name}_synergy_counts.csv'
-    
-    tb.rename_counts(cp_csv, counts_csv)
-    logger.info(f'{title_name} raw counts saved to {synergy_output_dir}.')
-    
-    # Save the interactable plot as an HTML
+    # Save plot
     fig.write_html(synergy_output_dir / f'{title_name}_synergy_plot.html')
-    logger.info(f'{title_name} synergy plot saved to {synergy_output_dir}.')
+    logger.info(f'{title_name} plot saved.')
     
+    # Rename raw counts for easier tracking
+    tb.rename_counts(cp_csv, synergy_output_dir / f'{title_name}_synergy_counts.csv')
+
     if show_plot:
         fig.show()
