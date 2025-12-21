@@ -1,17 +1,8 @@
 cellprofiler_path.txt
-todo.txt
-20250212_SF_advice.pdf
-CellPyAbility_GDA_neat.py
-cp_output
-GDA_output
-synergy_output
-simple_output
-log.log
-cellpyability.log
+*.log
 __pycache__
 
-# Output directories (PyPI-compatible locations)
-cellpyability_output/
+cellpyability_output/ # output directories
 
 # Python packaging
 *.egg-info/
@@ -22,3 +13,4 @@ build/
 .pytest_cache/
 .coverage
 htmlcov/
+.DS_Store
