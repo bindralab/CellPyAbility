@@ -35,7 +35,7 @@ def create_parser():
     # GDA module parser
     gda_parser = subparsers.add_parser(
         'gda',
-        help='Growth Delay Assay: dose-response analysis of two cell lines'
+        help='Growth Delay Assay: dose-response analysis of two cell lines (B-D, E-G) and one treatment (2-11)'
     )
     gda_parser.add_argument(
         '--title',
@@ -89,7 +89,7 @@ def create_parser():
     # Synergy module parser
     synergy_parser = subparsers.add_parser(
         'synergy',
-        help='Synergy analysis: dose combination with two drugs'
+        help='Synergy analysis: dose response analysis for one cell line and two treatments (row gradient and column gradient)'
     )
     synergy_parser.add_argument(
         '--title',
@@ -99,7 +99,7 @@ def create_parser():
     synergy_parser.add_argument(
         '--x-drug',
         required=True,
-        help='Drug name for horizontal gradient'
+        help='Drug name for horizontal gradient (increases along row)'
     )
     synergy_parser.add_argument(
         '--x-top-conc',
@@ -116,7 +116,7 @@ def create_parser():
     synergy_parser.add_argument(
         '--y-drug',
         required=True,
-        help='Drug name for vertical gradient'
+        help='Drug name for vertical gradient (increases along column)'
     )
     synergy_parser.add_argument(
         '--y-top-conc',
@@ -155,7 +155,7 @@ def create_parser():
     # Simple module parser
     simple_parser = subparsers.add_parser(
         'simple',
-        help='Simple nuclei counting: 96-well count matrix'
+        help='Simple nuclei counting: 96-well count matrix without analysis'
     )
     simple_parser.add_argument(
         '--title',
