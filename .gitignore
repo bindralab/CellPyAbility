@@ -7,7 +7,11 @@ GDA_output
 synergy_output
 simple_output
 log.log
+cellpyability.log
 __pycache__
+
+# Output directories (PyPI-compatible locations)
+cellpyability_output/
 
 # Python packaging
 *.egg-info/
