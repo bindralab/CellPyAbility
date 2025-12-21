@@ -1,11 +1,14 @@
 # CellPyAbility
 
-CellPyAbility is an open-source cell viability and dose-response analysis tool that seamlessly integrates with our provided [protocols](protocol.pdf). Please review our [license](LICENSE.txt) prior to use. The software can be run as a [Windows application](#windows-application) or in [Python](#running-in-python). 
+CellPyAbility is an open-source cell viability and dose-response analysis tool that seamlessly integrates with our provided [protocols](protocol.pdf). Please review our [license](LICENSE.txt) prior to use. The software can be run from the command line as a [Python package](#command-line-interface-cli) or with a code-free [Windows application](#windows-application). 
 
 CellPyAbility is still in development; if you encounter any bugs, please contact me at james.elia@yale.edu. Thank you for your patience :)
 
 ## Table of Contents
-- [Quick Start](#quick-start): Get started with CellPyAbility
+- [Quick Start](#quick-start): minimal step-by-step guide for running CellPyAbility
+  - [PyPI Installation](#pypi-installation): install CellPyAbility with pip and run it with the command line (Python users)
+  - [Development Installation](#development-installation-for-contributors): clone the CellPyAbility repo and edit it (Python devs)
+  - [Windows Application](#windows-application): install CellPyAbility as a code-free GUI Windows executable
 
 - [Abstract](#abstract): overview of the method and software
 
@@ -16,7 +19,7 @@ CellPyAbility is still in development; if you encounter any bugs, please contact
 
 - [Command Line Interface](#command-line-interface-cli): modern CLI for automated workflows and testing
 
-- [Windows Application](#windows-application): code-free executable for Windows OS
+- [Windows Application](#running-the-windows-application): code-free executable for Windows OS
 
 - [Example Outputs](#example-outputs): examples of figures and tables for each module
   - [GDA Module](#gda-module): two cell lines, one drug gradient
@@ -30,7 +33,7 @@ CellPyAbility is still in development; if you encounter any bugs, please contact
 ## Quick Start
 CellProfiler must be installed because CellPyAbility uses it as a subprocess. See [Requirements](#requirements) for more information.
 
-### PyPI Installation (Recommended for Users)
+### PyPI Installation
 Install CellPyAbility from PyPI to use it as a command-line tool:
 
 ```bash
@@ -59,9 +62,9 @@ cellpyability gda \
 ```
 
 **To download example data for testing:**
-- Download the [example GDA images](example/example_GDA/)
+- Download the [example GDA images](https://github.com/bindralab/CellPyAbility/tree/main/example/example_gda)
 - Run: `cellpyability gda --image-dir /path/to/example/example_gda ...`
-- Compare to [expected outputs](example/example_expected_outputs/)
+- Compare to [expected outputs](https://github.com/bindralab/CellPyAbility/tree/main/example/example_expected_outputs)
 
 ### Development Installation (For Contributors)
 Clone the repository for development and access to example data:
@@ -157,17 +160,6 @@ Reading the [protocols](protocol.pdf) first may aid in understanding the data re
 ## Command Line Interface (CLI)
 
 The CellPyAbility CLI provides a modern, scriptable interface for automated workflows, batch processing, and continuous integration testing.
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/bindralab/CellPyAbility
-cd CellPyAbility
-
-# Install the package (creates 'cellpyability' command)
-pip install -e .
-```
 
 ### Basic Usage
 
@@ -303,12 +295,12 @@ cellpyability gda --output-dir /path/to/results ...
 
 This ensures the package works correctly whether installed via PyPI or in development mode.
 
-## Windows Application
+## Running the Windows Application
 Running the Windows application requires no programming experience, Python environment, or dependencies. It is a single file containing all three modules with graphical user interfaces (GUIs) for user inputs.
 
 Download the [CellPyAbility application](windows_app/CellPyAbility.exe). I recommend saving it to an empty directory dedicated to CellPyAbility because running the application will generate several files in its directory.
 
-Upon the first run, CellPyAbility may take some time (<1 min) to load. Once running, a GUI prompts the user to choose from three modules. Hovering over each module will give a description of its uses:
+Upon the first run, CellPyAbility may take ~1 min to load. Once running, a GUI prompts the user to choose from three modules. Hovering over each module will give a description of its uses:
 
 - **GDA**: dose-response analysis of two cell lines in response to one treatment
 
