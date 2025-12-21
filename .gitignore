@@ -1,8 +1,8 @@
+# generated on runs
 cellprofiler_path.txt
 *.log
 __pycache__
-
-cellpyability_output/ # output directories
+cellpyability_output/ 
 
 # Python packaging
 *.egg-info/
