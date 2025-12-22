@@ -292,16 +292,6 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
     
     return df_cp, cp_csv
 
-# Names of the inner 60 wells of a 96-well plate
-wells = [
-    'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11',
-    'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11',
-    'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11',
-    'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'E10', 'E11',
-    'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11',
-    'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11',
-    ]
-
 def rename_wells(tiff_name): 
     """
     Maps well ID from file name to 96-well plate wells.
