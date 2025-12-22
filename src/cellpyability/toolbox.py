@@ -253,7 +253,7 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
     
     # If a counts file is provided, use it instead of running CellProfiler
     if counts_file is not None:
-        counts_path = Path(counts_file),resolve()
+        counts_path = Path(counts_file).resolve()
         if not counts_path.exists():
             logger.critical(f'Counts file {counts_file} does not exist.')
             exit(1)
