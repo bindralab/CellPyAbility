@@ -50,7 +50,7 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     df_cp.columns = ['nuclei', 'well']
     
     # Rename rows from the TIFF file names to the corresponding well names
-    df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x, tb.wells))
+    df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x))
     logger.debug('CellProfiler output rows renamed to well names.')
     
     # Extract row/column designators for pivoting
