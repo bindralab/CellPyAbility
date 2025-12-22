@@ -32,7 +32,7 @@ def run_simple(title, image_dir, counts_file=None, output_dir=None):
     df_cp.drop(columns='ImageNumber', inplace=True)
     df_cp.columns = ['nuclei', 'well']
     
-    # Rename wells (Updated to match new Toolbox signature - removed tb.wells)
+    # Rename wells to e.g. B10 format
     df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x))
     
     # Extract row/column
