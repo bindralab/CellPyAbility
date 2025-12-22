@@ -88,7 +88,8 @@ def get_output_base_dir(output_dir=None):
         # Use current working directory for PyPI compatibility
         output_base = Path.cwd() / 'cellpyability_output'
     else:
-        output_base = Path(output_dir)
+        # Resolve converts relative paths (../results) to absolute (C:\Users\...\results)
+        output_base = Path(output_dir).resolve() 
     
     # Create the output directory if it doesn't exist
     output_base.mkdir(parents=True, exist_ok=True)
@@ -140,49 +141,53 @@ def get_cellprofiler_path():
     str or Path
         Path to the CellProfiler executable
     """
-    # Store CellProfiler path in current working directory (PyPI-compatible)
+    # Store CellProfiler path in current working directory
     config_file = Path.cwd() / "cellprofiler_path.txt"
 
     if config_file.exists():
         with open(config_file, "r") as file:
-            saved_path = file.read().strip()
-            if os.path.exists(saved_path):
-                logger.debug(f"Using saved CellProfiler path: {saved_path}.")
-                return saved_path
+            saved_path_str = file.read().strip()
+            # Verify and resolve the saved path immediately
+            if os.path.exists(saved_path_str):
+                saved_path = Path(saved_path_str).resolve()
+                logger.debug(f"Using saved CellProfiler path: {saved_path}")
+                return str(saved_path)
             else:
-                logger.warning(f"The path {saved_path} does not exist. Proceeding to default locations ...")
+                logger.warning(f"The path {saved_path_str} does not exist. Proceeding to default locations ...")
     else:
         logger.debug("Saved path is missing. Checking default location ...")
 
-    # Define the default locations where CellProfiler is saved
+    # Define the default locations
     default_64bit_path = Path(r"C:\Program Files\CellProfiler\CellProfiler.exe")
     default_32bit_path = Path(r"C:\Program Files (x86)\CellProfiler\CellProfiler.exe")
     default_mac_path = Path("/Applications/CellProfiler.app/Contents/MacOS/cp")
 
-    # Check if CellProfiler is saved in the default locations
+    # Check defaults
     if default_64bit_path.exists():
-        new_path = default_64bit_path
+        new_path = default_64bit_path.resolve()
         save_txt(config_file, new_path)
     elif default_32bit_path.exists():
-        new_path = default_32bit_path
+        new_path = default_32bit_path.resolve()
         save_txt(config_file, new_path)
     elif default_mac_path.exists():
-        new_path = default_mac_path
+        new_path = default_mac_path.resolve()
         save_txt(config_file, new_path)
     else:
-        # Prompt the user for the a custom path if it cannot be found
-        new_path = prompt_path()
-        while not os.path.exists(new_path):
-            logger.error(f'The path {new_path} does not exist. Please enter a valid path:')
-            new_path = prompt_path()
-            logger.debug(f'Saving new path: {new_path}.')
-        # Save the path to the file for future use
+        # Prompt user and resolve their input
+        new_path_str = prompt_path()
+        while not os.path.exists(new_path_str):
+            logger.error(f'The path {new_path_str} does not exist. Please enter a valid path:')
+            new_path_str = prompt_path()
+        
+        # Convert valid string to resolved Path object
+        new_path = Path(new_path_str).resolve()
+        logger.debug(f'Saving new path: {new_path}.')
         save_txt(config_file, new_path)
 
     logger.info('CellProfiler path successfully identified ...')
-    return new_path
-
-# Define cp_path as None initially - will be set when needed
+    return str(new_path)
+    
+# Define cp_path as None initially (will be set when needed)
 cp_path = None
 
 def _ensure_cellprofiler_path():
@@ -248,7 +253,7 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
     
     # If a counts file is provided, use it instead of running CellProfiler
     if counts_file is not None:
-        counts_path = Path(counts_file)
+        counts_path = Path(counts_file),resolve()
         if not counts_path.exists():
             logger.critical(f'Counts file {counts_file} does not exist.')
             exit(1)
@@ -256,7 +261,7 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
         df_cp = pd.read_csv(counts_path)
         return df_cp, counts_path
     
-    ## Define the path to the pipeline (.cppipe) - this is in the package directory
+    # Define the path to the CellProfiler pipeline (.cppipe) in the package directory
     cppipe_path = base_dir / 'CellPyAbility.cppipe'
     if cppipe_path.exists():
         logger.debug('CellProfiler pipeline exists in package directory ...')
@@ -272,10 +277,31 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
     cp_output_dir.mkdir(exist_ok=True)
     logger.debug(f'cp_output/ directory identified or created at {cp_output_dir}')
 
+    # Convert image_dir to a Path object and resolve it to an absolute path
+    # Handles OS-specific separators and converts relative paths (./images) to absolute paths (C:\Users\...)
+    image_path_obj = Path(image_dir).resolve()
+    
+    if not image_path_obj.exists():
+        logger.critical(f"Image directory does not exist: {image_path_obj}")
+        exit(1)
+        
+    # We also ensure the pipeline path and output dir are absolute resolved paths
+    cppipe_path_obj = cppipe_path.resolve()
+    cp_output_obj = cp_output_dir.resolve()
+
     # Run CellProfiler from the command line
     logger.debug('Starting CellProfiler from command line ...')
     cp_exe = _ensure_cellprofiler_path()
-    subprocess.run([cp_exe, '-c', '-r', '-p', cppipe_path, '-i', image_dir, '-o', cp_output_dir])
+    
+    # We explicitly convert paths to str() here
+    # Subprocess command receives clean string paths formatted for host OS
+    subprocess.run([
+        cp_exe, 
+        '-c', '-r', 
+        '-p', str(cppipe_path_obj), 
+        '-i', str(image_path_obj), 
+        '-o', str(cp_output_obj)
+    ])
     logger.info('CellProfiler nuclei counting complete.')
 
     # Define the path to the CellProfiler counting output
@@ -313,17 +339,19 @@ def rename_counts(cp_csv, counts_csv):
     Uses copy if source is not in cp_output (e.g., test data), otherwise renames.
     """
     try:
-        cp_csv_path = Path(cp_csv)
-        counts_csv_path = Path(counts_csv)
+        # Resolve both paths to absolute to ensure safe string comparison
+        cp_csv_path = Path(cp_csv).resolve()
+        counts_csv_path = Path(counts_csv).resolve()
         
-        # If source is not in cp_output directory, copy instead of rename
-        # This preserves test data files
+        # Check if source is NOT in cp_output directory (e.g. external test data)
+        # Using .resolve() makes this check robust regardless of relative path usage
         if 'cp_output' not in str(cp_csv_path):
-            shutil.copy2(cp_csv, counts_csv)
-            logger.debug(f'{cp_csv} successfully copied to {counts_csv}')
+            shutil.copy2(cp_csv_path, counts_csv_path)
+            logger.debug(f'{cp_csv_path} successfully copied to {counts_csv_path}')
         else:
-            os.rename(cp_csv, counts_csv)
-            logger.debug(f'{cp_csv} successfully renamed to {counts_csv}')
+            os.rename(cp_csv_path, counts_csv_path)
+            logger.debug(f'{cp_csv_path} successfully renamed to {counts_csv_path}')
+            
     except FileNotFoundError:
         logger.debug(f'{cp_csv} not found')
     except PermissionError:
