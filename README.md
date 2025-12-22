@@ -1,4 +1,4 @@
-# CellPyAbility
+# CellPyAbility [![Tests](https://github.com/bindralab/CellPyAbility/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/bindralab/CellPyAbility/actions/workflows/tests.yml)
 
 CellPyAbility is an open-source cell viability and dose-response analysis tool that seamlessly integrates with our provided [protocols](protocol.pdf). Please review our [license](LICENSE.txt) prior to use. The software can be run from the command line as a [Python package](#command-line-interface-cli) or with a code-free [Windows application](#windows-application). 
 
