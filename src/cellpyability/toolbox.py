@@ -192,15 +192,18 @@ def _ensure_cellprofiler_path():
         cp_path = get_cellprofiler_path()
     return cp_path
 
-def gen_dose_range(dose_max, dilution, num_doses):
+def gen_dose_range(dose_max: float, dilution: float, num_doses: int) -> np.ndarray:
     """
     Generates a dose gradient from low to high (excluding vehicle).
 
     Parameters:
     -----------
-    dose_max: top concentration (source of serial dilutions)
-    dilution: multiplicative gaps between concentrations (3 = 3fold dilutions)
-    num_doses: the number of concentrations, including the top and excluding vehicle
+    dose_max: float
+        top concentration (source of serial dilutions)
+    dilution: float
+        multiplicative gaps between concentrations (3 = 3fold dilutions)
+    num_doses: int
+        the number of concentrations, including the top and excluding vehicle
 
     Returns:
     -----------
@@ -209,8 +212,11 @@ def gen_dose_range(dose_max, dilution, num_doses):
     # Calculate lowest dose directly to avoid accumulating error from float division
     dose_min = dose_max / (dilution ** (num_doses-1))
 
-    # generate the array log spaced
+    # Generate the array log spaced
     dose_array = np.geomspace(dose_min, dose_max, num_doses)
+
+    # Round to 14 sigfig for determinism across machines
+    dose_array = np.array([float(f'{x:.14g}') for x in dose_array])
     
     logger.debug('Concentration gradient array created.')
     return dose_array
@@ -296,7 +302,7 @@ wells = [
     'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11',
     ]
 
-def rename_wells(tiff_name, wells=None): 
+def rename_wells(tiff_name): 
     """
     Maps well ID from file name to 96-well plate wells.
     """
