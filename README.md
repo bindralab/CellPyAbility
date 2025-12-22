@@ -2,8 +2,6 @@
 
 CellPyAbility is an open-source cell viability and dose-response analysis tool that seamlessly integrates with our provided [protocols](protocol.pdf). Please review our [license](LICENSE.txt) prior to use. The software can be run from the command line as a [Python package](#command-line-interface-cli) or with a code-free [Windows application](#windows-application). 
 
-CellPyAbility is still in development; if you encounter any bugs, please contact me at james.elia@yale.edu. Thank you for your patience :)
-
 ## Table of Contents
 - [Quick Start](#quick-start): minimal step-by-step guide for running CellPyAbility
   - [PyPI Installation](#pypi-installation): install CellPyAbility with pip and run it with the command line (Python users)
