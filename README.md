@@ -252,12 +252,15 @@ cellpyability simple \
 **Outputs** (saved to `./cellpyability_output/simple_output/` by default):
 - `{title}_simple_CountMatrix.csv`: 96-well nuclei count matrix
 
-### Batch Processing Example
+### Batch Processing Examples
 
-The CLI enables automated batch processing with shell scripts:
+The CLI enables automated batch processing with shell scripts.
+
+For GDA batch analysis:
 
 ```bash
 #!/bin/bash
+CONFIG_FILE=path/to/config.csv
 # Process multiple experiments using a CSV config file
 tail -n +2 "$CONFIG_FILE" | while IFS=, read -r dir title upper lower conc dil; do
     
@@ -270,6 +273,34 @@ tail -n +2 "$CONFIG_FILE" | while IFS=, read -r dir title upper lower conc dil; 
             --lower-name "$lower" \
             --top-conc "$conc" \
             --dilution "$dil" \
+            --image-dir "$dir" \
+            --no-plot
+    else
+        echo "Warning: Directory $dir not found. Skipping."
+    fi
+
+done
+```
+
+For synergy batch analysis:
+
+```bash
+#!/bin/bash
+CONFIG_FILE=path/to/config.csv
+# Process multiple experiments using a CSV config file
+tail -n +2 "$CONFIG_FILE" | while IFS=, read -r dir title upper lower conc dil; do
+    
+    echo "Processing: $title in directory $dir..."
+
+    if [ -d "$dir" ]; then
+        cellpyability synergy \
+            --title "$title" \
+            --x-drug "$xdrug" \
+            --x-top-conc "$xconc" \
+            --x-dilution "$xdil" \
+            --y-drug "$ydrug" \
+            --y-top-conc "$yconc" \
+            --y-dilution "$ydil" \
             --image-dir "$dir" \
             --no-plot
     else
