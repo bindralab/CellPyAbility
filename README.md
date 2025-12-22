@@ -110,7 +110,7 @@ For more CLI options, run `cellpyability --help` or `cellpyability gda --help`.
 
 ## Abstract
 
-The purpose of this repository is to offer open-access software for the automated analysis of dose-response experiments (growth delay assays, or GDAs) via nuclei counting.
+CellPyAbility is an open-access software for the automated analysis of dose-response experiments (growth delay assays, or GDAs) via nuclei counting.
 
 Nuclei counting provides several advantages over other common methods of measuring cell viability. Compared to the commonly used methylthiazol tetrazolium (MTT; reduction-based) or CellTiter-Glo (ATP-based) assays, GDAs: 
 - provide single-cell resolution of survival 
