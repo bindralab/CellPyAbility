@@ -468,12 +468,14 @@ This dual approach ensures both automated validation (for development/CI) and ma
 **Note:** We have not tested the analysis scripts on protocols other than those provided. For best results, please follow the provided [protocol](protocol.pdf).
 
 ## Contributions
-Summary information regarding the authors as of 2025:
-- My name is James Elia, and I am a PhD candidate in Yale's Pathology and Molecular Medicine program. I am the author of the repository and the code herein.
+Summary information regarding the authors:
+- My name is James Elia, and I am a PhD candidate in Yale's Pathology and Molecular Medicine program. I am the author of the repository.
 
-- Sam Friedman, MS is a Computational Research Support Analyst at Yale Center for Research Computing. He provided programming mentorship and development support for the repository.
+- Sam Friedman, MS is a Computational Research Support Analyst at Yale Center for Research Computing. He provided programming and software design mentorship.
 
 - Ranjit Bindra, MD, PhD is the Harvey and Kate Cushing Professor of Therapeutic Radiology and Professor of Pathology at Yale School of Medicine. He provided scientific mentorship and publishing support for the repository.
+
+- GitHub Copilot helped with automated testing and restructuring the repository for PyPI.
 
 ## Comments or Questions?
 Please contact me at james.elia@yale.edu
