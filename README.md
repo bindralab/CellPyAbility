@@ -254,7 +254,9 @@ cellpyability simple \
 
 ### Batch Processing Examples
 
-The CLI enables automated batch processing with shell scripts.
+The CLI enables automated batch processing with shell scripts. 
+
+[config.csv file template](config.csv)
 
 For GDA batch analysis:
 
