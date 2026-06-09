@@ -34,7 +34,7 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     y_dilution : float
         Vertical dilution factor
     image_dir : str
-        Directory containing the 60 well images
+        Directory containing images for 60 wells (180 images total with triplicates)
     show_plot : bool
         Whether to display the plot (default: True)
     counts_file : str, optional
@@ -50,13 +50,16 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     # Run CellProfiler
     df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file, output_dir=output_dir)
     
-    # Clean CellProfiler output and map it to our 96-well plate
-    df_cp.drop(columns='ImageNumber', inplace=True)
-    df_cp.columns = ['nuclei', 'well']
+    # Standardize CellProfiler counts columns and map to our 96-well plate
+    df_cp = tb.standardize_counts_dataframe(df_cp)
     df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x))
     
     # Extract rows and columns
     df_cp[['Row','Column']] = df_cp['well'].str.extract(r'^([B-G])(\d+)$')
+    if df_cp[['Row', 'Column']].isnull().any().any():
+        raise tb.DataValidationError(
+            "Could not extract expected well coordinates (B-G, 2-11) from one or more filenames."
+        )
     
     # Create viability matrix so each cell in the 2D array represents a well
     # Pivot all replicates into a wide format (rows B-G x cols 2-11)
@@ -124,12 +127,10 @@ def run_synergy(title_name, x_drug, x_top_conc, x_dilution, y_drug, y_top_conc, 
     synergy_output_dir = output_base / 'synergy_output'
     synergy_output_dir.mkdir(exist_ok=True)
     
-    # --- INSERTED STATS SAVE START ---
     # Save the detailed stats file
     stats_cols = ['Well', 'Mean', 'Standard Deviation', 'Normalized Mean', 'Row Drug Concentration', 'Column Drug Concentration']
     df_stats[stats_cols].to_csv(synergy_output_dir / f'{title_name}_synergy_stats.csv', index=False)
     logger.info(f'{title_name} synergy stats saved to {synergy_output_dir}')
-    # --- INSERTED STATS SAVE END ---
     
     # Save the matrices with experiment labels
     viability_out = viability_matrix.copy()

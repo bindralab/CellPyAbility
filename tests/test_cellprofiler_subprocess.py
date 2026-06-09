@@ -6,6 +6,7 @@ command structure when running CellProfiler headless mode.
 """
 
 import sys
+import subprocess
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
@@ -30,7 +31,6 @@ class TestCellProfilerSubprocess(unittest.TestCase):
         """
         # Setup mocks
         mock_cp_path.return_value = '/usr/bin/cellprofiler'
-        mock_subprocess_run.return_value = Mock(returncode=0)
         mock_read_csv.return_value = MagicMock()
         
         # Import toolbox after patching
@@ -47,12 +47,17 @@ class TestCellProfilerSubprocess(unittest.TestCase):
             (base_dir / 'CellPyAbility.cppipe').write_text('fake pipeline')
             cp_out = base_dir / 'cp_output'
             cp_out.mkdir()
-            (cp_out / 'CellPyAbilityImage.csv').write_text('FileName_DAPI,Count_Nuclei\ntest.tif,100')
+
+            def mock_cp_run(*args, **kwargs):
+                (cp_out / 'CellPyAbilityImage.csv').write_text('FileName_DAPI,Count_Nuclei\ntest.tif,100')
+                return Mock(returncode=0)
+
+            mock_subprocess_run.side_effect = mock_cp_run
             
             # Mock __file__ to use temp directory
             with patch('cellpyability.toolbox.__file__', str(base_dir / 'toolbox.py')):
                 # Call run_cellprofiler
-                tb.run_cellprofiler(str(image_dir))
+                tb.run_cellprofiler(str(image_dir), output_dir=str(base_dir))
             
             # Verify subprocess.run was called
             self.assertTrue(mock_subprocess_run.called, "subprocess.run was not called")
@@ -109,7 +114,6 @@ class TestCellProfilerSubprocess(unittest.TestCase):
         """
         # Setup mocks
         mock_cp_path.return_value = '/bin/cellprofiler'
-        mock_subprocess_run.return_value = Mock(returncode=0)
         mock_read_csv.return_value = MagicMock()
         
         import cellpyability.toolbox as tb
@@ -123,10 +127,15 @@ class TestCellProfilerSubprocess(unittest.TestCase):
             (base_dir / 'CellPyAbility.cppipe').write_text('pipeline')
             out = base_dir / 'cp_output'
             out.mkdir()
-            (out / 'CellPyAbilityImage.csv').write_text('data')
+
+            def mock_cp_run(*args, **kwargs):
+                (out / 'CellPyAbilityImage.csv').write_text('data')
+                return Mock(returncode=0)
+
+            mock_subprocess_run.side_effect = mock_cp_run
             
             with patch('cellpyability.toolbox.__file__', str(base_dir / 'toolbox.py')):
-                tb.run_cellprofiler(str(img_dir))
+                tb.run_cellprofiler(str(img_dir), output_dir=str(base_dir))
             
             command = mock_subprocess_run.call_args[0][0]
             
@@ -138,6 +147,59 @@ class TestCellProfilerSubprocess(unittest.TestCase):
             self.assertIn('-o', command, "Missing -o (output)")
             
             print(f"\n All CellProfiler flags verified: -c, -r, -p, -i, -o")
+
+    @patch('cellpyability.toolbox._ensure_cellprofiler_path')
+    @patch('cellpyability.toolbox.subprocess.run')
+    def test_cellprofiler_subprocess_failure_raises_execution_error(self, mock_subprocess_run, mock_cp_path):
+        """Test non-zero CellProfiler exit raises a descriptive execution error."""
+        mock_cp_path.return_value = '/usr/bin/cellprofiler'
+        mock_subprocess_run.side_effect = subprocess.CalledProcessError(
+            returncode=2,
+            cmd=['/usr/bin/cellprofiler'],
+            stderr='Pipeline failed due to malformed module settings'
+        )
+
+        import cellpyability.toolbox as tb
+
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base_dir = Path(tmpdir)
+            image_dir = base_dir / 'images'
+            image_dir.mkdir()
+
+            with self.assertRaises(tb.CellProfilerExecutionError) as exc_info:
+                tb.run_cellprofiler(str(image_dir), output_dir=str(base_dir))
+
+            error_message = str(exc_info.exception)
+            self.assertIn('exit code 2', error_message)
+            self.assertIn('Pipeline failed', error_message)
+
+    @patch('cellpyability.toolbox._ensure_cellprofiler_path')
+    @patch('cellpyability.toolbox.subprocess.run')
+    def test_cellprofiler_subprocess_failure_uses_stdout_when_stderr_empty(self, mock_subprocess_run, mock_cp_path):
+        """Test stdout is used in error message when stderr is empty."""
+        mock_cp_path.return_value = '/usr/bin/cellprofiler'
+        mock_subprocess_run.side_effect = subprocess.CalledProcessError(
+            returncode=3,
+            cmd=['/usr/bin/cellprofiler'],
+            output='Execution failed with pipeline parsing error',
+            stderr=''
+        )
+
+        import cellpyability.toolbox as tb
+
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base_dir = Path(tmpdir)
+            image_dir = base_dir / 'images'
+            image_dir.mkdir()
+
+            with self.assertRaises(tb.CellProfilerExecutionError) as exc_info:
+                tb.run_cellprofiler(str(image_dir), output_dir=str(base_dir))
+
+            error_message = str(exc_info.exception)
+            self.assertIn('exit code 3', error_message)
+            self.assertIn('pipeline parsing error', error_message)
 
 
 def main():

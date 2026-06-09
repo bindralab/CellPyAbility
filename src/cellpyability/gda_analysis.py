@@ -45,9 +45,8 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     # Run CellProfiler headless and return a DataFrame with the raw nuclei counts and the .csv path
     df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file, output_dir=output_dir)
     
-    # Load the CellProfiler counts into a DataFrame
-    df_cp.drop('ImageNumber', axis=1, inplace=True)
-    df_cp.columns = ['nuclei', 'well']
+    # Standardize CellProfiler counts columns
+    df_cp = tb.standardize_counts_dataframe(df_cp)
     
     # Rename rows from the TIFF file names to the corresponding well names
     df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x))
@@ -55,6 +54,10 @@ def run_gda(title_name, upper_name, lower_name, top_conc, dilution, image_dir, s
     
     # Extract row/column designators for pivoting
     df_cp[['Row','Column']] = df_cp['well'].str.extract(r'^([B-G])(\d+)$')
+    if df_cp[['Row', 'Column']].isnull().any().any():
+        raise tb.DataValidationError(
+            "Could not extract expected well coordinates (B-G, 2-11) from one or more filenames."
+        )
     logger.debug('Extracted Row and Column from well names.')
     
     # Pivot nuclei counts into a matrix for fast group stats

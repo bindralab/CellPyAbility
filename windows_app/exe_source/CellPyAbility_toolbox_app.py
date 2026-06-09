@@ -59,10 +59,10 @@ def establish_base():
 
     if not base_dir.exists():
         logger.critical(f'Base directory {base_dir} does not exist.')
-        exit(1)
+        raise RuntimeError(f'Base directory {base_dir} does not exist.')
     elif not os.access(base_dir, os.W_OK):
         logger.critical(f'Base directory {base_dir} is not writable.')
-        exit(1)
+        raise RuntimeError(f'Base directory {base_dir} is not writable.')
 
     logger.info(f'Base directory {base_dir} established ...')
     return base_dir
@@ -154,6 +154,40 @@ def get_cellprofiler_path():
 # Define cp_path
 cp_path = get_cellprofiler_path()
 
+
+def get_pipeline_path():
+    """Get CellProfiler pipeline path, supporting frozen and script modes."""
+    if getattr(sys, 'frozen', False):
+        meipass_dir = getattr(sys, '_MEIPASS', None)
+        if meipass_dir is None:
+            raise RuntimeError(
+                'Internal error: PyInstaller frozen mode detected but sys._MEIPASS attribute '
+                'is missing. This should not occur in properly built executables.'
+            )
+        pipeline_path = Path(meipass_dir) / 'CellPyAbility.cppipe'
+    else:
+        pipeline_path = Path(__file__).resolve().parent / 'CellPyAbility.cppipe'
+    if not pipeline_path.exists():
+        raise RuntimeError(f'CellPyAbility.cppipe not found at {pipeline_path}')
+    return pipeline_path.resolve()
+
+
+def get_output_base_dir():
+    """Get writable output root for GUI runs."""
+    output_base = base_dir / 'cellpyability_output'
+    output_base.mkdir(parents=True, exist_ok=True)
+    return output_base.resolve()
+
+
+def configure_cli_backend():
+    """
+    Configure environment so shared CLI backend behaves correctly in GUI/PyInstaller context.
+    """
+    os.environ['CELLPYABILITY_PIPELINE_PATH'] = str(get_pipeline_path())
+    os.environ['CELLPYABILITY_CONFIG_DIR'] = str(base_dir.resolve())
+    os.environ['CELLPYABILITY_CP_PATH'] = str(Path(get_cellprofiler_path()).resolve())
+    return get_output_base_dir()
+
 def dose_range_x(dose_max, dilution):
     dose_array = [dose_max]
     for i in range(8):
@@ -174,7 +208,7 @@ def dose_range_y(dose_max, dilution):
 # When ready to run, write 'df_cp = run_cellprofiler()'
 def run_cellprofiler(image_dir):
     ## Define the path to the pipeline (.cppipe)
-    cppipe_path = Path(sys._MEIPASS) / 'CellPyAbility.cppipe'
+    cppipe_path = get_pipeline_path()
 
     ## Define the folder where CellProfiler will output the .csv results
     cp_output_dir = base_dir / 'cp_output'
@@ -193,7 +227,7 @@ def run_cellprofiler(image_dir):
     else:
         logger.critical('CellProfiler output CellPyAbilityImage.csv does not exist in /cp_output/')
         logger.info('If CellPyAbility.cppipe is modified, make sure the output is still named CellPyAbilityImage.csv')
-        exit(1)
+        raise RuntimeError('CellProfiler output file CellPyAbilityImage.csv is missing.')
 
     # Load the CellProfiler counts into a DataFrame
     df_cp = pd.read_csv(cp_csv)

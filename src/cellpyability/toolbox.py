@@ -15,6 +15,26 @@ import numpy as np
 from scipy.optimize import curve_fit
 import shutil
 
+
+class CellPyAbilityError(Exception):
+    """Base exception for CellPyAbility."""
+
+
+class ConfigurationError(CellPyAbilityError):
+    """Raised when required configuration is missing or invalid."""
+
+
+class InputValidationError(CellPyAbilityError):
+    """Raised when user-provided inputs are invalid."""
+
+
+class CellProfilerExecutionError(CellPyAbilityError):
+    """Raised when CellProfiler subprocess execution fails."""
+
+
+class DataValidationError(CellPyAbilityError):
+    """Raised when expected data format/columns are not present."""
+
 def cellpyability_logger():
     """
     Creates and configures the CellPyAbility logger.
@@ -66,7 +86,7 @@ def establish_base():
     
     if not base_dir.exists():
         logger.critical(f'Package directory {base_dir} does not exist.')
-        exit(1)
+        raise ConfigurationError(f'Package directory {base_dir} does not exist.')
     
     logger.info(f'Package directory {base_dir} established ...')
     return base_dir
@@ -97,7 +117,7 @@ def get_output_base_dir(output_dir=None):
     # Verify it's writable
     if not os.access(output_base, os.W_OK):
         logger.critical(f'Output directory {output_base} is not writable.')
-        exit(1)
+        raise ConfigurationError(f'Output directory {output_base} is not writable.')
     
     logger.info(f'Output directory {output_base} established ...')
     return output_base
@@ -141,8 +161,19 @@ def get_cellprofiler_path():
     str or Path
         Path to the CellProfiler executable
     """
-    # Store CellProfiler path in current working directory
-    config_file = Path.cwd() / "cellprofiler_path.txt"
+    env_cp_path = os.getenv("CELLPYABILITY_CP_PATH")
+    if env_cp_path:
+        env_cp_path = Path(env_cp_path).expanduser().resolve()
+        if env_cp_path.exists():
+            logger.debug(f"Using CellProfiler path from CELLPYABILITY_CP_PATH: {env_cp_path}")
+            return str(env_cp_path)
+        raise ConfigurationError(
+            f"CELLPYABILITY_CP_PATH is set but does not exist: {env_cp_path}"
+        )
+
+    config_dir = Path(os.getenv("CELLPYABILITY_CONFIG_DIR", str(Path.cwd()))).expanduser().resolve()
+    config_dir.mkdir(parents=True, exist_ok=True)
+    config_file = config_dir / "cellprofiler_path.txt"
 
     if config_file.exists():
         with open(config_file, "r") as file:
@@ -214,6 +245,13 @@ def gen_dose_range(dose_max: float, dilution: float, num_doses: int) -> np.ndarr
     -----------
     dose_array : NumPy array
     """
+    if dose_max <= 0:
+        raise InputValidationError("Top concentration must be greater than 0.")
+    if dilution <= 1:
+        raise InputValidationError("Dilution factor must be greater than 1.")
+    if num_doses < 1:
+        raise InputValidationError("Number of doses must be at least 1.")
+
     # Calculate lowest dose directly to avoid accumulating error from float division
     dose_min = dose_max / (dilution ** (num_doses-1))
 
@@ -256,19 +294,22 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
         counts_path = Path(counts_file).resolve()
         if not counts_path.exists():
             logger.critical(f'Counts file {counts_file} does not exist.')
-            exit(1)
+            raise InputValidationError(f'Counts file {counts_file} does not exist.')
         logger.info(f'Using pre-existing counts file: {counts_file}')
         df_cp = pd.read_csv(counts_path)
         return df_cp, counts_path
     
     # Define the path to the CellProfiler pipeline (.cppipe) in the package directory
-    cppipe_path = base_dir / 'CellPyAbility.cppipe'
+    pipeline_env = os.getenv("CELLPYABILITY_PIPELINE_PATH")
+    cppipe_path = Path(pipeline_env).expanduser().resolve() if pipeline_env else (base_dir / 'CellPyAbility.cppipe')
     if cppipe_path.exists():
         logger.debug('CellProfiler pipeline exists in package directory ...')
     else:
         logger.critical('CellProfiler pipeline CellPyAbility.cppipe not found in package directory.')
         logger.info('If you are using a different pipeline, make sure it is named CellPyAbility.cppipe and is in the package directory.')
-        exit(1)
+        raise ConfigurationError(
+            f'CellProfiler pipeline CellPyAbility.cppipe not found: {cppipe_path}'
+        )
 
     ## Define the folder where CellProfiler will output the .csv results
     # Use the output directory structure for writable files
@@ -283,11 +324,17 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
     
     if not image_path_obj.exists():
         logger.critical(f"Image directory does not exist: {image_path_obj}")
-        exit(1)
+        raise InputValidationError(f"Image directory does not exist: {image_path_obj}")
         
     # We also ensure the pipeline path and output dir are absolute resolved paths
     cppipe_path_obj = cppipe_path.resolve()
     cp_output_obj = cp_output_dir.resolve()
+    cp_csv = cp_output_dir / 'CellPyAbilityImage.csv'
+
+    # Prevent stale output reuse across failed runs
+    if cp_csv.exists():
+        cp_csv.unlink()
+        logger.debug(f'Removed existing stale CellProfiler output: {cp_csv}')
 
     # Run CellProfiler from the command line
     logger.debug('Starting CellProfiler from command line ...')
@@ -295,23 +342,37 @@ def run_cellprofiler(image_dir, counts_file=None, output_dir=None):
     
     # We explicitly convert paths to str() here
     # Subprocess command receives clean string paths formatted for host OS
-    subprocess.run([
-        cp_exe, 
-        '-c', '-r', 
-        '-p', str(cppipe_path_obj), 
-        '-i', str(image_path_obj), 
+    command = [
+        cp_exe,
+        '-c', '-r',
+        '-p', str(cppipe_path_obj),
+        '-i', str(image_path_obj),
         '-o', str(cp_output_obj)
-    ])
+    ]
+    try:
+        subprocess.run(command, check=True, capture_output=True, text=True, timeout=3600)
+    except subprocess.TimeoutExpired as e:
+        logger.error('CellProfiler execution timed out.')
+        raise CellProfilerExecutionError('CellProfiler timed out after 3600 seconds.') from e
+    except subprocess.CalledProcessError as e:
+        logger.error(f'CellProfiler execution failed with return code {e.returncode}.')
+        stderr = (e.stderr or "").strip()
+        stdout = (e.stdout or "").strip()
+        details = stderr if stderr else stdout
+        raise CellProfilerExecutionError(
+            f"CellProfiler failed (exit code {e.returncode}). {details}".strip()
+        ) from e
     logger.info('CellProfiler nuclei counting complete.')
 
     # Define the path to the CellProfiler counting output
-    cp_csv = cp_output_dir / 'CellPyAbilityImage.csv'
     if cp_csv.exists():
         logger.debug('CellPyAbilityImage.csv exists in /cp_output/ ...')
     else:
         logger.critical('CellProfiler output CellPyAbilityImage.csv does not exist in /cp_output/')
         logger.info('If CellPyAbility.cppipe is modified, make sure the output is still named CellPyAbilityImage.csv')
-        exit(1)
+        raise CellProfilerExecutionError(
+            'CellProfiler completed but expected output CellPyAbilityImage.csv was not created.'
+        )
 
     # Load the CellProfiler counts into a DataFrame
     df_cp = pd.read_csv(cp_csv)
@@ -332,6 +393,60 @@ def rename_wells(tiff_name):
         return f"{row}{col}"
         
     return tiff_name
+
+
+def standardize_counts_dataframe(df_cp):
+    """
+    Standardize CellProfiler counts data to ['nuclei', 'well'].
+    """
+    columns = list(df_cp.columns)
+    if {'nuclei', 'well'}.issubset(columns):
+        return df_cp[['nuclei', 'well']].copy()
+
+    if 'ImageNumber' not in columns:
+        raise DataValidationError(
+            "Counts file must include either ['nuclei','well'] columns or "
+            "'ImageNumber' plus count and filename/well columns."
+        )
+
+    count_candidates = ['Count_Nuclei', 'count_nuclei', 'Nuclei', 'nuclei']
+    well_candidates = ['FileName_DAPI', 'FileName', 'well']
+
+    count_col = next((c for c in count_candidates if c in columns), None)
+    well_col = next((c for c in well_candidates if c in columns), None)
+
+    if count_col is None or well_col is None:
+        non_image_cols = [c for c in columns if c != 'ImageNumber']
+        numeric_cols = [
+            c for c in non_image_cols if pd.api.types.is_numeric_dtype(df_cp[c])
+        ]
+        if count_col is None and numeric_cols:
+            count_col = numeric_cols[0]
+            logger.warning(
+                f"Inferred nuclei count column '{count_col}' using numeric-column heuristic."
+            )
+        if well_col is None:
+            remaining = [c for c in non_image_cols if c != count_col]
+            if remaining:
+                well_col = remaining[0]
+                logger.warning(
+                    f"Inferred well identifier column '{well_col}' using fallback heuristic."
+                )
+
+    if count_col is None or well_col is None:
+        raise DataValidationError(
+            f"Unable to infer required count/well columns from: {columns}"
+        )
+
+    standardized = df_cp[[count_col, well_col]].copy()
+    standardized.columns = ['nuclei', 'well']
+
+    if standardized['nuclei'].isna().any():
+        raise DataValidationError('Nuclei count column contains missing values.')
+    if standardized['well'].isna().any():
+        raise DataValidationError('Well identifier column contains missing values.')
+
+    return standardized
 
 def rename_counts(cp_csv, counts_csv):
     """
@@ -461,7 +576,7 @@ def fit_response_curve(x, y, name):
              # Hill parameter index 1 is EC50
              ic50 = popt[1] 
              return x_plot, hill(x_plot, *popt), ic50
-        except:
+        except (RuntimeError, ValueError, ArithmeticError, OverflowError):
              logger.warning(f"Could not fit {name}. Returning connect-the-dots")
              # Return straight lines between points if fit fails
              return x, y, np.nan

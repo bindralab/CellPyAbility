@@ -5,6 +5,26 @@ All notable changes to CellPyAbility will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-06-09
+
+### Added
+- Shared version source in `src/cellpyability/_version.py` and dynamic package versioning in `pyproject.toml`.
+- Data schema validation helper for CellProfiler/counts CSV normalization.
+- Windows GUI backend configuration helper to route GUI runs through shared CLI analysis logic while keeping PyInstaller `_MEIPASS` pipeline handling.
+
+### Changed
+- Windows `.exe` module backends now call shared CLI analysis implementations for GDA, synergy, and simple workflows.
+- GUI runs now default to `cellpyability_output/` output structure consistent with CLI behavior.
+- CLI version output now resolves from package version source of truth.
+
+### Fixed
+- CellProfiler subprocess execution now fails fast on non-zero return code.
+- Stale `CellPyAbilityImage.csv` reuse is prevented by cleaning old output before each CellProfiler run.
+- Internal reusable logic now raises explicit exceptions instead of hard process exits.
+- Dose input validation is enforced (`top_conc > 0`, `dilution > 1`, `num_doses >= 1`).
+- Bare exception handling removed in curve fitting fallback path.
+- Synergy docstring updated to correctly reflect 180-image input expectation.
+
 ## [0.1.0] - 2025-12-20
 
 ### Added
@@ -71,5 +91,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Windows application packaging
 - CellProfiler integration
 
+[0.1.1]: https://github.com/bindralab/CellPyAbility/releases/tag/v0.1.1
 [0.1.0]: https://github.com/bindralab/CellPyAbility/releases/tag/v0.1.0
 [0.0.1]: https://github.com/bindralab/CellPyAbility/releases/tag/v0.0.1

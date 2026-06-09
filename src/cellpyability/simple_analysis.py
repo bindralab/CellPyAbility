@@ -28,15 +28,18 @@ def run_simple(title, image_dir, counts_file=None, output_dir=None):
     # Run CellProfiler via the command line
     df_cp, cp_csv = tb.run_cellprofiler(image_dir, counts_file=counts_file, output_dir=output_dir)
     
-    # Clean up DataFrame columns
-    df_cp.drop(columns='ImageNumber', inplace=True)
-    df_cp.columns = ['nuclei', 'well']
+    # Standardize CellProfiler counts columns
+    df_cp = tb.standardize_counts_dataframe(df_cp)
     
     # Rename wells to e.g. B10 format
     df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x))
     
     # Extract row/column
     df_cp[['Row','Column']] = df_cp['well'].str.extract(r'^([B-G])(\d+)$')
+    if df_cp[['Row', 'Column']].isnull().any().any():
+        raise tb.DataValidationError(
+            "Could not extract expected well coordinates (B-G, 2-11) from one or more filenames."
+        )
     
     # Pivot df_cp so it matches a 96-well layout (nuclei count matrix)
     row_labels = ['B','C','D','E','F','G']

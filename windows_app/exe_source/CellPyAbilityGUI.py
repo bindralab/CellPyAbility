@@ -92,14 +92,20 @@ def run_script(script_number):
     global root
     root.destroy() # Close window after choosing script
     
-    if script_number == 1:
-        CellPyAbility_GDA_app.run()
-    elif script_number == 2:
-        CellPyAbility_synergy_app.run()
-    elif script_number == 3:
-        CellPyAbility_simple_app.run()
-    else:
-        print("Invalid script selection.") # Vestigial given the GUI but will leave it for now
+    try:
+        if script_number == 1:
+            CellPyAbility_GDA_app.run()
+        elif script_number == 2:
+            CellPyAbility_synergy_app.run()
+        elif script_number == 3:
+            CellPyAbility_simple_app.run()
+        else:
+            raise ValueError("Invalid script selection.")
+    except Exception as e:
+        temp_root = tk.Tk()
+        temp_root.withdraw()
+        messagebox.showerror("CellPyAbility Error", str(e))
+        temp_root.destroy()
     
     # Ask user if they wish to perform an additonal analysis
     temp_root = tk.Tk()

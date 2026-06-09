@@ -1,65 +1,65 @@
+"""Windows GUI wrapper for simple analysis using shared CLI backend logic."""
+
+import sys
 import tkinter as tk
+from pathlib import Path
 from tkinter import filedialog, ttk
 
 import CellPyAbility_toolbox_app as tb
 
-def run():
-    # Initialize toolbox
-    logger, base_dir = tb.logger, tb.base_dir
+if not getattr(sys, "frozen", False):
+    repo_src = Path(__file__).resolve().parents[2] / "src"
+    if str(repo_src) not in sys.path:
+        sys.path.insert(0, str(repo_src))
 
-    # Establish the GUI for experiment info
+from cellpyability import simple_analysis
+
+
+def run():
+    logger = tb.logger
+
     def simple_gui():
         root = tk.Tk()
-        root.title('GDA input')
+        root.title('Simple input')
 
         ttk.Label(root, text='Experiment title:').pack()
-        title_entry = ttk.Entry(root); title_entry.pack()
+        title_entry = ttk.Entry(root)
+        title_entry.pack()
 
         image_dir = ''
-        def select_dir(): 
+
+        def select_dir():
             nonlocal image_dir
             image_dir = filedialog.askdirectory()
+
         ttk.Button(root, text='Select images…', command=select_dir).pack()
 
         inputs = {}
+
         def on_submit():
-            inputs['title'] = title_entry.get()
+            inputs['title'] = title_entry.get().strip()
             inputs['image_dir'] = image_dir
             root.destroy()
+
         ttk.Button(root, text='Submit', command=on_submit).pack()
         root.mainloop()
         return inputs
 
-    # Run the GUI and assign inputs to variables
     gui = simple_gui()
-    title = gui['title']
-    imgdir = gui['image_dir']
+    required_fields = ['title', 'image_dir']
+    missing_fields = [field for field in required_fields if not gui.get(field)]
+    if missing_fields:
+        raise ValueError(f"Missing required input(s): {', '.join(missing_fields)}")
 
-    # Run CellProfiler via the command line
-    df_cp, cp_csv = tb.run_cellprofiler(imgdir)
-    df_cp.drop(columns='ImageNumber', inplace=True)
-    df_cp.columns = ['nuclei','well']
+    output_base = tb.configure_cli_backend()
+    logger.debug('Configured shared CLI backend for simple GUI run.')
 
-    # Rename wells and define row/column names
-    df_cp['well'] = df_cp['well'].apply(lambda x: tb.rename_wells(x, tb.wells))
-    df_cp[['Row','Column']] = df_cp['well'].str.extract(r'^([B-G])(\d+)$')
-
-    # Pivot df_cp so it matches a 96-well layout (nuclei count matrix)
-    row_labels = ['B','C','D','E','F','G']
-    column_labels = [str(i) for i in range(2,12)]
-    count_matrix = (
-        df_cp
-        .pivot(index='Row', columns='Column', values='nuclei')
-        .reindex(index=row_labels, columns=column_labels)
+    simple_analysis.run_simple(
+        title=gui['title'],
+        image_dir=gui['image_dir'],
+        output_dir=str(output_base)
     )
 
-    # Define or create and define CellPyAbility/simple_output/ directory
-    outdir = base_dir / 'simple_output'
-    outdir.mkdir(exist_ok=True)
-
-    # Save the count matrix to the simple_output directory
-    count_matrix.to_csv(outdir / f'{title}_simple_CountMatrix.csv')
-    logger.info(f"Saved count matrix for '{title}' to {outdir}")
 
 if __name__ == '__main__':
     run()

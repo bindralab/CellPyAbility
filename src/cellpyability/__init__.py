@@ -8,7 +8,7 @@ via nuclei counting. It provides three modules:
 - simple: raw nuclei count matrix in 96-well format
 """
 
-__version__ = "0.1.0"
+from ._version import __version__
 __author__ = "James Elia"
 __email__ = "james.elia@yale.edu"
 

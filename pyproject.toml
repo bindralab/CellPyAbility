@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cellpyability"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Open-source cell viability and dose-response analysis tool"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -57,6 +57,9 @@ include = ["cellpyability*"]
 
 [tool.setuptools.package-data]
 cellpyability = ["*.cppipe"]
+
+[tool.setuptools.dynamic]
+version = {attr = "cellpyability._version.__version__"}
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

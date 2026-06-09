@@ -9,7 +9,9 @@ This module provides CLI commands to run the three main modules:
 
 import argparse
 import sys
-from pathlib import Path
+
+from ._version import __version__
+from .toolbox import CellPyAbilityError
 
 
 def create_parser():
@@ -22,7 +24,7 @@ def create_parser():
     parser.add_argument(
         '--version',
         action='version',
-        version='%(prog)s 0.1.0'
+        version=f'%(prog)s {__version__}'
     )
     
     subparsers = parser.add_subparsers(
@@ -246,6 +248,9 @@ def main():
         else:
             parser.print_help()
             sys.exit(1)
+    except CellPyAbilityError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
