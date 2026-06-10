@@ -1,6 +1,6 @@
 CellProfiler Pipeline: http://www.cellprofiler.org
 Version:5
-DateRevision:425
+DateRevision:428
 GitHash:
 ModuleCount:8
 HasImagePlaneDetails:False
@@ -53,7 +53,7 @@ Groups:[module_num:4|svn_version:'Unknown'|variable_revision_number:2|show_windo
     grouping metadata count:1
     Metadata category:None
 
-Crop:[module_num:5|svn_version:'Unknown'|variable_revision_number:3|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+Crop:[module_num:5|svn_version:'Unknown'|variable_revision_number:3|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:images
     Name the output image:crop
     Select the cropping shape:Ellipse
@@ -69,7 +69,7 @@ Crop:[module_num:5|svn_version:'Unknown'|variable_revision_number:3|show_window:
     Select the image with a cropping mask:None
     Select the objects:None
 
-EnhanceOrSuppressFeatures:[module_num:6|svn_version:'Unknown'|variable_revision_number:7|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+EnhanceOrSuppressFeatures:[module_num:6|svn_version:'Unknown'|variable_revision_number:7|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:crop
     Name the output image:enhance
     Select the operation:Enhance
@@ -83,10 +83,10 @@ EnhanceOrSuppressFeatures:[module_num:6|svn_version:'Unknown'|variable_revision_
     Speed and accuracy:Slow
     Rescale result image:No
 
-IdentifyPrimaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+IdentifyPrimaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_number:15|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:enhance
     Name the primary objects to be identified:nuclei
-    Typical diameter of objects, in pixel units (Min,Max):3,10
+    Typical diameter of objects, in pixel units (Min,Max):2,8
     Discard objects outside the diameter range?:Yes
     Discard objects touching the border of the image?:Yes
     Method to distinguish clumped objects:Intensity
@@ -108,7 +108,7 @@ IdentifyPrimaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_num
     Lower and upper bounds on threshold:0.05,1.0
     Manual threshold:0.0
     Select the measurement to threshold with:None
-    Two-class or three-class thresholding?:Two classes
+    Two-class or three-class thresholding?:Three classes
     Log transform before thresholding?:No
     Assign pixels in the middle intensity class to the foreground or the background?:Foreground
     Size of adaptive window:50
@@ -119,7 +119,7 @@ IdentifyPrimaryObjects:[module_num:7|svn_version:'Unknown'|variable_revision_num
     # of deviations:2.0
     Thresholding method:Minimum Cross-Entropy
 
-ExportToSpreadsheet:[module_num:8|svn_version:'Unknown'|variable_revision_number:13|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+ExportToSpreadsheet:[module_num:8|svn_version:'Unknown'|variable_revision_number:13|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the column delimiter:Comma (",")
     Add image metadata columns to your object data file?:No
     Add image file and folder names to your object data file?:No

@@ -8,6 +8,7 @@ import logging
 import os
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -39,7 +40,9 @@ def cellpyability_logger():
     """
     Creates and configures the CellPyAbility logger.
     
-    Logs all messages (DEBUG and above) to cellpyability.log in current working directory.
+    Logs all messages (DEBUG and above) to cellpyability.log.
+    In frozen mode (Windows .exe), logs to the directory containing the executable.
+    In script mode, logs to the current working directory.
     Logs INFO and above to console output.
     
     Returns:
@@ -54,10 +57,24 @@ def cellpyability_logger():
     if logger.hasHandlers():
         return logger
 
-    # Create a cellpyability.log file in current working directory (PyPI-compatible)
-    log_file = Path.cwd() / "cellpyability.log"
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.DEBUG)
+    # Determine log file path
+    if getattr(sys, 'frozen', False):
+        # Bundled executable - log in the same directory as the .exe
+        log_dir = Path(sys.executable).resolve().parent
+    else:
+        # Script mode - log in current working directory
+        log_dir = Path.cwd()
+        
+    log_file = log_dir / "cellpyability.log"
+    
+    try:
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.DEBUG)
+    except (PermissionError, IOError):
+        # Fallback to current working directory if executable dir is not writable
+        log_file = Path.cwd() / "cellpyability.log"
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.DEBUG)
 
     # Only log >= INFO messages in the terminal
     ch = logging.StreamHandler()
@@ -72,7 +89,7 @@ def cellpyability_logger():
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-    logger.debug('Logger setup complete.')
+    logger.debug(f'Logger setup complete. Logging to: {log_file}')
     return logger
 
 # Define logger so it can be referenced in later functions
@@ -141,11 +158,43 @@ def prompt_path():
     """
     Prompt user to enter the CellProfiler executable path.
     
+    In GUI/frozen mode, uses a tkinter file dialog.
+    In CLI mode, uses a terminal prompt.
+    
     Returns:
     --------
     str
         User-provided path with quotes and whitespace stripped
     """
+    if getattr(sys, 'frozen', False):
+        import tkinter as tk
+        from tkinter import filedialog, simpledialog
+        
+        # Create a hidden root window
+        root = tk.Tk()
+        root.withdraw()
+        logger.debug('Hidden tkinter window created for path prompt')
+
+        # Prompt the user to pick the CellProfiler executable via a file dialog
+        path = filedialog.askopenfilename(
+            title="Select your CellProfiler executable",
+            filetypes=[("Executables", "*.exe" if os.name == "nt" else "*"), ("All files", "*.*")]
+        )
+
+        # If they hit “Cancel” (empty string), fall back to a simple text prompt
+        if not path:
+            path = simpledialog.askstring(
+                title="Enter CellProfiler Path",
+                prompt="Could not pick a file. Please type the full path to CellProfiler:"
+            )
+
+        root.destroy()
+        if path:
+            return path.strip().strip('"').strip("'")
+        else:
+            logger.critical('No CellProfiler path provided in GUI prompt')
+            raise ConfigurationError('No path provided for CellProfiler executable')
+
     return input("Enter the path to the CellProfiler program: ").strip().strip('"').strip("'")
 
 def get_cellprofiler_path():
@@ -398,49 +447,67 @@ def rename_wells(tiff_name):
 def standardize_counts_dataframe(df_cp):
     """
     Standardize CellProfiler counts data to ['nuclei', 'well'].
+    
+    Verifies that the required data is present and attempts to map various
+    possible CellProfiler output column names to a standard format.
+    
+    Raises:
+    -------
+    DataValidationError
+        If the required columns cannot be found or the dataframe is empty.
     """
+    if df_cp.empty:
+        raise DataValidationError("The provided counts data is empty.")
+
     columns = list(df_cp.columns)
+    
+    # If already standardized, return a copy of the required columns
     if {'nuclei', 'well'}.issubset(columns):
         return df_cp[['nuclei', 'well']].copy()
 
-    if 'ImageNumber' not in columns:
-        raise DataValidationError(
-            "Counts file must include either ['nuclei','well'] columns or "
-            "'ImageNumber' plus count and filename/well columns."
-        )
-
+    # Identify count column
     count_candidates = ['Count_Nuclei', 'count_nuclei', 'Nuclei', 'nuclei']
-    well_candidates = ['FileName_DAPI', 'FileName', 'well']
-
     count_col = next((c for c in count_candidates if c in columns), None)
+    
+    # Identify well/filename column
+    well_candidates = ['FileName_DAPI', 'FileName_DNA', 'FileName', 'well']
     well_col = next((c for c in well_candidates if c in columns), None)
 
+    # Heuristics for missing columns
     if count_col is None or well_col is None:
         non_image_cols = [c for c in columns if c != 'ImageNumber']
-        numeric_cols = [
-            c for c in non_image_cols if pd.api.types.is_numeric_dtype(df_cp[c])
-        ]
-        if count_col is None and numeric_cols:
-            count_col = numeric_cols[0]
-            logger.warning(
-                f"Inferred nuclei count column '{count_col}' using numeric-column heuristic."
-            )
+        
+        # Inference for count column
+        if count_col is None:
+            numeric_cols = [
+                c for c in non_image_cols if pd.api.types.is_numeric_dtype(df_cp[c])
+            ]
+            if numeric_cols:
+                count_col = numeric_cols[0]
+                logger.warning(
+                    f"Count column not found by name. Inferred '{count_col}' as nuclei count column."
+                )
+
+        # Inference for well column
         if well_col is None:
             remaining = [c for c in non_image_cols if c != count_col]
             if remaining:
                 well_col = remaining[0]
                 logger.warning(
-                    f"Inferred well identifier column '{well_col}' using fallback heuristic."
+                    f"Well/FileName column not found by name. Inferred '{well_col}' as well identifier."
                 )
 
     if count_col is None or well_col is None:
         raise DataValidationError(
-            f"Unable to infer required count/well columns from: {columns}"
+            f"Could not identify required columns in counts file. Found: {columns}. "
+            "Expected columns like 'Count_Nuclei' and 'FileName_DAPI'."
         )
 
+    # Standardize and copy
     standardized = df_cp[[count_col, well_col]].copy()
     standardized.columns = ['nuclei', 'well']
 
+    # Final validation of contents
     if standardized['nuclei'].isna().any():
         raise DataValidationError('Nuclei count column contains missing values.')
     if standardized['well'].isna().any():

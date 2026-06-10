@@ -5,19 +5,12 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, ttk
 
-import CellPyAbility_toolbox_app as tb
-
-if not getattr(sys, "frozen", False):
-    repo_src = Path(__file__).resolve().parents[2] / "src"
-    if str(repo_src) not in sys.path:
-        sys.path.insert(0, str(repo_src))
-
+import CellPyAbility_toolbox_app as tb_gui
 from cellpyability import synergy_analysis
+from cellpyability.toolbox import logger
 
 
 def run():
-    logger = tb.logger
-
     def synergy_gui():
         image_dir = ''
 
@@ -67,7 +60,7 @@ def run():
     if missing_fields:
         raise ValueError(f"Missing required input(s): {', '.join(missing_fields)}")
 
-    output_base = tb.configure_cli_backend()
+    output_base = tb_gui.configure_cli_backend()
     logger.debug('Configured shared CLI backend for synergy GUI run.')
 
     synergy_analysis.run_synergy(
